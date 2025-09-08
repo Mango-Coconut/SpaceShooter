@@ -5,7 +5,7 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
     public float damage = 20;
-    public float force = 1500;
+    public float force = 3000;
 
     private Rigidbody rb;
     void Awake()
@@ -17,5 +17,7 @@ public class BulletController : MonoBehaviour
     {
         rb.AddForce(transform.forward * force);
     }
-
+    private void OnCollisionEnter(Collision other) {
+        Destroy(gameObject);
+    }
 }

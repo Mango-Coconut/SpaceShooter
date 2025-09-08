@@ -1919,6 +1919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Bullet: {fileID: 8275824315985315568, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
   firePos: {fileID: 1081967013}
+  delay: 0.05
 --- !u!1001 &1340199822
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2157,7 +2158,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8275824315985315582, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5
+      value: 6.943
       objectReference: {fileID: 0}
     - target: {fileID: 8275824315985315582, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2185,6 +2186,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8275824315985315582, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8275824315985315583, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
+      propertyPath: m_Mass
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8275824315985315583, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
+      propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

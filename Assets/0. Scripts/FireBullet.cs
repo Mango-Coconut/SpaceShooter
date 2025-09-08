@@ -6,7 +6,7 @@ public class FireBullet : MonoBehaviour
 {
     [SerializeField] private GameObject Bullet;
     [SerializeField] private Transform firePos;
-    private float delay = 0.1f;
+    [SerializeField] private float delay = 0.1f;
     private float timer = 0;
 
     void Update()
