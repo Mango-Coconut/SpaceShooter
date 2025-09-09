@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 5;
-    [SerializeField] float turnSpeed = 180;
+    [SerializeField] float turnSpeed = 360;
     Animation anim;
     void Awake()
     {

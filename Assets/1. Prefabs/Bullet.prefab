@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8275824315985315582}
   - component: {fileID: 8275824315985315581}
   - component: {fileID: 8275824315985315583}
-  - component: {fileID: 8275824315985315580}
+  - component: {fileID: 9100415795589256050}
   - component: {fileID: 8275824316830271705}
   m_Layer: 0
   m_Name: Bullet
@@ -48,6 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24131871337dba848a8d544c65141283, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sparkEffect: {fileID: 1000011945391522, guid: 78b71003e8b357d4bbf89c8b5e5e4f0e, type: 3}
   damage: 20
   force: 1000
 --- !u!54 &8275824315985315583
@@ -65,9 +66,9 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!135 &8275824315985315580
-SphereCollider:
+  m_CollisionDetection: 2
+--- !u!136 &9100415795589256050
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -76,9 +77,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
   m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0.1}
+  m_Height: 0.5
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!96 &8275824316830271705
 TrailRenderer:
   serializedVersion: 2

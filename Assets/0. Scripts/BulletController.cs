@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BulletController : MonoBehaviour
 {
+    public GameObject sparkEffect;
     public float damage = 20;
     public float force = 3000;
 
@@ -18,6 +19,9 @@ public class BulletController : MonoBehaviour
         rb.AddForce(transform.forward * force);
     }
     private void OnCollisionEnter(Collision other) {
+        ContactPoint cp = other.GetContact(0);
+        Quaternion rot = Quaternion.LookRotation(cp.normal);
+        Instantiate(sparkEffect, cp.point, rot);
         Destroy(gameObject);
     }
 }

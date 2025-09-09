@@ -27,6 +27,6 @@ public class FollowCam : MonoBehaviour
 
         cam.position = Vector3.SmoothDamp(cam.position, pos, ref velocity, Time.deltaTime*damping);
 
-        cam.LookAt(target.position);
+        cam.LookAt(target.position + Vector3.up * 1.5f);
     }
 }
