@@ -16,7 +16,7 @@ public class BulletController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rb.AddForce(transform.forward * force);
+        rb.AddForce(transform.forward * force, ForceMode.Impulse);
     }
     private void OnCollisionEnter(Collision other) {
         ContactPoint cp = other.GetContact(0);
