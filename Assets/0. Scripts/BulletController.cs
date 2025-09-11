@@ -5,9 +5,9 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
     public GameObject sparkEffect;
-    public float damage = 20;
-    public float force = 3000;
-
+    public float damage;
+    public float force;
+    public float exploreRadius = 10f;
     private Rigidbody rb;
     void Awake()
     {
