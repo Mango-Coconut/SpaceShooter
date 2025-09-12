@@ -51,6 +51,7 @@ MonoBehaviour:
   sparkEffect: {fileID: 1000011945391522, guid: 78b71003e8b357d4bbf89c8b5e5e4f0e, type: 3}
   damage: 20
   force: 2
+  exploreRadius: 10
 --- !u!54 &8275824315985315583
 Rigidbody:
   m_ObjectHideFlags: 0

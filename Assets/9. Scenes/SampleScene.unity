@@ -2148,6 +2148,7 @@ MonoBehaviour:
   Bullet: {fileID: 8275824315985315568, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
   firePos: {fileID: 1081967013}
   delay: 0.15
+  fireSfx: {fileID: 8300000, guid: 3988c7241ff434c2a900f22726ee7a08, type: 3}
 --- !u!1001 &1161111575
 PrefabInstance:
   m_ObjectHideFlags: 0

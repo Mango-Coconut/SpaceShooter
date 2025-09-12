@@ -37,10 +37,11 @@ public class Barrels : MonoBehaviour
         Instantiate(explosionVFX, transform.position, Quaternion.identity);
         rb.AddForce(Vector3.up * 700f, ForceMode.Impulse);
         rb.AddTorque(Random.onUnitSphere * 100f, ForceMode.Impulse);
-        OtherExplosion(transform.position);
+        StartCoroutine(OtherExplosion(transform.position));
     }
-    void OtherExplosion(Vector3 pos)
+    IEnumerator OtherExplosion(Vector3 pos)
     {
+        yield return new WaitForSeconds(0.2f);
         Collider[] colls = Physics.OverlapSphere(pos, exploreRadius, 1 << 3);
         foreach (var coll in colls)
         {
