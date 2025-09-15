@@ -10,10 +10,13 @@ public class FireBullet : MonoBehaviour
     private float timer = 0;
     [SerializeField] AudioClip fireSfx;
     private new AudioSource audio;
+    MeshRenderer muzzleFlash;
 
     void Awake()
     {
         audio = GetComponent<AudioSource>();
+        muzzleFlash = firePos.GetComponentInChildren<MeshRenderer>();
+        muzzleFlash.enabled = false;
     }
     void Update()
     {
@@ -28,5 +31,16 @@ public class FireBullet : MonoBehaviour
     {
         Instantiate(Bullet, firePos.position, firePos.rotation);
         audio.PlayOneShot(fireSfx, 1.0f);
+        StartCoroutine(ShowMuzzleFlash());
+    }
+
+    IEnumerator ShowMuzzleFlash()
+    {
+        muzzleFlash.material.mainTextureOffset = new Vector2(Random.Range(0,2), Random.Range(0,2))*0.5f;
+        muzzleFlash.transform.localRotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
+        muzzleFlash.transform.localScale = Vector3.one * Random.Range(0.5f, 1.0f);
+        muzzleFlash.enabled = true;
+        yield return new WaitForSeconds(0.2f);
+        muzzleFlash.enabled = false;
     }
 }
