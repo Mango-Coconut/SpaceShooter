@@ -1584,8 +1584,8 @@ ModelImporter:
     - boneName: L_arm
       humanName: LeftUpperArm
       limit:
-        min: {x: -90, y: -100, z: -100}
-        max: {x: 90, y: 100, z: 100}
+        min: {x: -90, y: -100, z: -20}
+        max: {x: 90, y: 100, z: 180}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
