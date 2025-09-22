@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime;
 using System.Runtime.InteropServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -11,6 +13,9 @@ public class MonsterController : MonoBehaviour
     {
         IDLE, TRACE, ATTACK, DIE
     }
+    readonly int hashTrace = Animator.StringToHash("IsTrace");
+    readonly int hashAttack = Animator.StringToHash("IsAttack");
+    readonly int hashHit = Animator.StringToHash("Hit");
     public State state = State.IDLE;
     public float traceDist = 10;
     public float attackDist = 2;
@@ -36,12 +41,13 @@ public class MonsterController : MonoBehaviour
         StartCoroutine(MonsterAction());
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
+    private void OnCollisionEnter(Collision other) {
+        if (other.gameObject.CompareTag("Bullet"))
+        {
+            Destroy(other.gameObject);
+            anim.SetTrigger(hashHit);
+        }
     }
-
     IEnumerator MonsterAction()
     {
         while (!isDie)
@@ -50,16 +56,18 @@ public class MonsterController : MonoBehaviour
             {
                 case State.IDLE:
                     agent.isStopped = true;
-                    anim.SetBool("IsTrace", false);
+                    anim.SetBool(hashTrace, false);
                     break;
 
                 case State.TRACE:
                     agent.SetDestination(target.position);
                     agent.isStopped = false;
-                    anim.SetBool("IsTrace", true);
+                    anim.SetBool(hashTrace, true);
+                    anim.SetBool(hashAttack, false);
                     break;
 
                 case State.ATTACK:
+                    anim.SetBool(hashAttack, true);
                     break;
 
                 case State.DIE:
