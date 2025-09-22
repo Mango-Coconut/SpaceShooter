@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    bool ispick = false;
     [SerializeField] float moveSpeed = 5;
     [SerializeField] float turnSpeed = 360;
     Animation anim;
@@ -28,12 +29,19 @@ public class PlayerController : MonoBehaviour
         float v = Input.GetAxis("Vertical");
         float r = Input.GetAxis("Mouse X");
         PlayerMoveAnim(h, v);
+        if (ispick) return;
         Vector3 moveDir = (Vector3.forward * v) + (Vector3.right * h);
         gameObject.transform.Translate(moveDir.normalized * moveSpeed * Time.deltaTime);
         gameObject.transform.Rotate(Vector3.up * r * turnSpeed * Time.deltaTime);
     }
     void PlayerMoveAnim(float h, float v)
     {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            ispick = true;
+            anim.CrossFade("Picking Up", 0.25f);
+        }
+        if (ispick) return;
         if (v >= 0.1f)
         {
             anim.CrossFade("RunF", 0.25f);
@@ -54,5 +62,9 @@ public class PlayerController : MonoBehaviour
         {
             anim.CrossFade("Idle", 0.25f);
         }
+    }
+    public void disablePickUp()
+    {
+        ispick = false;
     }
 }
