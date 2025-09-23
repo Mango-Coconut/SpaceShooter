@@ -6,8 +6,6 @@ public class FireBullet : MonoBehaviour
 {
     [SerializeField] private GameObject Bullet;
     [SerializeField] private Transform firePos;
-    [SerializeField] private float delay = 0.1f;
-    private float timer = 0;
     [SerializeField] AudioClip fireSfx;
     private new AudioSource audio;
     MeshRenderer muzzleFlash;
@@ -18,19 +16,11 @@ public class FireBullet : MonoBehaviour
         muzzleFlash = firePos.GetComponentInChildren<MeshRenderer>();
         muzzleFlash.enabled = false;
     }
-    void Update()
-    {
-        timer += Time.deltaTime;
-        if (timer > delay && Input.GetMouseButton(0))
-        {
-            timer = 0;
-            Fire();
-        }
-    }
-    private void Fire()
+    public void Fire()
     {
         Instantiate(Bullet, firePos.position, firePos.rotation);
         audio.PlayOneShot(fireSfx, 1.0f);
+        
         StartCoroutine(ShowMuzzleFlash());
     }
 

@@ -8,6 +8,7 @@ TagManager:
   - Barrel
   - Item
   - Items
+  - MonsterAttack
   layers:
   - Default
   - TransparentFX

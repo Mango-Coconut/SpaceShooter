@@ -21,9 +21,11 @@ public class MonsterController : MonoBehaviour
     public float attackDist = 2;
     public bool isDie = false;
 
+
     Transform tr;
     //TODO 타겟 관리 방법 바꾸기
     [SerializeField] Transform target;
+    [SerializeField] GameObject bloodEffect;
     NavMeshAgent agent;
     Animator anim;
 
@@ -46,6 +48,10 @@ public class MonsterController : MonoBehaviour
         {
             Destroy(other.gameObject);
             anim.SetTrigger(hashHit);
+            Vector3 pos = other.GetContact(0).point;
+            Quaternion rot = Quaternion.LookRotation(-other.GetContact(0).normal);
+            GameObject blood = Instantiate(bloodEffect, pos, rot, transform);
+            Destroy(blood, 1);
         }
     }
     IEnumerator MonsterAction()
