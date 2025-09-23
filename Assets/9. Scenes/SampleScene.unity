@@ -4599,7 +4599,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1079746669}
   - component: {fileID: 1089791396}
-  - component: {fileID: 1089791395}
+  - component: {fileID: 1089791398}
   - component: {fileID: 1012882841}
   - component: {fileID: 1012882838}
   - component: {fileID: 1089791397}
@@ -5258,27 +5258,6 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.04884875, y: -0.0098719895, z: 0}
     m_Extent: {x: 1.0525028, y: 0.29886928, z: 0.67925143}
   m_DirtyAABB: 0
---- !u!111 &1089791395
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1079786509}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: df787a42d52d64ff4b908f7a344d499e, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: df787a42d52d64ff4b908f7a344d499e, type: 2}
-  - {fileID: 7400000, guid: 185c4b4f1e1c1441d920959e7dee49a5, type: 2}
-  - {fileID: 7400000, guid: 777be73b9098940d086517b3fe6beb8a, type: 2}
-  - {fileID: 7400000, guid: 268781a61383b42a98eeda538dfa52e9, type: 2}
-  - {fileID: 7400000, guid: f65e8694646404294b2de66b5827d6e5, type: 2}
-  - {fileID: 7400000, guid: 275b2fda153e2d24fb3e43f5857d7ee7, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_CullingType: 1
 --- !u!114 &1089791396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5391,6 +5370,32 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!95 &1089791398
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079786509}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: f3cd25b3bf53c4adaaf087d862e435e6, type: 3}
+  m_Controller: {fileID: 9100000, guid: 71095b518056f964ca978bea63370ea6, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'pelvis'\n\tTransform 'head'\n\tTransform 'stomach'\n\tTransform
+    'Lwrist'\n\tTransform 'Lforearm'\n\tTransform 'Rfoot'\n\tTransform 'Rcalf'\n\tTransform
+    'Rshoulder'\n\tTransform 'Lfoot'\n\tTransform 'Rforearm'\n\tand more ...\n\tFrom
+    animation clip 'RunF'"
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1113375879
 GameObject:
   m_ObjectHideFlags: 0
