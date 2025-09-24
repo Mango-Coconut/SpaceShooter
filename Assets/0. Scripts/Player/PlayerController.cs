@@ -8,24 +8,27 @@ public class PlayerController : MonoBehaviour
     PickUp pickUp;
     public bool isPicking = false;
     [SerializeField] float moveSpeed = 5;
-    [SerializeField] float turnSpeed = 360;
+    [SerializeField] float turnSpeed;
 
+    FireBullet fireBullet;
     float firetimer = 0;
     [SerializeField] float delay = 0.1f;
+
+
+    readonly int maxHP = 10;
+    int curHP;
+
+    public delegate void PlayerDieHandler();
+    public static event PlayerDieHandler OnPlayerDie;
+
     Animator animator;
-    FireBullet fireBullet;
+
     void Awake()
     {
         pickUp = GetComponent<PickUp>();
         animator = GetComponent<Animator>();
         fireBullet = GetComponent<FireBullet>();
-    }
-
-    IEnumerator Start()
-    {
-        turnSpeed = 0f;
-        yield return new WaitForSeconds(0.3f);
-        turnSpeed = 360.0f;
+        curHP = maxHP;
     }
 
 
@@ -42,32 +45,45 @@ public class PlayerController : MonoBehaviour
 
         //줍기 시스템
         if (isPicking) return;
-        if (!isPicking && Input.GetKeyDown(KeyCode.F))
+        if (!isPicking && Input.GetKeyDown(KeyCode.F) && pickUp.CanPickUp())
         {
             pickUp.PickItems();
             animator.SetTrigger("Pick");
         }
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+
+        //움직임 시스템
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
         float r = 0;
         if (Cursor.lockState == CursorLockMode.Locked)
         {
-            r = Input.GetAxis("Mouse X");
+            r = Input.GetAxisRaw("Mouse X");
         }
+        if (Mathf.Abs(r) < 0.01f) r = 0f;
 
-        animator.SetFloat("MoveX", h);
-        animator.SetFloat("MoveY", v);
         Vector3 moveDir = (Vector3.forward * v) + (Vector3.right * h);
         gameObject.transform.Translate(moveDir.normalized * moveSpeed * Time.deltaTime);
         gameObject.transform.Rotate(Vector3.up * r * turnSpeed * Time.deltaTime);
 
-        
+
+        animator.SetFloat("MoveX", h);
+        animator.SetFloat("MoveY", v);
+    }
+    void Die()
+    {
+        Debug.Log($"사망");
+        OnPlayerDie();
     }
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("MonsterAttack"))
         {
-            Debug.Log($"맞음");
+            curHP--;
+            Debug.Log($"hited, {curHP}");
+            if (curHP <= 0)
+            {
+                Die();
+            }
         }
     }
 }

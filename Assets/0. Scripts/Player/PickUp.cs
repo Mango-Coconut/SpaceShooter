@@ -33,7 +33,7 @@ public class PickUp : MonoBehaviour
     }
     public void SelectItems()
     {
-        Vector3 center  = transform.position + transform.forward * forawrdOffset;
+        Vector3 center = transform.position + transform.forward * forawrdOffset;
         int count = Physics.OverlapSphereNonAlloc(center, overlapRadius, buffer, itemLayer);
         if (count == 0)
         {
@@ -59,7 +59,9 @@ public class PickUp : MonoBehaviour
         Items item = nearest ? nearest.GetComponent<Items>() : null;
 
         if (prevHighlighted != null && prevHighlighted != item)
+        {
             prevHighlighted.Shining(false);
+        }
 
         if (item != null && prevHighlighted != item)
         {
@@ -71,7 +73,10 @@ public class PickUp : MonoBehaviour
             prevHighlighted = null;
         }
     }
-
+    public bool CanPickUp()
+    {
+        return prevHighlighted == null ? false : true;
+    }
     void OnDrawGizmos()
     {
         if (!gizmoEnable) return;

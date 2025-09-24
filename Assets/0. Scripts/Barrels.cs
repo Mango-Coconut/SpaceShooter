@@ -42,13 +42,19 @@ public class Barrels : MonoBehaviour
     IEnumerator OtherExplosion(Vector3 pos)
     {
         yield return new WaitForSeconds(0.2f);
-        Collider[] colls = Physics.OverlapSphere(pos, exploreRadius, 1 << 3);
+        Collider[] colls = Physics.OverlapSphere(pos, exploreRadius);
         foreach (var coll in colls)
         {
-            if (coll.CompareTag("Barrel"))
+            Debug.Log($"{coll.name}");
+            Rigidbody rb = coll.attachedRigidbody;
+            if (rb != null)
             {
-                coll.GetComponent<Rigidbody>().AddExplosionForce(25000f, pos, exploreRadius);
-                coll.GetComponent<Barrels>().Explosion();
+                rb.AddExplosionForce(25000f, pos, exploreRadius);
+                Barrels barrel = rb.GetComponent<Barrels>();
+                if (barrel != null)
+                {
+                    barrel.Explosion();
+                }
             }
         }
     }

@@ -16,6 +16,8 @@ public class MonsterController : MonoBehaviour
     readonly int hashTrace = Animator.StringToHash("IsTrace");
     readonly int hashAttack = Animator.StringToHash("IsAttack");
     readonly int hashHit = Animator.StringToHash("Hit");
+    readonly int hashSpeed = Animator.StringToHash("Speed");
+    readonly int hashPlayerDie = Animator.StringToHash("PlayerDie");
     public State state = State.IDLE;
     public float traceDist = 10;
     public float attackDist = 2;
@@ -103,6 +105,22 @@ public class MonsterController : MonoBehaviour
 
             yield return new WaitForSeconds(0.3f);
         }
+    }
+    void OnPlayerDie()
+    {
+        
+        StopAllCoroutines();
+        agent.isStopped = true;
+        anim.SetFloat(hashSpeed, Random.Range(0.9f, 1.1f));
+        anim.SetTrigger(hashPlayerDie);
+    }
+    void OnEnable()
+    {
+        PlayerController.OnPlayerDie += this.OnPlayerDie;
+    }
+    void OnDisable()
+    {
+        PlayerController.OnPlayerDie -= this.OnPlayerDie;
     }
     void OnDrawGizmos()
     {
