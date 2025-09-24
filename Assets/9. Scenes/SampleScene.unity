@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.21108171, g: 0.05813721, b: 0.036018983, a: 1}
+  m_IndirectSpecularColor: {r: 0.21108195, g: 0.05813718, b: 0.03601958, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1305,8 +1305,8 @@ MonoBehaviour:
   rifle: {fileID: 147396088}
   playerBody: {fileID: 1079746669}
   mouseSensitivity: 1000
-  xRotationMin: -80
-  xRotationMax: 80
+  xRotationMin: -40
+  xRotationMax: 40
 --- !u!1 &973247145
 GameObject:
   m_ObjectHideFlags: 0
@@ -3038,7 +3038,7 @@ MonoBehaviour:
   itemLayer:
     serializedVersion: 2
     m_Bits: 64
-  gizmoEnable: 1
+  gizmoEnable: 0
 --- !u!114 &1089791402
 MonoBehaviour:
   m_ObjectHideFlags: 0

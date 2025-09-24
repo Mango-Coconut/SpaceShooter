@@ -69,8 +69,8 @@ public class PlayerController : MonoBehaviour
         if (Mathf.Abs(r) < 0.01f) r = 0f;
 
         Vector3 moveDir = (Vector3.forward * v) + (Vector3.right * h);
-        gameObject.transform.Translate(moveDir.normalized * moveSpeed * Time.deltaTime);
-        gameObject.transform.Rotate(Vector3.up * r * turnSpeed * Time.deltaTime);
+        transform.Translate(moveDir.normalized * moveSpeed * Time.deltaTime);
+        transform.Rotate(Vector3.up * r * turnSpeed * Time.deltaTime);
 
 
         animator.SetFloat("MoveX", h);
