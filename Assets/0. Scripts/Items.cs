@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Items : MonoBehaviour
 {
-    [SerializeField] private ItemData itemData;
+    [SerializeField] public ItemData itemData;
     [SerializeField] private int amount = 1;
     public bool isOn = true;
     Renderer rd;

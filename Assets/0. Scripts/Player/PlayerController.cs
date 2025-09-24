@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    Inventory inventory;
     PickUp pickUp;
     public bool isPicking = false;
     [SerializeField] float moveSpeed = 5;
@@ -25,6 +27,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        inventory = GetComponent<Inventory>();
         pickUp = GetComponent<PickUp>();
         animator = GetComponent<Animator>();
         fireBullet = GetComponent<FireBullet>();
@@ -47,8 +50,12 @@ public class PlayerController : MonoBehaviour
         if (isPicking) return;
         if (!isPicking && Input.GetKeyDown(KeyCode.F) && pickUp.CanPickUp())
         {
-            pickUp.PickItems();
-            animator.SetTrigger("Pick");
+            ItemData id = pickUp.PickItems();
+            if (id != null)
+            {
+                inventory.AddItem(id);
+                animator.SetTrigger("Pick");
+            }
         }
 
         //움직임 시스템

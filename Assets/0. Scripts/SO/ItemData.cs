@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ItemData", menuName = "ScriptableObjects/ItemData", order = 1)]
+
 public class ItemData : ScriptableObject
 {
     [Header("기본 정보")]
@@ -12,9 +13,13 @@ public class ItemData : ScriptableObject
 
     [Header("속성")]
     public ItemType type;          // 무기, 소모품, 재료 등
-    public int maxStack = 1;       // 최대 겹침 수량
-    public int power;              // 공격력/회복량 등
 
-    // 필요하면 enum 정의
-    public enum ItemType { Weapon, Consumable, Material }
+    public int rarity;    // 희귀도 (숫자가 클수록 희귀)
+    public int price;
+    public float weight;
+    public float volume;
+
+    public int maxStack = 1;       // 최대 겹침 수량
+
 }
+public enum ItemType { Weapon, Consumable, Material}

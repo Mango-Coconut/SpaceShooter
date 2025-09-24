@@ -24,12 +24,14 @@ public class PickUp : MonoBehaviour
             SelectItems();
         }
     }
-    public void PickItems()
+    public ItemData PickItems()
     {
-        if (prevHighlighted == null) return;
-        Destroy(prevHighlighted.gameObject);
+        if (prevHighlighted == null) return null;
+        ItemData id = prevHighlighted.itemData;
+        GameObject go = prevHighlighted.gameObject;
         prevHighlighted = null;
-        //Player.
+        go.SetActive(false);
+        return id;
     }
     public void SelectItems()
     {
