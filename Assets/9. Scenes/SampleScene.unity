@@ -230,6 +230,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemData: {fileID: 0}
+  amount: 1
   isOn: 1
 --- !u!33 &565539
 MeshFilter:
@@ -361,6 +363,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemData: {fileID: 0}
+  amount: 1
   isOn: 1
 --- !u!33 &24361350
 MeshFilter:
@@ -633,6 +637,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemData: {fileID: 0}
+  amount: 1
   isOn: 1
 --- !u!33 &615471758
 MeshFilter:
@@ -938,6 +944,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemData: {fileID: 11400000, guid: 15e68025ef792f246bb5b349b3ac7503, type: 2}
+  amount: 1
   isOn: 1
 --- !u!1001 &722545331
 PrefabInstance:
@@ -3166,6 +3174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemData: {fileID: 0}
+  amount: 1
   isOn: 1
 --- !u!33 &1113375884
 MeshFilter:
@@ -3746,6 +3756,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemData: {fileID: 0}
+  amount: 1
   isOn: 1
 --- !u!33 &1841894936
 MeshFilter:
