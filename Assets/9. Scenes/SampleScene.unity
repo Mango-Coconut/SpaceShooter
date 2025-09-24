@@ -4610,13 +4610,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1079746669}
   - component: {fileID: 1089791396}
-  - component: {fileID: 1089791398}
-  - component: {fileID: 1012882841}
   - component: {fileID: 1012882838}
   - component: {fileID: 1089791401}
+  - component: {fileID: 1089791402}
+  - component: {fileID: 1089791398}
   - component: {fileID: 1089791397}
   - component: {fileID: 1089791399}
   - component: {fileID: 1089791400}
+  - component: {fileID: 1012882841}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -5453,6 +5454,18 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   gizmoEnable: 1
+--- !u!114 &1089791402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079786509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4647a39ae7a88504eba2c1e1640f728f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1113375879
 GameObject:
   m_ObjectHideFlags: 0

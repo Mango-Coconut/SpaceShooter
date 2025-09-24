@@ -20,7 +20,11 @@ public class CameraController : MonoBehaviour
     }
     private void Update()
     {
-        float mouseY = Cursor.visible == false ? Input.GetAxis("Mouse Y") : 0;
+        float mouseY = 0;
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            mouseY = Input.GetAxis("Mouse Y");
+        }
 
         // 상하 회전 누적 (마우스 Y는 반전)
         xRotation -= mouseY * mouseSensitivity * Time.deltaTime;

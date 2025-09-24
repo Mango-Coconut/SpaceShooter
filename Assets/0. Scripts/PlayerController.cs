@@ -23,9 +23,6 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-
         turnSpeed = 0f;
         yield return new WaitForSeconds(0.3f);
         turnSpeed = 360.0f;
@@ -34,15 +31,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.visible = !Cursor.visible;
-            Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
-        }
-
         //사격 시스템
         firetimer += Time.deltaTime;
-        if (!Cursor.visible && firetimer > delay && Input.GetMouseButton(0))
+        if (Cursor.lockState == CursorLockMode.Locked && firetimer > delay && Input.GetMouseButton(0))
         {
             firetimer = 0;
             fireBullet.Fire();
@@ -58,7 +49,11 @@ public class PlayerController : MonoBehaviour
         }
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
-        float r = Cursor.visible == false ? Input.GetAxis("Mouse X") : 0;
+        float r = 0;
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            r = Input.GetAxis("Mouse X");
+        }
 
         animator.SetFloat("MoveX", h);
         animator.SetFloat("MoveY", v);
