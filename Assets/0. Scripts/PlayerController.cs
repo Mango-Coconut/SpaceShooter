@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    bool ispick = false;
+    PickUp pickUp;
+    public bool isPicking = false;
     [SerializeField] float moveSpeed = 5;
     [SerializeField] float turnSpeed = 360;
 
@@ -15,12 +16,16 @@ public class PlayerController : MonoBehaviour
     FireBullet fireBullet;
     void Awake()
     {
+        pickUp = GetComponent<PickUp>();
         animator = GetComponent<Animator>();
         fireBullet = GetComponent<FireBullet>();
     }
 
     IEnumerator Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
         turnSpeed = 0f;
         yield return new WaitForSeconds(0.3f);
         turnSpeed = 360.0f;
@@ -29,22 +34,39 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-        float r = Input.GetAxis("Mouse X");
-        animator.SetFloat("MoveX", h);
-        animator.SetFloat("MoveY", v);
-        if (ispick) return;
-        Vector3 moveDir = (Vector3.forward * v) + (Vector3.right * h);
-        gameObject.transform.Translate(moveDir.normalized * moveSpeed * Time.deltaTime);
-        gameObject.transform.Rotate(Vector3.up * r * turnSpeed * Time.deltaTime);
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.visible = !Cursor.visible;
+            Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
+        }
 
+        //사격 시스템
         firetimer += Time.deltaTime;
-        if (firetimer > delay && Input.GetMouseButton(0))
+        if (!Cursor.visible && firetimer > delay && Input.GetMouseButton(0))
         {
             firetimer = 0;
             fireBullet.Fire();
         }
+
+
+        //줍기 시스템
+        if (isPicking) return;
+        if (!isPicking && Input.GetKeyDown(KeyCode.F))
+        {
+            pickUp.PickItems();
+            animator.SetTrigger("Pick");
+        }
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+        float r = Cursor.visible == false ? Input.GetAxis("Mouse X") : 0;
+
+        animator.SetFloat("MoveX", h);
+        animator.SetFloat("MoveY", v);
+        Vector3 moveDir = (Vector3.forward * v) + (Vector3.right * h);
+        gameObject.transform.Translate(moveDir.normalized * moveSpeed * Time.deltaTime);
+        gameObject.transform.Rotate(Vector3.up * r * turnSpeed * Time.deltaTime);
+
+        
     }
     void OnTriggerEnter(Collider other)
     {

@@ -3749,7 +3749,6 @@ GameObject:
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
   - component: {fileID: 963194229}
-  - component: {fileID: 963194230}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3837,28 +3836,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rifle: {fileID: 147396088}
   playerBody: {fileID: 1079746669}
-  mouseSensitivity: 500
+  mouseSensitivity: 1000
   xRotationMin: -80
   xRotationMax: 80
---- !u!114 &963194230
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb015e3ffd88ea0458f3b151ae75270e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Player: {fileID: 0}
-  forawrdOffset: 1.5
-  overlapRadius: 1.25
-  itemLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  gizmoEnable: 1
 --- !u!1 &973247145
 GameObject:
   m_ObjectHideFlags: 0
@@ -4011,6 +3991,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533ce95cd5a85514e8e4e1b28b211fc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPicking: 0
   moveSpeed: 5
   turnSpeed: 0
   delay: 0.1
@@ -4632,6 +4613,7 @@ GameObject:
   - component: {fileID: 1089791398}
   - component: {fileID: 1012882841}
   - component: {fileID: 1012882838}
+  - component: {fileID: 1089791401}
   - component: {fileID: 1089791397}
   - component: {fileID: 1089791399}
   - component: {fileID: 1089791400}
@@ -5452,6 +5434,25 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!114 &1089791401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079786509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb015e3ffd88ea0458f3b151ae75270e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Player: {fileID: 0}
+  forawrdOffset: 1.5
+  overlapRadius: 1.5
+  itemLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  gizmoEnable: 1
 --- !u!1 &1113375879
 GameObject:
   m_ObjectHideFlags: 0

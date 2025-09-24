@@ -23,12 +23,6 @@ public class PickUp : MonoBehaviour
             timer = 0;
             SelectItems();
         }
-        
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            PickItems();
-        }
-        
     }
     public void PickItems()
     {
