@@ -7,6 +7,7 @@ public class Inventory : MonoBehaviour
 {
     public List<InventorySlot> slots = new List<InventorySlot>();
 
+
     public void PrintSlots()
     {
         Debug.Log("items---------------------");
