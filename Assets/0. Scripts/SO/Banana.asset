@@ -16,5 +16,8 @@ MonoBehaviour:
   icon: {fileID: 0}
   description: "\uB9DB\uC788\uB294 \uBC14\uB098\uB098"
   type: 1
-  maxStack: 10
-  power: 0
+  rarity: 0
+  price: 10
+  weight: 1
+  volume: 1
+  maxStack: 9999

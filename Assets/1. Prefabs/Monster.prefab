@@ -529,6 +529,10 @@ MonoBehaviour:
   traceDist: 5
   attackDist: 2
   isDie: 0
+  hp: 100
+  punchs:
+  - {fileID: 1152041179104000207}
+  - {fileID: 1152041179104000189}
   target: {fileID: 0}
   bloodEffect: {fileID: 1000012909287652, guid: abb9f519b142e304d9c45b56afa768bc, type: 3}
 --- !u!95 &1152041179111184154

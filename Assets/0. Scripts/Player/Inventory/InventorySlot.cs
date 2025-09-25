@@ -10,7 +10,8 @@ public class InventorySlot
 
     // 통계용
     public int useCount;         // 얼마나 많이 사용했는지
-    public System.DateTime lastUsed; // 최근 사용 시간
+    public System.DateTime lastGet;   // ← 획득 시각
+    public System.DateTime lastUsed;  // ← 사용 시각
 
     public InventorySlot(ItemData item, int count = 1)
     {

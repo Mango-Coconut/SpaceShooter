@@ -12,7 +12,7 @@ public class Inventory : MonoBehaviour
         Debug.Log("items---------------------");
         foreach (var item in slots)
         {
-            Debug.Log(item.item.name);
+            Debug.Log($"{item.item.name}, {item.count}");
         }
     }
     // 아이템 추가
@@ -59,18 +59,32 @@ public class Inventory : MonoBehaviour
         return slots.FindAll(s => s.item.type == type);
     }
 
-    public List<InventorySlot> GetSorted(SortType sortType)
+    public void Sort(SortType sortType)
     {
         switch (sortType)
         {
-            case SortType.Rarity: return slots.OrderByDescending(s => s.item.rarity).ToList();
-            case SortType.Price: return slots.OrderByDescending(s => s.item.price).ToList();
-            case SortType.Weight: return slots.OrderByDescending(s => s.item.weight).ToList();
-            case SortType.Volume: return slots.OrderByDescending(s => s.item.volume).ToList();
-            case SortType.LastUsed: return slots.OrderByDescending(s => s.lastUsed).ToList();
-            case SortType.UseCount: return slots.OrderByDescending(s => s.useCount).ToList();
+            case SortType.Rarity:
+                slots = slots.OrderByDescending(s => s.item.rarity).ToList();
+                break;
+            case SortType.Price:
+                slots = slots.OrderByDescending(s => s.item.price).ToList();
+                break;
+            case SortType.Weight:
+                slots = slots.OrderByDescending(s => s.item.weight).ToList();
+                break;
+            case SortType.Volume:
+                slots = slots.OrderByDescending(s => s.item.volume).ToList();
+                break;
+            case SortType.LastGet:
+                slots = slots.OrderByDescending(s => s.lastGet).ToList();
+                break;
+            case SortType.LastUsed:
+                slots = slots.OrderByDescending(s => s.lastUsed).ToList();
+                break;
+            case SortType.UseCount:
+                slots = slots.OrderByDescending(s => s.useCount).ToList();
+                break;
         }
-        return slots;
     }
 }
-public enum SortType { Rarity, Price, Weight, Volume, LastUsed, UseCount }
+public enum SortType { Rarity, Price, Weight, Volume, LastGet, LastUsed, UseCount }

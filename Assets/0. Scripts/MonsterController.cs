@@ -18,12 +18,15 @@ public class MonsterController : MonoBehaviour
     readonly int hashHit = Animator.StringToHash("Hit");
     readonly int hashSpeed = Animator.StringToHash("Speed");
     readonly int hashPlayerDie = Animator.StringToHash("PlayerDie");
+    readonly int hashDie = Animator.StringToHash("Die");
+
     public State state = State.IDLE;
     public float traceDist = 10;
     public float attackDist = 2;
     public bool isDie = false;
+    public int hp = 100;
 
-
+    [SerializeField] Collider[] punchs;
     Transform tr;
     //TODO 타겟 관리 방법 바꾸기
     [SerializeField] Transform target;
@@ -54,12 +57,19 @@ public class MonsterController : MonoBehaviour
             Quaternion rot = Quaternion.LookRotation(-other.GetContact(0).normal);
             GameObject blood = Instantiate(bloodEffect, pos, rot, transform);
             Destroy(blood, 1);
+            hp -= 10;
+            UnityEngine.Debug.Log($"{hp}, {state}");
+            if (hp <= 0)
+            {
+                state = State.DIE;
+            }
         }
     }
     IEnumerator MonsterAction()
     {
         while (!isDie)
         {
+            
             switch (state)
             {
                 case State.IDLE:
@@ -79,15 +89,23 @@ public class MonsterController : MonoBehaviour
                     break;
 
                 case State.DIE:
+                    isDie = true;
+                    agent.isStopped = true;
+                    anim.SetTrigger(hashDie);
+                    GetComponent<Collider>().enabled = false;
+                    foreach (var col in punchs)
+                    {
+                        col.enabled = false;
+                    }
                     break;
             }
-            
+            if (state == State.DIE) yield break;
             yield return new WaitForSeconds(0.3f);
         }
     }
     IEnumerator CheckMonsterState()
     {
-        while (!isDie)
+        while (state != State.DIE && !isDie)
         {
             float dist = (tr.position - target.position).sqrMagnitude;
             if (dist < attackDist * attackDist)

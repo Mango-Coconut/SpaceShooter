@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class PickUp : MonoBehaviour
 {
-    [SerializeField] PlayerController Player;
     [SerializeField] float forawrdOffset;
     [SerializeField] float overlapRadius;
     [SerializeField] LayerMask itemLayer;
