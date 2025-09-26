@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+
+public enum SortType { Rarity, Price, Weight, Volume, LastGet, LastUsed, UseCount }
+
 public class Inventory : MonoBehaviour
 {
-    public List<InventorySlot> slots = new List<InventorySlot>();
+    public List<StoredItem> slots = new List<StoredItem>();
 
 
     public void PrintSlots()
@@ -19,16 +22,16 @@ public class Inventory : MonoBehaviour
     // 아이템 추가
     public void AddItem(ItemData data, int amount = 1)
     {
-        InventorySlot slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.item == data);
         if (slot != null) slot.count += amount;
-        else slots.Add(new InventorySlot(data, amount));
+        else slots.Add(new StoredItem(data, amount));
         PrintSlots();
     }
 
     // 아이템 제거
     public void RemoveItem(ItemData data, int amount = 1)
     {
-        InventorySlot slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.item == data);
         if (slot == null) return;
 
         slot.count -= amount;
@@ -38,13 +41,13 @@ public class Inventory : MonoBehaviour
     // 아이템 보유 여부 확인
     public bool HasItem(ItemData data, int amount = 1)
     {
-        InventorySlot slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.item == data);
         return slot != null && slot.count >= amount;
     }
 
     public void UseItem(ItemData data)
     {
-        InventorySlot slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.item == data);
         if (slot == null) return;
 
         // 사용 처리
@@ -55,13 +58,14 @@ public class Inventory : MonoBehaviour
         if (slot.count <= 0) slots.Remove(slot);
     }
 
-    public List<InventorySlot> GetByCategory(ItemType type)
+    public List<StoredItem> GetByCategory(ItemType type)
     {
         return slots.FindAll(s => s.item.type == type);
     }
 
-    public void Sort(SortType sortType)
+    public void Sort(int  index)
     {
+        SortType sortType = (SortType)index;
         switch (sortType)
         {
             case SortType.Rarity:
@@ -88,4 +92,3 @@ public class Inventory : MonoBehaviour
         }
     }
 }
-public enum SortType { Rarity, Price, Weight, Volume, LastGet, LastUsed, UseCount }
