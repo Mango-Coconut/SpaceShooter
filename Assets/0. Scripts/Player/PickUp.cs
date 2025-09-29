@@ -17,7 +17,7 @@ public class PickUp : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer > 0.05f)
+        if (timer > 0.1f)
         {
             timer = 0;
             SelectItems();

@@ -22,4 +22,4 @@ public class ItemData : ScriptableObject
     public int maxStack = 1;       // 최대 겹침 수량
 
 }
-public enum ItemType { Weapon, Consumable, Material}
+

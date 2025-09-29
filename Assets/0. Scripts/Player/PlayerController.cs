@@ -6,11 +6,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] InventoryUI inventoryUI;
     Inventory inventory;
     PickUp pickUp;
     public bool isPicking = false;
     [SerializeField] float moveSpeed = 5;
-    [SerializeField] float turnSpeed;
 
     FireBullet fireBullet;
     float firetimer = 0;
@@ -24,6 +24,17 @@ public class PlayerController : MonoBehaviour
     public static event PlayerDieHandler OnPlayerDie;
 
     Animator animator;
+    void OnEnable()                           // ← 추가
+    {
+        InputManager.Instance.OnFire += OnFire;
+        InputManager.Instance.OnPick += OnPick;
+    }
+
+    void OnDisable()                          // ← 추가
+    {
+        InputManager.Instance.OnFire -= OnFire;
+        InputManager.Instance.OnPick -= OnPick;
+    }
 
     void Awake()
     {
@@ -37,44 +48,49 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        //사격 시스템
         firetimer += Time.deltaTime;
-        if (Cursor.lockState == CursorLockMode.Locked && firetimer > delay && Input.GetMouseButton(0))
-        {
-            firetimer = 0;
-            fireBullet.Fire();
-        }
+        HandleMovement();
+    }
 
+    void OnFire()
+    {
+        if (Cursor.lockState != CursorLockMode.Locked) return;
+        if (inventoryUI != null && inventoryUI.IsOpen) return;
+        if (firetimer < delay) return;
 
-        //줍기 시스템
+        firetimer = 0f;
+        fireBullet.Fire();
+    }
+
+    void OnPick()
+    {
+        if (inventoryUI == null) return;
+        if (!pickUp.CanPickUp()) return;
         if (isPicking) return;
-        if (!isPicking && Input.GetKeyDown(KeyCode.F) && pickUp.CanPickUp())
+        ItemData id = pickUp.PickItems();
+        if (id != null)
         {
-            ItemData id = pickUp.PickItems();
-            if (id != null)
-            {
-                inventory.AddItem(id);
-                animator.SetTrigger("Pick");
-            }
+            inventory.AddItem(id);
+            animator.SetTrigger("Pick");
         }
+    }
+    void HandleMovement()
+    {
+        
+        Vector2 mv = InputManager.Instance.Move;
+        Vector2 look = InputManager.Instance.Look;
 
-        //움직임 시스템
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
-        float r = 0;
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
-            r = Input.GetAxisRaw("Mouse X");
-        }
-        if (Mathf.Abs(r) < 0.01f) r = 0f;
+        animator.SetFloat("MoveX", mv.x);
+        animator.SetFloat("MoveY", mv.y);
 
-        Vector3 moveDir = (Vector3.forward * v) + (Vector3.right * h);
-        transform.Translate(moveDir.normalized * moveSpeed * Time.deltaTime);
-        transform.Rotate(Vector3.up * r * turnSpeed * Time.deltaTime);
+        if (isPicking) return;
 
+        Vector3 moveDir = new Vector3(mv.x, 0, mv.y).normalized;
+        transform.Translate(moveDir * moveSpeed * Time.deltaTime);
 
-        animator.SetFloat("MoveX", h);
-        animator.SetFloat("MoveY", v);
+        transform.Rotate(Vector3.up * look.x * 360 * Time.deltaTime);
+
+        
     }
     void Die()
     {

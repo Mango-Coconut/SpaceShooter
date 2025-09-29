@@ -1,0 +1,1 @@
+public enum ItemType { All, Weapon, Consumable, Material};

@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class StoredItem
 {
-    public ItemData item;
+    public ItemData itemdata;
     public int count;
 
     // 통계용
@@ -13,9 +13,9 @@ public class StoredItem
     public System.DateTime lastGet;   // ← 획득 시각
     public System.DateTime lastUsed;  // ← 사용 시각
 
-    public StoredItem(ItemData item, int count = 1)
+    public StoredItem(ItemData itemdata, int count = 1)
     {
-        this.item = item;
+        this.itemdata = itemdata;
         this.count = count;
         this.useCount = 0;
         this.lastUsed = System.DateTime.MinValue;

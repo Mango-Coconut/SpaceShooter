@@ -3,51 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-
-public enum SortType { Rarity, Price, Weight, Volume, LastGet, LastUsed, UseCount }
-
 public class Inventory : MonoBehaviour
 {
     public List<StoredItem> slots = new List<StoredItem>();
-
-
-    public void PrintSlots()
-    {
-        Debug.Log("items---------------------");
-        foreach (var item in slots)
-        {
-            Debug.Log($"{item.item.name}, {item.count}");
-        }
-    }
-    // 아이템 추가
+    public event System.Action OnInventoryChanged;
     public void AddItem(ItemData data, int amount = 1)
     {
-        StoredItem slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.itemdata == data);
         if (slot != null) slot.count += amount;
         else slots.Add(new StoredItem(data, amount));
-        PrintSlots();
+
+        OnInventoryChanged?.Invoke();
     }
 
-    // 아이템 제거
     public void RemoveItem(ItemData data, int amount = 1)
     {
-        StoredItem slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.itemdata == data);
         if (slot == null) return;
 
         slot.count -= amount;
         if (slot.count <= 0) slots.Remove(slot);
+
+        OnInventoryChanged?.Invoke();
     }
 
-    // 아이템 보유 여부 확인
     public bool HasItem(ItemData data, int amount = 1)
     {
-        StoredItem slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.itemdata == data);
         return slot != null && slot.count >= amount;
     }
 
     public void UseItem(ItemData data)
     {
-        StoredItem slot = slots.Find(s => s.item == data);
+        StoredItem slot = slots.Find(s => s.itemdata == data);
         if (slot == null) return;
 
         // 사용 처리
@@ -56,29 +44,31 @@ public class Inventory : MonoBehaviour
         slot.lastUsed = System.DateTime.Now;
 
         if (slot.count <= 0) slots.Remove(slot);
+
+        OnInventoryChanged?.Invoke();
     }
 
     public List<StoredItem> GetByCategory(ItemType type)
     {
-        return slots.FindAll(s => s.item.type == type);
+        return slots.FindAll(s => s.itemdata.type == type);
     }
 
-    public void Sort(int  index)
+    public void Sort(int index)
     {
         SortType sortType = (SortType)index;
         switch (sortType)
         {
             case SortType.Rarity:
-                slots = slots.OrderByDescending(s => s.item.rarity).ToList();
+                slots = slots.OrderByDescending(s => s.itemdata.rarity).ToList();
                 break;
             case SortType.Price:
-                slots = slots.OrderByDescending(s => s.item.price).ToList();
+                slots = slots.OrderByDescending(s => s.itemdata.price).ToList();
                 break;
             case SortType.Weight:
-                slots = slots.OrderByDescending(s => s.item.weight).ToList();
+                slots = slots.OrderByDescending(s => s.itemdata.weight).ToList();
                 break;
             case SortType.Volume:
-                slots = slots.OrderByDescending(s => s.item.volume).ToList();
+                slots = slots.OrderByDescending(s => s.itemdata.volume).ToList();
                 break;
             case SortType.LastGet:
                 slots = slots.OrderByDescending(s => s.lastGet).ToList();
@@ -90,5 +80,6 @@ public class Inventory : MonoBehaviour
                 slots = slots.OrderByDescending(s => s.useCount).ToList();
                 break;
         }
+        OnInventoryChanged?.Invoke();
     }
 }

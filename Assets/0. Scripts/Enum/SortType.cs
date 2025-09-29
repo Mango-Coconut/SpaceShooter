@@ -1,0 +1,1 @@
+public enum SortType { Rarity, Price, Weight, Volume, LastGet, LastUsed, UseCount };
