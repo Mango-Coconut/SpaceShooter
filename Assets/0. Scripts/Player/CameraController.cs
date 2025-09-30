@@ -29,6 +29,5 @@ public class CameraController : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, xRotationMin, xRotationMax);
 
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        rifle.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
     }
 }

@@ -58,7 +58,6 @@ public class MonsterController : MonoBehaviour
             GameObject blood = Instantiate(bloodEffect, pos, rot, transform);
             Destroy(blood, 1);
             hp -= 10;
-            UnityEngine.Debug.Log($"{hp}, {state}");
             if (hp <= 0)
             {
                 state = State.DIE;

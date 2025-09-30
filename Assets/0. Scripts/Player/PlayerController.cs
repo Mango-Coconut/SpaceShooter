@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -16,9 +17,12 @@ public class PlayerController : MonoBehaviour
     float firetimer = 0;
     [SerializeField] float delay = 0.1f;
 
+    public float fireHeat = 0;
+    public int isMoving = 0;
 
     readonly int maxHP = 10;
     int curHP;
+
 
     public delegate void PlayerDieHandler();
     public static event PlayerDieHandler OnPlayerDie;
@@ -49,6 +53,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         firetimer += Time.deltaTime;
+        //연발하지 않는 동안은 총알 spread 줄이기
+        if (firetimer > delay) fireHeat = Math.Clamp(fireHeat - Time.deltaTime, 0, 1);
         HandleMovement();
     }
 
@@ -58,8 +64,10 @@ public class PlayerController : MonoBehaviour
         if (inventoryUI != null && inventoryUI.IsOpen) return;
         if (firetimer < delay) return;
 
+        fireHeat = Math.Clamp(fireHeat+0.1f, 0, 1);
         firetimer = 0f;
-        fireBullet.Fire();
+        fireBullet.Fire(isMoving, fireHeat);
+        animator.SetTrigger("Fire");
     }
 
     void OnPick()
@@ -76,7 +84,7 @@ public class PlayerController : MonoBehaviour
     }
     void HandleMovement()
     {
-        
+
         Vector2 mv = InputManager.Instance.Move;
         Vector2 look = InputManager.Instance.Look;
 
@@ -90,7 +98,8 @@ public class PlayerController : MonoBehaviour
 
         transform.Rotate(Vector3.up * look.x * 360 * Time.deltaTime);
 
-        
+        if (mv.x + mv.y != 0) isMoving = 1;
+        else isMoving = 0;
     }
     void Die()
     {
@@ -102,7 +111,6 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("MonsterAttack"))
         {
             curHP--;
-            Debug.Log($"hited, {curHP}");
             if (curHP <= 0)
             {
                 Die();
