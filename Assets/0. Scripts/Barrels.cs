@@ -45,7 +45,6 @@ public class Barrels : MonoBehaviour
         Collider[] colls = Physics.OverlapSphere(pos, exploreRadius);
         foreach (var coll in colls)
         {
-            Debug.Log($"{coll.name}");
             Rigidbody rb = coll.attachedRigidbody;
             if (rb != null)
             {

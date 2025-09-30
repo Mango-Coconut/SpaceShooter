@@ -43,7 +43,6 @@ public class FireBullet : MonoBehaviour
         // 2. 총구에서 목표 지점을 향하는 방향 계산
         Vector3 dir = (targetPoint - firePos.position).normalized;
         float finalSpread = (float)(spread + moveFactor * 0.02 + fireFactor * 0.02);
-        Debug.Log(finalSpread);
         // 3. 퍼짐 적용
         Vector2 rand = Random.insideUnitCircle * finalSpread;
         dir += cam.transform.right * rand.x;  // 좌우 흔들림

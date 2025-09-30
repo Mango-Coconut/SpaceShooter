@@ -91,12 +91,14 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("MoveX", mv.x);
         animator.SetFloat("MoveY", mv.y);
 
+        transform.Rotate(Vector3.up * look.x * 360 * Time.deltaTime);
+        
         if (isPicking) return;
 
         Vector3 moveDir = new Vector3(mv.x, 0, mv.y).normalized;
         transform.Translate(moveDir * moveSpeed * Time.deltaTime);
 
-        transform.Rotate(Vector3.up * look.x * 360 * Time.deltaTime);
+        
 
         if (mv.x + mv.y != 0) isMoving = 1;
         else isMoving = 0;
