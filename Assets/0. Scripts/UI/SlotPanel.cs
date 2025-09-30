@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,10 +11,11 @@ public class SlotPanel : MonoBehaviour
     [SerializeField] RectTransform tooltip;  // Tooltip 루트(RectTransform)
     [SerializeField] TooltipUI tooltipUI;
 
-    [SerializeField] ItemType categoryFilter;
+    ItemType categoryFilter;
 
     List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
-    void Start()
+
+    private void Awake()
     {
         for (int i = 0; i < slotCount; i++)
         {
@@ -21,9 +23,21 @@ public class SlotPanel : MonoBehaviour
             child.Initialize(this);
             uiSlots.Add(child);
         }
+    }
+
+    private void OnEnable()
+    {
         inventory.OnInventoryChanged += Refresh;
+    }
+
+    void Start()
+    {
         Refresh();
         HideTooltip();
+    }
+
+    private void OnDisable() {
+        inventory.OnInventoryChanged -= Refresh;
     }
 
     public void ChangeCategory(int index)

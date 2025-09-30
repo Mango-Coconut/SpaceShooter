@@ -11,11 +11,11 @@ public class PickBehaviour : StateMachineBehaviour
         {
             pc = animator.GetComponent<PlayerController>();
         }
-        pc.isPicking = true;
+        pc.gate.PushPick();
     }
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        pc.isPicking = false;
+        pc.gate.PopPick();
     }
 }

@@ -106,12 +106,4 @@ public class PickUp : MonoBehaviour
     {
         return selectedItem != null;
     }
-
-    void OnDrawGizmos()
-    {
-        if (!gizmoEnable) return;
-        Gizmos.color = Color.yellow;
-        Vector3 overlapOffset = transform.position + transform.forward * forawrdOffset;
-        Gizmos.DrawWireSphere(overlapOffset, overlapRadius);
-    }
 }

@@ -7,10 +7,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public PlayerActionGate gate;
     [SerializeField] InventoryUI inventoryUI;
     Inventory inventory;
     PickUp pickUp;
-    public bool isPicking = false;
     [SerializeField] float moveSpeed = 5;
 
     FireBullet fireBullet;
@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        gate = new PlayerActionGate();
         inventory = GetComponent<Inventory>();
         pickUp = GetComponent<PickUp>();
         animator = GetComponent<Animator>();
@@ -60,6 +61,7 @@ public class PlayerController : MonoBehaviour
 
     void OnFire()
     {
+        if (!gate.Can(Block.Fire)) return;
         if (Cursor.lockState != CursorLockMode.Locked) return;
         if (inventoryUI != null && inventoryUI.IsOpen) return;
         if (firetimer < delay) return;
@@ -72,9 +74,9 @@ public class PlayerController : MonoBehaviour
 
     void OnPick()
     {
+        if (!gate.Can(Block.Pick)) return;
         if (inventoryUI == null) return;
         if (!pickUp.CanPickUp()) return;
-        if (isPicking) return;
         ItemData id = pickUp.PickItems();
         if (id != null)
         {
@@ -84,7 +86,7 @@ public class PlayerController : MonoBehaviour
     }
     void HandleMovement()
     {
-
+        
         Vector2 mv = InputManager.Instance.Move;
         Vector2 look = InputManager.Instance.Look;
 
@@ -92,13 +94,11 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("MoveY", mv.y);
 
         transform.Rotate(Vector3.up * look.x * 360 * Time.deltaTime);
-        
-        if (isPicking) return;
+
+        if (!gate.Can(Block.Move)) return;
 
         Vector3 moveDir = new Vector3(mv.x, 0, mv.y).normalized;
         transform.Translate(moveDir * moveSpeed * Time.deltaTime);
-
-        
 
         if (mv.x + mv.y != 0) isMoving = 1;
         else isMoving = 0;
