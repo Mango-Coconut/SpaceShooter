@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Hotdog
   m_EditorClassIdentifier: 
   itemName: Hotdog
-  icon: {fileID: 21300000, guid: 80c7e793e165fe44c8c126ed5c5718ab, type: 3}
+  icon: {fileID: 21300000, guid: 52a43f862c24b5b498a74f2e8eb935fc, type: 3}
   description: Feverdog
   type: 2
   rarity: 8

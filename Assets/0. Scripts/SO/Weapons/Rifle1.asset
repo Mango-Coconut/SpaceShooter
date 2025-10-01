@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 730438daa48e06e428b81b5c41ebb2aa, type: 3}
-  m_Name: Cheese
+  m_Name: Rifle1
   m_EditorClassIdentifier: 
-  itemName: Cheese
-  icon: {fileID: 21300000, guid: cca0b8b3b6a4b0142b59d394b61387be, type: 3}
-  description: "\uC369\uC740 \uCE58\uC988"
-  type: 2
-  rarity: 7
-  price: 10
-  weight: 5
-  volume: 2
-  maxStack: 9999
+  itemName: Rifle1
+  icon: {fileID: 21300000, guid: de737d234d1c361498c3843caed6f33b, type: 3}
+  description: 
+  type: 0
+  rarity: 0
+  price: 0
+  weight: 0
+  volume: 0
+  maxStack: 1

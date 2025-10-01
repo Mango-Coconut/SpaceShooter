@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Olive
   m_EditorClassIdentifier: 
   itemName: Olive
-  icon: {fileID: 21300000, guid: fc476c862eab60d4da1e9e2879fcd844, type: 3}
+  icon: {fileID: 21300000, guid: a678b8a5ae1da7340ba9c93d08db60a7, type: 3}
   description: Olive Oilive
   type: 2
   rarity: 5
