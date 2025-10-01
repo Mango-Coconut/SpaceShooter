@@ -1,20 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class SortPanel : MonoBehaviour
+public class SortPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] GameObject content;
     [SerializeField] GameObject blocker;
 
-    void Start()
+    bool isPinned;
+
+    void Start() => Show(false);
+
+    // ToggleButton
+    public void OnButtonClick()
     {
-        content.SetActive(false);
+        isPinned = !isPinned;
+        Show(isPinned);
     }
 
-    public void ContentToggle()
+    // Blocker, SortButtons
+    public void OnClickOutside()
     {
-        content.SetActive(!content.activeSelf);
-        blocker.SetActive(!blocker.activeSelf);
+        isPinned = false;
+        Show(false);
+    }
+
+    public void OnPointerEnter(PointerEventData e)
+    {
+        Show(true);
+    }
+
+    public void OnPointerExit(PointerEventData e)
+    {
+        if (!isPinned) Show(false);
+    }
+
+    void Show(bool on)
+    {
+        if (content)  content.SetActive(on);
+        if (blocker)  blocker.SetActive(on);
     }
 }

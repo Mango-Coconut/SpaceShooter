@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Shotgun1
   icon: {fileID: 21300000, guid: 6ac0659915f5eff43accd6403e93bba7, type: 3}
-  description: 
-  type: 0
-  rarity: 0
-  price: 0
-  weight: 0
-  volume: 0
+  description: Basic Shotgun
+  type: 1
+  rarity: 9
+  price: 2000
+  weight: 11
+  volume: 5
   maxStack: 1

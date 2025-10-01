@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Rifle1
   icon: {fileID: 21300000, guid: de737d234d1c361498c3843caed6f33b, type: 3}
-  description: 
-  type: 0
-  rarity: 0
-  price: 0
-  weight: 0
-  volume: 0
+  description: Basic Rifle
+  type: 1
+  rarity: 8
+  price: 1000
+  weight: 10
+  volume: 5
   maxStack: 1

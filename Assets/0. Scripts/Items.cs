@@ -6,11 +6,11 @@ public class Items : MonoBehaviour
 {
     public ItemData itemData;
     [SerializeField] int amount = 1;
-    public bool isOn = true;
+    [HideInInspector] public bool isOn = false;
     Renderer rd;
     MaterialPropertyBlock mpb;
     static readonly int EmissionColorID = Shader.PropertyToID("_EmissionColor");
-    float onIntensity = 0.75f; 
+    float onIntensity = 0.75f;
 
     void Awake()
     {
@@ -26,7 +26,7 @@ public class Items : MonoBehaviour
     {
         if (isOn == enable) return;
         isOn = enable;
-        
+
         for (int i = 0; i < rd.sharedMaterials.Length; i++)
         {
             rd.GetPropertyBlock(mpb, i);

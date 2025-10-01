@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Rifle3
   icon: {fileID: 21300000, guid: 66dd227edfe744a498a2e2435e34d11d, type: 3}
-  description: 
-  type: 0
-  rarity: 0
-  price: 0
-  weight: 0
-  volume: 0
+  description: Advanced Rifle
+  type: 1
+  rarity: 10
+  price: 3000
+  weight: 12
+  volume: 5
   maxStack: 1
