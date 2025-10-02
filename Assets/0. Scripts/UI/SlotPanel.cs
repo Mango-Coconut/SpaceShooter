@@ -7,7 +7,6 @@ public class SlotPanel : MonoBehaviour
 {
     [SerializeField] Inventory inventory;
     [SerializeField] GameObject slotPrefab;
-    [SerializeField] int slotCount = 100;
     [SerializeField] RectTransform tooltip;  // Tooltip 루트(RectTransform)
     [SerializeField] TooltipUI tooltipUI;
 
@@ -17,7 +16,7 @@ public class SlotPanel : MonoBehaviour
 
     private void Awake()
     {
-        for (int i = 0; i < slotCount; i++)
+        for (int i = 0; i < inventory.maxSlotNum; i++)
         {
             InventorySlotUI child = Instantiate(slotPrefab, transform).GetComponent<InventorySlotUI>();
             child.Initialize(this);

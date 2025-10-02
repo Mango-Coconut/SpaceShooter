@@ -9,7 +9,7 @@ public enum Block
     None = 0,
     Move = 1 << 0,
     Fire = 1 << 1,
-    Pick = 1 << 2
+    Interact = 1 << 2
 }
 
 public class PlayerActionGate
@@ -22,10 +22,10 @@ public class PlayerActionGate
 
 
     //Pick Block Behaviors
-    private static readonly Block PickMask = Block.Move | Block.Fire | Block.Pick;
+    private static readonly Block interactMask = Block.Move | Block.Fire | Block.Interact;
 
-    public void PushPick() => Push(PickMask);
-    public void PopPick() => Pop(PickMask);
+    public void PushInteract() => Push(interactMask);
+    public void PopInteract() => Pop(interactMask);
 
 
 

@@ -2,13 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//onenable보다 늦게 awake 될 수 있어서 Input 안먹힐수 있음. 실행시간 앞당기기
+[DefaultExecutionOrder(-1000)]
 public class InputManager : MonoBehaviour
 {
     public Vector2 Move { get; private set; }
     public Vector2 Look { get; private set; }
 
     public event System.Action OnFire;
-    public event System.Action OnPick;
+    public event System.Action OnInteract;
     public event System.Action OnToggleInventory;
     public event System.Action OnEsc;
 
@@ -37,7 +39,7 @@ public class InputManager : MonoBehaviour
 
         // 액션 이벤트
         if (Input.GetMouseButton(0)) OnFire?.Invoke();
-        if (Input.GetKeyDown(KeyCode.F)) OnPick?.Invoke();
+        if (Input.GetKeyDown(KeyCode.F)) OnInteract?.Invoke();
         if (Input.GetKeyDown(KeyCode.I)) OnToggleInventory?.Invoke();
         if (Input.GetKeyDown(KeyCode.Escape)) OnEsc?.Invoke();
     }

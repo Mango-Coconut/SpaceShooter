@@ -6,14 +6,27 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     public List<StoredItem> slots = new List<StoredItem>();
+    public int maxSlotNum = 10;
     public event System.Action OnInventoryChanged;
-    public void AddItem(ItemData data, int amount = 1)
+    public bool TryAddItem(ItemData data, int amount = 1)
     {
+        //아이템 칸 가득 차서 더 이상 넣을 수 없음
+        if (slots.Count >= maxSlotNum) return false;
+
+        //이미 해당 아이템이 있으면 count +
         StoredItem slot = slots.Find(s => s.itemdata == data);
-        if (slot != null) slot.count += amount;
-        else slots.Add(new StoredItem(data, amount));
+        if (slot != null)
+        {
+            slot.count += amount;
+        }
+        //없으면 새 슬롯에 넣기
+        else
+        {
+            slots.Add(new StoredItem(data, amount));
+        }
 
         OnInventoryChanged?.Invoke();
+        return true;
     }
 
     public void RemoveItem(ItemData data, int amount = 1)

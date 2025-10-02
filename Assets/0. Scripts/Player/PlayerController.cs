@@ -8,9 +8,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public PlayerActionGate gate;
-    [SerializeField] InventoryUI inventoryUI;
-    Inventory inventory;
-    PickUp pickUp;
+    [HideInInspector] public Inventory inventory;
+    Interactor interactor;
     [SerializeField] float moveSpeed = 5;
 
     FireBullet fireBullet;
@@ -31,20 +30,20 @@ public class PlayerController : MonoBehaviour
     void OnEnable()                           // ← 추가
     {
         InputManager.Instance.OnFire += OnFire;
-        InputManager.Instance.OnPick += OnPick;
+        InputManager.Instance.OnInteract += OnInteract;
     }
 
     void OnDisable()                          // ← 추가
     {
         InputManager.Instance.OnFire -= OnFire;
-        InputManager.Instance.OnPick -= OnPick;
+        InputManager.Instance.OnInteract -= OnInteract;
     }
 
     void Awake()
     {
         gate = new PlayerActionGate();
         inventory = GetComponent<Inventory>();
-        pickUp = GetComponent<PickUp>();
+        interactor = GetComponent<Interactor>();
         animator = GetComponent<Animator>();
         fireBullet = GetComponent<FireBullet>();
         curHP = maxHP;
@@ -63,7 +62,6 @@ public class PlayerController : MonoBehaviour
     {
         if (!gate.Can(Block.Fire)) return;
         if (Cursor.lockState != CursorLockMode.Locked) return;
-        if (inventoryUI != null && inventoryUI.IsOpen) return;
         if (firetimer < delay) return;
 
         fireHeat = Math.Clamp(fireHeat+0.1f, 0, 1);
@@ -72,17 +70,14 @@ public class PlayerController : MonoBehaviour
         animator.SetTrigger("Fire");
     }
 
-    void OnPick()
+    void OnInteract()
     {
-        if (!gate.Can(Block.Pick)) return;
-        if (inventoryUI == null) return;
-        if (!pickUp.CanPickUp()) return;
-        ItemData id = pickUp.PickItems();
-        if (id != null)
-        {
-            inventory.AddItem(id);
-            animator.SetTrigger("Pick");
-        }
+        if (!gate.Can(Block.Interact)) return;
+        interactor.OnInteractInput(this);
+    }
+    public void PlayAnimToTrigger(int triggerHash)
+    {
+        if (animator) animator.SetTrigger(triggerHash);
     }
     void HandleMovement()
     {
