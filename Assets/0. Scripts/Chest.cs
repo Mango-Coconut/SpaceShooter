@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Chest : Container, IInteractable
 {
+    //상자 UI Popup 이벤트. PanelManager에서 받음
+    public static event Action<Chest> OnChestOpened;
     public event Action OnChestChanged;
 
     [SerializeField] Sprite chestSprite;
@@ -13,8 +15,7 @@ public class Chest : Container, IInteractable
 
     public void Interact(PlayerController player)
     {
-        Debug.Log("상자 열기");
-        // 상자 UI 열고/닫는 건 별도 PanelManager에서 처리
+        OnChestOpened?.Invoke(this);
     }
 
     public bool IsAvailable() => true;

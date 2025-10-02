@@ -15,6 +15,9 @@ public class PanelManager : MonoBehaviour
     [Header("InteractionPanels")]
     [SerializeField] InteractionPanel iiPanel;
 
+    [Header("chestPanels")]
+    [SerializeField] ChestPanel chestPanel;
+
     void OnEnable()
     {
         if (interactor) interactor.TargetChanged += IiPanelChange;
@@ -22,6 +25,8 @@ public class PanelManager : MonoBehaviour
         if (InputManager.Instance == null) return;
         InputManager.Instance.OnToggleInventory += InventoryUIToggle;
         InputManager.Instance.OnEsc += InventoryUIHandleEsc;
+
+        Chest.OnChestOpened += OpenChest;
     }
     void OnDisable()
     {
@@ -30,6 +35,8 @@ public class PanelManager : MonoBehaviour
         if (InputManager.Instance == null) return;
         InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
         InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
+
+        Chest.OnChestOpened -= OpenChest;
     }
 
     void Start()
@@ -67,6 +74,12 @@ public class PanelManager : MonoBehaviour
             // UI가 없을 때만 커서 토글 허용
             CursorController.Apply(!CursorController.LookEnabled);
         }
+    }
+
+    void OpenChest(Chest chest)
+    {
+        Debug.Log("chest UI Opened");
+        //chestPanel.Open(chest);
     }
 
 }
