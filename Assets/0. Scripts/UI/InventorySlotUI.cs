@@ -10,9 +10,14 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     [SerializeField] TMP_Text itemAmount;
 
+    RectTransform slotRect;
 
     StoredItem enterItem;
 
+    void Awake()
+    {
+        slotRect = GetComponent<RectTransform>();
+    }
     public void Initialize(SlotPanel parent)
     {
         host = parent;
@@ -41,7 +46,6 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (enterItem == null) return;
-        RectTransform slotRect = GetComponent<RectTransform>();
         host.ShowTooltip(enterItem, slotRect);
     }
 

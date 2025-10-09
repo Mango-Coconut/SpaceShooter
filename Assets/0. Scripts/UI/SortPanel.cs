@@ -9,6 +9,11 @@ public class SortPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     bool isPinned;
 
     void Start() => Show(false);
+    void Show(bool on)
+    {
+        if (content)  content.SetActive(on);
+        if (blocker)  blocker.SetActive(on);
+    }
 
     // ToggleButton
     public void OnButtonClick()
@@ -17,7 +22,7 @@ public class SortPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         Show(isPinned);
     }
 
-    // Blocker, SortButtons
+    // ToggleButton, Blocker
     public void OnClickOutside()
     {
         isPinned = false;
@@ -32,11 +37,5 @@ public class SortPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public void OnPointerExit(PointerEventData e)
     {
         if (!isPinned) Show(false);
-    }
-
-    void Show(bool on)
-    {
-        if (content)  content.SetActive(on);
-        if (blocker)  blocker.SetActive(on);
     }
 }

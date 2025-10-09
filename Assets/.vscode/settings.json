@@ -1,0 +1,5 @@
+{
+    "files.exclude": {
+        "{   \"files.exclude\": {     \"**/*.meta\": true,     \"**/*.csproj\": true,     \"**/*.unityproj\": true,     \"**/*.sln\": true,     \"**/*.user\": true,     \"**/*.pidb\": true,     \"**/*.booproj\": true,     \"**/.vs\": true,     \"**/Library\": true,     \"**/Temp\": true,     \"**/Obj\": true,     \"**/Logs\": true,     \"**/UserSettings\": true   } }": true
+    }
+}

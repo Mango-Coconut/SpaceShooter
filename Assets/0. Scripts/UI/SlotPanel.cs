@@ -5,10 +5,9 @@ using UnityEngine;
 
 public class SlotPanel : MonoBehaviour
 {
+    InventoryUI inventoryUI;
     [SerializeField] Inventory inventory;
     [SerializeField] GameObject slotPrefab;
-    [SerializeField] RectTransform tooltip;  // Tooltip 루트(RectTransform)
-    [SerializeField] TooltipUI tooltipUI;
 
     ItemType categoryFilter;
 
@@ -16,6 +15,7 @@ public class SlotPanel : MonoBehaviour
 
     private void Awake()
     {
+        inventoryUI = GetComponentInParent<InventoryUI>();
         for (int i = 0; i < inventory.maxSlotNum; i++)
         {
             InventorySlotUI child = Instantiate(slotPrefab, transform).GetComponent<InventorySlotUI>();
@@ -32,10 +32,10 @@ public class SlotPanel : MonoBehaviour
     void Start()
     {
         Refresh();
-        HideTooltip();
     }
 
-    private void OnDisable() {
+    private void OnDisable()
+    {
         inventory.OnInventoryChanged -= Refresh;
     }
 
@@ -50,7 +50,7 @@ public class SlotPanel : MonoBehaviour
         int uiIndex = 0;
         foreach (StoredItem slot in inventory.slots)
         {
-            if (categoryFilter == ItemType.All || slot.itemdata.type == categoryFilter)
+            if (categoryFilter == ItemType.All || categoryFilter == slot.itemdata.type)
             {
                 if (uiIndex < uiSlots.Count)
                     uiSlots[uiIndex].Bind(slot);
@@ -67,36 +67,10 @@ public class SlotPanel : MonoBehaviour
 
     public void ShowTooltip(StoredItem item, RectTransform slotRect)
     {
-        //툴팁 위치 정하기
-        // 슬롯 우상단 월드 좌표
-        Vector3[] corners = new Vector3[4];
-        slotRect.GetWorldCorners(corners);
-        Vector3 worldTopRight = corners[2]; // 0BL, 1TL, 2TR, 3BR
-
-        // 툴팁 부모 기준 좌표로 변환
-        RectTransform parent = (RectTransform)tooltipUI.transform.parent;
-        Canvas canvas = parent.GetComponentInParent<Canvas>();
-        Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : canvas.worldCamera;
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            parent,
-            RectTransformUtility.WorldToScreenPoint(cam, worldTopRight),
-            cam,
-            out Vector2 localPos
-        );
-
-        // 툴팁 좌상단을 슬롯 우상단에 붙이기
-        RectTransform ttRect = tooltipUI.GetComponent<RectTransform>();
-        ttRect.pivot = new Vector2(0f, 1f);
-        ttRect.anchoredPosition = localPos;
-
-
-        tooltipUI.Set(item);
-
-        tooltipUI.gameObject.SetActive(true);
+        inventoryUI.ShowTooltip(item, slotRect);
     }
     public void HideTooltip()
     {
-        tooltipUI.gameObject.SetActive(false);
+        inventoryUI.HideTooltip();
     }
 }
