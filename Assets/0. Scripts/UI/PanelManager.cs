@@ -10,7 +10,6 @@ public class PanelManager : MonoBehaviour
 
     [Header("InventoryPanels")]
     [SerializeField] GameObject inventoryUI;
-    bool opened;
 
     [Header("InteractionPanels")]
     [SerializeField] InteractionPanel iiPanel;
@@ -21,28 +20,27 @@ public class PanelManager : MonoBehaviour
     void OnEnable()
     {
         if (interactor) interactor.TargetChanged += IiPanelChange;
+        Chest.OnChestOpened += ChestUIToggle;
 
         if (InputManager.Instance == null) return;
         InputManager.Instance.OnToggleInventory += InventoryUIToggle;
         InputManager.Instance.OnEsc += InventoryUIHandleEsc;
-
-        Chest.OnChestOpened += OpenChest;
     }
     void OnDisable()
     {
         if (interactor) interactor.TargetChanged -= IiPanelChange;
+        Chest.OnChestOpened -= ChestUIToggle;
 
         if (InputManager.Instance == null) return;
         InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
         InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
-
-        Chest.OnChestOpened -= OpenChest;
     }
 
     void Start()
     {
         inventoryUI.SetActive(false);
         iiPanel.gameObject.SetActive(false);
+        chestPanel.gameObject.SetActive(false);
     }
 
 
@@ -56,18 +54,12 @@ public class PanelManager : MonoBehaviour
         }
     }
 
-    void InventoryUIToggle()
-    {
-        opened = !opened;
-        inventoryUI.SetActive(opened);
-        CursorController.Apply(!opened); // 열리면 Look 비활성(커서 보이게)
-    }
-
     void InventoryUIHandleEsc()
     {
-        if (opened)
+        if (isInvenOpen || isChestOpen)
         {
-            InventoryUIToggle(); // 인벤토리 열려 있으면 닫기 우선
+            CloseInventoryUI();
+            CloseChestUI();
         }
         else
         {
@@ -76,10 +68,57 @@ public class PanelManager : MonoBehaviour
         }
     }
 
-    void OpenChest(Chest chest)
+
+    bool isInvenOpen;
+    void InventoryUIToggle()
     {
-        Debug.Log("chest UI Opened");
-        //chestPanel.Open(chest);
+        if (isInvenOpen == false)
+        {
+            OpenInventoryUI();
+        }
+        else
+        {
+            CloseInventoryUI();
+            CloseChestUI();
+        }
+    }
+    void OpenInventoryUI()
+    {
+        isInvenOpen = true;
+        inventoryUI.SetActive(true);
+        CursorController.Apply(false);
+    }
+    void CloseInventoryUI()
+    {
+        isInvenOpen = false;
+        inventoryUI.SetActive(false);
+        CursorController.Apply(true);
     }
 
+    bool isChestOpen = false;
+    void ChestUIToggle(Chest c)
+    {
+        if (isChestOpen == false)
+        {
+            OpenInventoryUI();
+            OpenChestUI(c);
+        }
+        else
+        {
+            CloseInventoryUI();
+            CloseChestUI();
+        }
+    }
+    void OpenChestUI(Chest c)
+    {
+        isChestOpen = true;
+        // 상자 열 때 UI에 Chest 전달
+        chestPanel.deliverChest(c);
+        chestPanel.gameObject.SetActive(true);
+    }
+    void CloseChestUI()
+    {
+        isChestOpen = false;
+        chestPanel.gameObject.SetActive(false);
+    }
 }

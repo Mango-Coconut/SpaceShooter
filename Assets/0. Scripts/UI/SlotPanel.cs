@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
 public class SlotPanel : MonoBehaviour
 {
-    InventoryUI inventoryUI;
-    [SerializeField] Inventory inventory;
+    [SerializeField] InventoryUI inventoryUI;
+    [SerializeField] Container container;
     [SerializeField] GameObject slotPrefab;
 
     ItemType categoryFilter;
@@ -15,18 +16,25 @@ public class SlotPanel : MonoBehaviour
 
     private void Awake()
     {
-        inventoryUI = GetComponentInParent<InventoryUI>();
-        for (int i = 0; i < inventory.maxSlotNum; i++)
+        if (container != null) SetContainer(container);
+        container.Changed += Refresh;
+    }
+
+    public void SetContainer(Container c)
+    {
+        container = c;
+        for (int i = uiSlots.Count; i < c.maxSlotNum; i++)
         {
             InventorySlotUI child = Instantiate(slotPrefab, transform).GetComponent<InventorySlotUI>();
-            child.Initialize(this);
+            child.Initialize(inventoryUI);
             uiSlots.Add(child);
         }
+        Refresh();
     }
 
     private void OnEnable()
     {
-        inventory.OnInventoryChanged += Refresh;
+        container.Changed += Refresh;
     }
 
     void Start()
@@ -36,7 +44,7 @@ public class SlotPanel : MonoBehaviour
 
     private void OnDisable()
     {
-        inventory.OnInventoryChanged -= Refresh;
+        container.Changed -= Refresh;
     }
 
     public void ChangeCategory(int index)
@@ -47,8 +55,10 @@ public class SlotPanel : MonoBehaviour
 
     void Refresh()
     {
+        if (container == null) return;
+
         int uiIndex = 0;
-        foreach (StoredItem slot in inventory.slots)
+        foreach (StoredItem slot in container.slots)
         {
             if (categoryFilter == ItemType.All || categoryFilter == slot.itemdata.type)
             {
@@ -63,14 +73,5 @@ public class SlotPanel : MonoBehaviour
         {
             uiSlots[i].Clear();
         }
-    }
-
-    public void ShowTooltip(StoredItem item, RectTransform slotRect)
-    {
-        inventoryUI.ShowTooltip(item, slotRect);
-    }
-    public void HideTooltip()
-    {
-        inventoryUI.HideTooltip();
     }
 }

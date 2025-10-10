@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using System.Collections.Generic;
 
 public class Inventory : Container
 {
@@ -37,5 +37,33 @@ public class Inventory : Container
         slot.lastUsed = DateTime.Now;
 
         return TryRemoveItem(slot.itemdata, slot.count);
+    }
+    
+    public List<StoredItem> GetByCategory(ItemType type)
+    {
+        return slots.FindAll(s => s.itemdata.type == type);
+    }
+
+    public void Sort(int index)
+    {
+        SortType key = (SortType)index;
+
+        Comparison<StoredItem> comparison = (a, b) =>
+        {
+            switch (key)
+            {
+                case SortType.Rarity:   return b.itemdata.rarity.CompareTo(a.itemdata.rarity);
+                case SortType.Price:    return b.itemdata.price.CompareTo(a.itemdata.price);
+                case SortType.Weight:   return b.itemdata.weight.CompareTo(a.itemdata.weight);
+                case SortType.Volume:   return b.itemdata.volume.CompareTo(a.itemdata.volume);
+                case SortType.LastGet:  return b.lastGet.CompareTo(a.lastGet);
+                case SortType.LastUsed: return b.lastUsed.CompareTo(a.lastUsed);
+                case SortType.UseCount: return b.useCount.CompareTo(a.useCount);
+                default:                return 0;
+            }
+        };
+
+        slots.Sort(comparison);
+        RaiseChanged();
     }
 }

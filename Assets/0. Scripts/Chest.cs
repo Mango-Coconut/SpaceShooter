@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Chest : Container, IInteractable
 {
-    //상자 UI Popup 이벤트. PanelManager에서 받음
+    [SerializeField] ItemData[] chestitems;
     public static event Action<Chest> OnChestOpened;
     public event Action OnChestChanged;
 
@@ -13,8 +13,16 @@ public class Chest : Container, IInteractable
     void OnDisable() => Changed -= Forward;
     void Forward()   => OnChestChanged?.Invoke();
 
+    void Start()
+    {
+        foreach(ItemData item in chestitems)
+        {
+            TryAddItem(item);
+        }
+    }
     public void Interact(PlayerController player)
     {
+        //PanelManager가 받음
         OnChestOpened?.Invoke(this);
     }
 

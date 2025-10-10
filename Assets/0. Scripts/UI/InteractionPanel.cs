@@ -12,9 +12,9 @@ public class InteractionPanel : MonoBehaviour
 
     public void OnTargetChange(IInteractable target)
     {
-        if (target == null) return; // 안전망
+        if (target == null) return;
 
-        var (key, text) = target.GetPrompt();   // 지금은 튜플 유지
+        var (key, text) = target.GetPrompt();
         var spr = target.GetIcon();
 
         inputKeyText.text = key ?? "";

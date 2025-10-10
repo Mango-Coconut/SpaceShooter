@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class ChestPanel : MonoBehaviour
 {
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    //각 슬롯 프리팹
+    [SerializeField] SlotPanel slotPanel;
+    [SerializeField] InventoryUI inventoryUI;
+    Chest curChest;
 
-    // Update is called once per frame
-    void Update()
+    public void deliverChest(Chest chest)
     {
-        
+        curChest = chest;
+        slotPanel.SetContainer(chest);
     }
 }

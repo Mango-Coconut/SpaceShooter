@@ -1,8 +1,10 @@
+
 using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] TooltipUI tooltipUI;
+    [SerializeField] DragSlot dragSlot;
 
     RectTransform uiRect;
     Canvas canvas;
@@ -39,9 +41,36 @@ public class InventoryUI : MonoBehaviour
         tooltipUI.gameObject.SetActive(true);
     }
 
+    void OnDisable()
+    {
+        HideTooltip();
+    }
     public void HideTooltip()
     {
         tooltipUI.gameObject.SetActive(false);
     }
 
+    public void BeginDragSlot(StoredItem item)
+    {
+        dragSlot.Bind(item);
+        dragSlot.gameObject.SetActive(true);
+    }
+
+    public void DragDragSlot(Vector2 pos)
+    {
+        dragSlot.transform.position = pos;
+    }
+    public void EndDragSlot(string tag)
+    {
+        if(tag == "InventoryUI")
+        {
+            
+        }
+        else if(tag == "ChestUI")
+        {
+            
+        }
+        //dragSlot.Clear();
+        dragSlot.gameObject.SetActive(false);
+    }
 }

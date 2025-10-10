@@ -1,12 +1,15 @@
+using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+using UnityEngine.UIElements;
+public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    SlotPanel host;
-    [SerializeField] Image frame;
-    [SerializeField] Image itemImage;
+    InventoryUI inventoryUI;
+    [SerializeField] UnityEngine.UI.Image frame;
+    [SerializeField] UnityEngine.UI.Image itemImage;
 
     [SerializeField] TMP_Text itemAmount;
 
@@ -16,11 +19,12 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     void Awake()
     {
+        raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         slotRect = GetComponent<RectTransform>();
     }
-    public void Initialize(SlotPanel parent)
+    public void Initialize(InventoryUI parent)
     {
-        host = parent;
+        inventoryUI = parent;
         enterItem = null;
         Clear();
     }
@@ -46,12 +50,51 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (enterItem == null) return;
-        host.ShowTooltip(enterItem, slotRect);
+        inventoryUI.ShowTooltip(enterItem, slotRect);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (enterItem == null) return;
-        host.HideTooltip();
+        inventoryUI.HideTooltip();
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (enterItem == null) return;
+        inventoryUI.BeginDragSlot(enterItem);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (enterItem == null) return;
+        inventoryUI.DragDragSlot(eventData.position);
+    }
+
+    GraphicRaycaster raycaster;
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (enterItem == null) return;
+        
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        raycaster.Raycast(eventData, results);
+        string tag = "";
+
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.CompareTag("InventoryUI"))
+            {
+                tag = "InventoryUI";
+                return;
+            }
+            if (result.gameObject.CompareTag("ChestUI"))
+            {
+                tag = "ChestUI";
+                return;
+            }
+        }
+        
+        inventoryUI.EndDragSlot(tag);
     }
 }

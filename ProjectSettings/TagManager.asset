@@ -8,6 +8,8 @@ TagManager:
   - Barrel
   - Items
   - MonsterAttack
+  - InventoryUI
+  - ChestUI
   layers:
   - Default
   - TransparentFX
