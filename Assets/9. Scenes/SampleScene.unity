@@ -1292,8 +1292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3776e614e3dd6742a3fa42004db0036, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipUI: {fileID: 1591596281}
-  dragSlot: {fileID: 292378808458136392}
+  slotPanel: {fileID: 1782884048}
 --- !u!1 &275500541
 GameObject:
   m_ObjectHideFlags: 0
@@ -1524,7 +1523,7 @@ GameObject:
   - component: {fileID: 324489580}
   - component: {fileID: 324489579}
   m_Layer: 5
-  m_Name: SlotPanel
+  m_Name: ChestSlotPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1616,7 +1615,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a981b731250876c46adbb4bd1e24189e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryUI: {fileID: 221234653}
   container: {fileID: 0}
   slotPrefab: {fileID: 4924103525559152048, guid: 86c44cf8e95f9804d9a03ff406fb0827, type: 3}
 --- !u!222 &324489582
@@ -1932,7 +1930,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 10, y: 0}
-  m_SizeDelta: {x: 91.71, y: 69.51}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &415228580
 MonoBehaviour:
@@ -4764,7 +4762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 0}
-  moveSpeed: 5
+  moveSpeed: 10
   delay: 0.15
   fireHeat: 0
   isMoving: 0
@@ -8040,9 +8038,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactor: {fileID: 1089791405}
-  inventoryUI: {fileID: 221234649}
+  inventoryUI: {fileID: 221234653}
   iiPanel: {fileID: 1675221653}
   chestPanel: {fileID: 1915702324}
+  tooltipUI: {fileID: 1591596281}
+  dragSlot: {fileID: 292378808458136392}
 --- !u!4 &1550936119 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6057398078812707135, guid: ea02b1fe8758e4b4cb657aac92385c2f, type: 3}
@@ -8137,7 +8137,7 @@ GameObject:
   - component: {fileID: 1591596279}
   - component: {fileID: 1591596281}
   m_Layer: 5
-  m_Name: ItemToolTip
+  m_Name: ToolipUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8161,11 +8161,11 @@ RectTransform:
   m_Father: {fileID: 1544342951}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 276, y: 270}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 400}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &1591596279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8666,7 +8666,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1675221650
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8702,7 +8702,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.7686275, g: 0.7686275, b: 0.7686275, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -8849,7 +8849,7 @@ GameObject:
   - component: {fileID: 1782884045}
   - component: {fileID: 1782884046}
   m_Layer: 5
-  m_Name: SlotPanel
+  m_Name: InventorySlotPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8949,7 +8949,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a981b731250876c46adbb4bd1e24189e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryUI: {fileID: 221234653}
   container: {fileID: 1089791404}
   slotPrefab: {fileID: 4924103525559152048, guid: 86c44cf8e95f9804d9a03ff406fb0827, type: 3}
 --- !u!4 &1784664385 stripped
@@ -9314,6 +9313,7 @@ GameObject:
   - component: {fileID: 1915702321}
   - component: {fileID: 1915702323}
   - component: {fileID: 1915702324}
+  - component: {fileID: 1915702325}
   - component: {fileID: 1915702322}
   m_Layer: 5
   m_Name: ChestPanel
@@ -9321,7 +9321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1915702321
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9395,6 +9395,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 298a251dc85e323499f3edb4298ad910, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chestInventoryUI: {fileID: 1915702325}
+--- !u!114 &1915702325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915702320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3776e614e3dd6742a3fa42004db0036, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   slotPanel: {fileID: 324489581}
 --- !u!1 &1926061729
 GameObject:
@@ -9434,7 +9447,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 25, y: 0}
-  m_SizeDelta: {x: 89.88, y: 104.26}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1926061731
 MonoBehaviour:
@@ -10282,7 +10295,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2097500170
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10805,7 +10818,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &292378808458136392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11595,7 +11608,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 17.76, y: 46.34}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 1, y: 0}
 --- !u!33 &5698302998644565138
 MeshFilter:

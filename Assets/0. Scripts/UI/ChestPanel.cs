@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class ChestPanel : MonoBehaviour
 {
-    //각 슬롯 프리팹
-    [SerializeField] SlotPanel slotPanel;
-    [SerializeField] InventoryUI inventoryUI;
-    Chest curChest;
+    [SerializeField] InventoryUI chestInventoryUI;
+    public InventoryUI ChestInventoryUI => chestInventoryUI;
+    Chest chestContainer;
 
+    void Awake()
+    {
+        if (chestInventoryUI == null) chestInventoryUI = gameObject.GetComponent<InventoryUI>();
+    }
     public void deliverChest(Chest chest)
     {
-        curChest = chest;
-        slotPanel.SetContainer(chest);
+        chestContainer = chest;
+        chestInventoryUI.GetSlotPanel().SetContainer(chestContainer);
     }
 }

@@ -3,19 +3,20 @@ using UnityEngine;
 
 public class Chest : Container, IInteractable
 {
+    //미리 들어있는 상자 내용물
     [SerializeField] ItemData[] chestitems;
     public static event Action<Chest> OnChestOpened;
     public event Action OnChestChanged;
 
     [SerializeField] Sprite chestSprite;
 
-    void OnEnable()  => Changed += Forward;
+    void OnEnable() => Changed += Forward;
     void OnDisable() => Changed -= Forward;
-    void Forward()   => OnChestChanged?.Invoke();
+    void Forward() => OnChestChanged?.Invoke();
 
     void Start()
     {
-        foreach(ItemData item in chestitems)
+        foreach (ItemData item in chestitems)
         {
             TryAddItem(item);
         }
