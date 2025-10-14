@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class SlotPanel : MonoBehaviour
 {
     [SerializeField] private Container container;
+    public Container Container => container;
     [SerializeField] private GameObject slotPrefab;
 
     private ItemType categoryFilter = ItemType.All;
@@ -64,7 +65,7 @@ public class SlotPanel : MonoBehaviour
             NullChecker.NullCheck(this, nameof(container));
             return;
         }
-        container.Changed -= Refresh; // 중복 방지
+        container.Changed -= Refresh;
         container.Changed += Refresh;
     }
 
@@ -151,7 +152,7 @@ public class SlotPanel : MonoBehaviour
         }
 
         int uiIndex = 0;
-        foreach (StoredItem si in container.slots)
+        foreach (StoredItem si in container.Slots)
         {
             if (categoryFilter == ItemType.All || categoryFilter == si.itemdata.type)
             {
@@ -195,6 +196,7 @@ public class SlotPanel : MonoBehaviour
 
     private void HandleEndDrag(InventorySlotUI slotUI, PointerEventData e)
     {
+        Refresh();
         Dropped?.Invoke(slotUI, e);
     }
 }

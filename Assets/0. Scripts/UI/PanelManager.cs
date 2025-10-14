@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -16,7 +17,7 @@ public class PanelManager : MonoBehaviour
     [SerializeField] InteractionPanel iiPanel;
 
     [Header("ChestPanel")]
-    [SerializeField] ChestPanel chestPanel; // ← Chest 쪽도 동일 시그니처의 이벤트를 포워딩한다고 가정
+    [SerializeField] ChestPanel chestPanel;
 
     [Header("TooltipUI")]
     [SerializeField] TooltipUI tooltipUI;
@@ -24,9 +25,8 @@ public class PanelManager : MonoBehaviour
     [Header("DragSlot")]
     [SerializeField] DragSlot dragSlot;
 
-    [Header("UI Canvas / Camera (for positioning)")]
+    [Header("UI Canvas")]
     RectTransform uiRect;
-    Camera cam = null;
 
     bool isInvenOpen;
     bool isChestOpen;
@@ -37,10 +37,13 @@ public class PanelManager : MonoBehaviour
         Chest.OnChestOpened += ChestUIToggle;
 
         if (InputManager.Instance != null)
-        {        
+        {
             InputManager.Instance.OnToggleInventory += InventoryUIToggle;
-            InputManager.Instance.OnEsc += InventoryUIHandleEsc;    
+            InputManager.Instance.OnEsc += InventoryUIHandleEsc;
         }
+
+        SubscribeInventoryUI();
+        SubscribeChestUI();
     }
 
     void OnDisable()
@@ -53,8 +56,11 @@ public class PanelManager : MonoBehaviour
             InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
             InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
         }
+
+        UnsubscribeInventoryUI();
+        UnsubscribeChestUI();
     }
-    
+
     void Awake()
     {
         if (uiRect == null) uiRect = GetComponent<RectTransform>();
@@ -66,9 +72,20 @@ public class PanelManager : MonoBehaviour
         inventoryUI.gameObject.SetActive(false);
         iiPanel.gameObject.SetActive(false);
         chestPanel.gameObject.SetActive(false);
-
         tooltipUI.gameObject.SetActive(false);
         dragSlot.gameObject.SetActive(false);
+    }
+
+    //static 이벤트는 destroy에서도 구독 해제
+    void OnDestroy()
+    {
+        Chest.OnChestOpened -= ChestUIToggle;
+
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
+            InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
+        }
     }
 
     // ───────────────────────────────── UI 토글/연계 ─────────────────────────────────
@@ -144,19 +161,16 @@ public class PanelManager : MonoBehaviour
     void CloseChestUI()
     {
         isChestOpen = false;
+        Debug.Log("chestclosed");
+        //상자 닫힐 때 플레이어 행동 가능하게
+        PlayerActionGate.Instance.PopInteract();
         chestPanel.gameObject.SetActive(false);
     }
-
-    // ───────────────────────────── Tooltip/Drag 구현 (핵심) ─────────────────────────────
 
     // InventoryUI / ChestPanel 이벤트 구독
     void SubscribeInventoryUI()
     {
-        if (inventoryUI == null)
-        {
-            NullChecker.NullCheck(this, nameof(inventoryUI));
-            return;
-        }
+        if (inventoryUI == null) return;
 
         // 중복 방지
         UnsubscribeInventoryUI();
@@ -170,11 +184,7 @@ public class PanelManager : MonoBehaviour
 
     void UnsubscribeInventoryUI()
     {
-        if (inventoryUI == null)
-        {
-            NullChecker.NullCheck(this, nameof(inventoryUI));
-            return;
-        }
+        if (inventoryUI == null) return;
 
         inventoryUI.ShowTooltip -= OpenTooltip;
         inventoryUI.HideTooltip -= CloseTooltip;
@@ -185,11 +195,8 @@ public class PanelManager : MonoBehaviour
 
     void SubscribeChestUI()
     {
-        if (chestPanel == null || chestPanel.ChestInventoryUI == null)
-        {
-            NullChecker.NullCheck(this, nameof(chestPanel));
-            return;
-        }
+        if (chestPanel == null || chestPanel.ChestInventoryUI == null) return;
+
         UnsubscribeChestUI();
         var ui = chestPanel.ChestInventoryUI;
         ui.ShowTooltip += OpenTooltip;
@@ -201,11 +208,7 @@ public class PanelManager : MonoBehaviour
 
     void UnsubscribeChestUI()
     {
-        if (chestPanel == null || chestPanel.ChestInventoryUI == null)
-        {
-            NullChecker.NullCheck(this, nameof(chestPanel));
-            return;
-        }
+        if (chestPanel == null || chestPanel.ChestInventoryUI == null) return;
 
         var ui = chestPanel.ChestInventoryUI;
         ui.ShowTooltip -= OpenTooltip;
@@ -218,28 +221,20 @@ public class PanelManager : MonoBehaviour
     // ▼ Tooltip
     void OpenTooltip(InventorySlotUI slotUI)
     {
-        if (slotUI == null || slotUI.EnterItem == null)
-        {
-            return;
-        }
+        if (slotUI == null || slotUI.EnterItem == null) return;
         // 슬롯 RectTransform
         RectTransform slotRect = slotUI.Rect;
 
         // 슬롯의 월드 좌표 → 우상단 꼭짓점
         Vector3[] corners = new Vector3[4];
         slotRect.GetWorldCorners(corners);
-        Vector3 worldTopRight = corners[2]; // ↗
+        Vector3 worldTopRight = corners[2];
 
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            uiRect,
-            RectTransformUtility.WorldToScreenPoint(cam, worldTopRight),
-            cam,
-            out localPos
-        );
+        Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, worldTopRight);
+
         // 툴팁 위치 및 표시
         RectTransform ttRect = (RectTransform)tooltipUI.transform;
-        ttRect.anchoredPosition = localPos;
+        ttRect.position = screen;
 
         tooltipUI.Set(slotUI.EnterItem);
         tooltipUI.gameObject.SetActive(true);
@@ -250,104 +245,54 @@ public class PanelManager : MonoBehaviour
         tooltipUI.gameObject.SetActive(false);
     }
 
-    // ▼ Drag
-    void OnBeginDragFromPanel(InventorySlotUI slotUI, PointerEventData e)
+    SlotPanel fromSP;
+    void OnBeginDragFromPanel(InventorySlotUI slotUI, SlotPanel sp, PointerEventData e)
     {
-        // 드래그 시작 시 툴팁 강제 숨김
+        if (slotUI.EnterItem == null) return;
+
+        //드래그 시작한 곳(인벤토리or상자)
+        fromSP = sp;
         CloseTooltip();
 
-        // TODO: slotUI에서 아이템 참조를 얻어와 DragSlot에 바인딩
-        // var item = slotUI.GetBoundItem();
-        // if (item == null) return;
-
-        // dragSlot.Bind(item);
-        // dragSlot.gameObject.SetActive(true);
-        // MoveDragVisual(e.position);
-
-        // 애매한 부분: 프로젝트 슬롯 API에 맞춰 채우기
+        dragSlot.gameObject.SetActive(true);
+        dragSlot.Bind(slotUI.EnterItem);
+        StoredItem i = slotUI.EnterItem;
     }
 
     void OnDraggingFromPanel(InventorySlotUI slotUI, PointerEventData e)
     {
-        // 드래그 아이콘 따라다니기
-        MoveDragVisual(e.position);
+        dragSlot.transform.position = e.position;
     }
 
-    void OnDroppedFromPanel(InventorySlotUI slotUI, PointerEventData e)
+    void OnDroppedFromPanel(InventorySlotUI slotUI, SlotPanel sp, PointerEventData e)
     {
-        // 1) 위치로 드롭 대상 판정 (인벤/체스트)
-        //    RectTransformUtility.RectangleContainsScreenPoint(…)
-        // 2) 컨테이너 간 아이템 이동 로직 호출 (원자적 이동)
-        // 3) 드래그 비주얼 숨김
-
-        // TODO: 드롭 정책/판정은 기존 프로젝트 방식대로 구현
-
+        SlotPanel toSP = sp;
+        ItemData data = slotUI.EnterItem.itemdata;
+        int amount = slotUI.EnterItem.count;
+        if (fromSP == null) return;
+        if (data == null) return;
 
         List<RaycastResult> results = new List<RaycastResult>();
         GraphicRaycaster raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         raycaster.Raycast(e, results);
-        string tag = "";
-
         foreach (RaycastResult result in results)
         {
             if (result.gameObject.CompareTag("InventoryUI"))
             {
-                tag = "InventoryUI";
-                return;
+                toSP = inventoryUI.SlotPanel;
             }
             if (result.gameObject.CompareTag("ChestUI"))
             {
-                tag = "ChestUI";
-                return;
+                toSP = chestPanel.ChestInventoryUI.SlotPanel;
             }
         }
+        
+        //시작과 끝이 서로 다르면 추가 제거
+        if (!ReferenceEquals(fromSP, toSP))
+        {
+            InventoryManager.Instance.TryRemoveItem(fromSP.Container, data, amount);
+            InventoryManager.Instance.TryAddItem(toSP.Container, data, amount);
+        }        
         dragSlot.gameObject.SetActive(false);
-    }
-
-    void MoveDragVisual(Vector2 screenPos)
-    {
-        if (!dragSlot.gameObject.activeSelf) return;
-
-        RectTransform dragRect = (RectTransform)dragSlot.transform;
-        Vector2 localPos;
-
-        if (uiRect != null)
-        {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                uiRect,
-                screenPos,
-                cam,
-                out localPos
-            );
-            dragRect.anchoredPosition = localPos;
-        }
-        else
-        {
-            // fallback
-            dragRect.position = screenPos;
-        }
-    }
-
-    // 기존 ShowTooltip(StoredItem, RectTransform)
-    public void ShowTooltip(StoredItem item, RectTransform slotRect)
-    {
-        // 위치 계산 (슬롯 우측 상단 기준)
-        Vector3[] corners = new Vector3[4];
-        slotRect.GetWorldCorners(corners);
-        Vector3 worldTopRight = corners[2];
-
-        RectTransform ttRect = (RectTransform)tooltipUI.transform;
-
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            uiRect,
-            RectTransformUtility.WorldToScreenPoint(cam, worldTopRight),
-            cam,
-            out localPos
-        );
-        ttRect.anchoredPosition = localPos;
-
-        tooltipUI.Set(item);
-        tooltipUI.gameObject.SetActive(true);
     }
 }

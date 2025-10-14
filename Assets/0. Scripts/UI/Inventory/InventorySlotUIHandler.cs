@@ -29,6 +29,7 @@ public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPoin
 
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
+        mySlot.Invisible();
         BeginDragSlot?.Invoke(mySlot, eventData);
     }
     void IDragHandler.OnDrag(PointerEventData eventData)
@@ -38,6 +39,7 @@ public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPoin
 
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
     {
+        mySlot.Visible();
         EndDragSlot?.Invoke(mySlot, eventData);
     }
 }

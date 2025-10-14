@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class Container : MonoBehaviour
 {
-    // 가능하면 외부 수정 막고 읽기만 노출
-    public List<StoredItem> slots = new List<StoredItem>();
+    List<StoredItem> slots = new List<StoredItem>();
+    public List<StoredItem> Slots => slots;
     public int maxSlotNum = 10;
 
     public event Action Changed;
@@ -16,10 +16,9 @@ public class Container : MonoBehaviour
         Changed?.Invoke();
     }
 
-    // 🔎 공통 조회
     protected StoredItem FindSlot(ItemData data)
     {
-        return slots.Find(s => s.itemdata == data); // (허용) 컬렉션 람다
+        return slots.Find(s => s.itemdata == data);
     }
 
     public int CountOf(ItemData data)

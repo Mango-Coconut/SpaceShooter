@@ -58,7 +58,7 @@ public class Inventory : Container
             }
         };
 
-        slots.Sort(comparison);
+        Slots.Sort(comparison);
         RaiseChanged();
     }
 }

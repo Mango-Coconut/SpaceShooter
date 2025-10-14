@@ -18,12 +18,22 @@ public class PlayerActionGate
 
     public Block Active { get; private set; }
 
+    private static PlayerActionGate instance;
+    public static PlayerActionGate Instance
+    {
+        get
+        {
+            if (instance == null)
+                instance = new PlayerActionGate();
+            return instance;
+        }
+    }
+
     public bool Can(Block mask) => (Active & mask) == 0;
 
 
-    //Pick Block Behaviors
+    //상호작용 중일 때 제한할 행동들
     private static readonly Block interactMask = Block.Move | Block.Fire | Block.Interact;
-
     public void PushInteract() => Push(interactMask);
     public void PopInteract() => Pop(interactMask);
 

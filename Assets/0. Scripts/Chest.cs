@@ -21,7 +21,7 @@ public class Chest : Container, IInteractable
             TryAddItem(item);
         }
     }
-    public void Interact(PlayerController player)
+    public void Interact(PlayerController pc)
     {
         //PanelManager가 받음
         OnChestOpened?.Invoke(this);

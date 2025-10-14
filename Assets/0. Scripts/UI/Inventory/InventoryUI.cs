@@ -6,13 +6,14 @@ using UnityEngine.EventSystems;
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private SlotPanel slotPanel;
+    public SlotPanel SlotPanel => slotPanel;
 
     // ── 위로 포워딩할 이벤트 (PanelManager 등 상위에서 구독) ──
     public event Action<InventorySlotUI> ShowTooltip;
     public event Action HideTooltip;
-    public event Action<InventorySlotUI, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, SlotPanel, PointerEventData> BeginDrag;
     public event Action<InventorySlotUI, PointerEventData> Dragging;
-    public event Action<InventorySlotUI, PointerEventData> Dropped;
+    public event Action<InventorySlotUI, SlotPanel, PointerEventData> Dropped;
 
     void OnEnable()
     {
@@ -63,31 +64,26 @@ public class InventoryUI : MonoBehaviour
     // ── SlotPanel → InventoryUI 포워딩 핸들러 ──
     private void OnSlotPanelTooltipShown(InventorySlotUI slotUI)
     {
-        Action<InventorySlotUI> handler = ShowTooltip;
-        if (handler != null) handler.Invoke(slotUI);
+        ShowTooltip?.Invoke(slotUI);
     }
 
     private void OnSlotPanelTooltipHidden(InventorySlotUI slotUI)
     {
-        Action handler = HideTooltip;
-        if (handler != null) handler.Invoke();
+        HideTooltip?.Invoke();
     }
 
     private void OnSlotPanelBeginDrag(InventorySlotUI slotUI, PointerEventData e)
     {
-        Action<InventorySlotUI, PointerEventData> handler = BeginDrag;
-        if (handler != null) handler.Invoke(slotUI, e);
+        BeginDrag?.Invoke(slotUI, slotPanel, e);
     }
 
     private void OnSlotPanelDragging(InventorySlotUI slotUI, PointerEventData e)
     {
-        Action<InventorySlotUI, PointerEventData> handler = Dragging;
-        if (handler != null) handler.Invoke(slotUI, e);
+        Dragging?.Invoke(slotUI, e);
     }
 
     private void OnSlotPanelDropped(InventorySlotUI slotUI, PointerEventData e)
     {
-        Action<InventorySlotUI, PointerEventData> handler = Dropped;
-        if (handler != null) handler.Invoke(slotUI, e);
+        Dropped?.Invoke(slotUI, slotPanel, e);
     }
 }

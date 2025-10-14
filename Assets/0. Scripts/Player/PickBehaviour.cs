@@ -11,7 +11,8 @@ public class PickBehaviour : StateMachineBehaviour
         {
             pc = animator.GetComponent<PlayerController>();
         }
-        pc.gate.PushInteract();
+        //PC에서 Interact시에 직접 처리했음
+        //pc.gate.PushInteract();
     }
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

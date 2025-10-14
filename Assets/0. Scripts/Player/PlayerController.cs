@@ -27,13 +27,13 @@ public class PlayerController : MonoBehaviour
     public static event PlayerDieHandler OnPlayerDie;
 
     Animator animator;
-    void OnEnable()                           // ← 추가
+    void OnEnable()
     {
         InputManager.Instance.OnFire += OnFire;
         InputManager.Instance.OnInteract += OnInteract;
     }
 
-    void OnDisable()                          // ← 추가
+    void OnDisable()
     {
         InputManager.Instance.OnFire -= OnFire;
         InputManager.Instance.OnInteract -= OnInteract;
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        gate = new PlayerActionGate();
+        gate = PlayerActionGate.Instance;
         inventory = GetComponent<Inventory>();
         interactor = GetComponent<Interactor>();
         animator = GetComponent<Animator>();
@@ -73,15 +73,20 @@ public class PlayerController : MonoBehaviour
     void OnInteract()
     {
         if (!gate.Can(Block.Interact)) return;
+        //상호작용 중이면 다른 상호작용 x
+        gate.PushInteract();
         interactor.OnInteractInput(this);
     }
+
     public void PlayAnimToTrigger(int triggerHash)
     {
         if (animator) animator.SetTrigger(triggerHash);
     }
+    
     void HandleMovement()
     {
-        
+        if (!gate.Can(Block.Move)) return;
+
         Vector2 mv = InputManager.Instance.Move;
         Vector2 look = InputManager.Instance.Look;
 
@@ -89,8 +94,6 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("MoveY", mv.y);
 
         transform.Rotate(Vector3.up * look.x * 360 * Time.deltaTime);
-
-        if (!gate.Can(Block.Move)) return;
 
         Vector3 moveDir = new Vector3(mv.x, 0, mv.y).normalized;
         transform.Translate(moveDir * moveSpeed * Time.deltaTime);

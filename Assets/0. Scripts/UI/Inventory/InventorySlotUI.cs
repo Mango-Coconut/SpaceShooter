@@ -26,7 +26,6 @@ public class InventorySlotUI : MonoBehaviour
     }
     public void Initialize()
     {
-        enterItem = null;
         Clear();
     }
 
@@ -44,6 +43,16 @@ public class InventorySlotUI : MonoBehaviour
     public void Clear()
     {
         enterItem = null;
+        itemImage.enabled = false;
+        itemAmount.enabled = false;
+    }
+    public void Invisible()
+    {
+        itemImage.enabled = false;
+        itemAmount.enabled = false;
+    }
+        public void Visible()
+    {
         itemImage.enabled = false;
         itemAmount.enabled = false;
     }
