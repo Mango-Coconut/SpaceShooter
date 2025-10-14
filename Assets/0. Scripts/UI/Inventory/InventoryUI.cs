@@ -14,11 +14,7 @@ public class InventoryUI : MonoBehaviour
     public event Action<InventorySlotUI, PointerEventData> Dragging;
     public event Action<InventorySlotUI, PointerEventData> Dropped;
 
-    private void OnEnable()
-    {
-        SubscribeSlotPanel();
-    }
-    void Start()
+    void OnEnable()
     {
         SubscribeSlotPanel();
     }
@@ -28,9 +24,10 @@ public class InventoryUI : MonoBehaviour
         UnsubscribeSlotPanel();
     }
 
-    public SlotPanel GetSlotPanel()
+    public void SetSlotPanel(Chest chest)
     {
-        return slotPanel;
+        slotPanel.SetContainer(chest);
+        SubscribeSlotPanel();
     }
 
     private void SubscribeSlotPanel()
@@ -41,14 +38,7 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-
-        // 중복 구독 방지용으로 일단 제거 후 등록
-        slotPanel.TooltipShown -= OnSlotPanelTooltipShown;
-        slotPanel.TooltipHidden -= OnSlotPanelTooltipHidden;
-        slotPanel.BeginDrag -= OnSlotPanelBeginDrag;
-        slotPanel.Dragging -= OnSlotPanelDragging;
-        slotPanel.Dropped -= OnSlotPanelDropped;
-
+        UnsubscribeSlotPanel();
         slotPanel.TooltipShown += OnSlotPanelTooltipShown;
         slotPanel.TooltipHidden += OnSlotPanelTooltipHidden;
         slotPanel.BeginDrag += OnSlotPanelBeginDrag;
@@ -60,7 +50,6 @@ public class InventoryUI : MonoBehaviour
     {
         if (slotPanel == null)
         {
-            NullChecker.NullCheck(this, nameof(slotPanel));
             return;
         }
 

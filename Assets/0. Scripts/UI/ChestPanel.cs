@@ -15,6 +15,6 @@ public class ChestPanel : MonoBehaviour
     public void deliverChest(Chest chest)
     {
         chestContainer = chest;
-        chestInventoryUI.GetSlotPanel().SetContainer(chestContainer);
+        chestInventoryUI.SetSlotPanel(chestContainer);
     }
 }

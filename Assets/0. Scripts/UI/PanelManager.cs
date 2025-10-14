@@ -33,20 +33,14 @@ public class PanelManager : MonoBehaviour
 
     void OnEnable()
     {
-        if (interactor == null) NullChecker.NullCheck(this, nameof(interactor));
-        else interactor.TargetChanged += IiPanelChange;
-
+        if (interactor != null) interactor.TargetChanged += IiPanelChange;
         Chest.OnChestOpened += ChestUIToggle;
 
-        if (InputManager.Instance == null) NullChecker.NullCheck(this, nameof(InputManager.Instance));
-        else
-        {
+        if (InputManager.Instance != null)
+        {        
             InputManager.Instance.OnToggleInventory += InventoryUIToggle;
-            InputManager.Instance.OnEsc += InventoryUIHandleEsc;
+            InputManager.Instance.OnEsc += InventoryUIHandleEsc;    
         }
-
-        SubscribeInventoryUI();
-        SubscribeChestUI();
     }
 
     void OnDisable()
@@ -59,11 +53,8 @@ public class PanelManager : MonoBehaviour
             InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
             InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
         }
-
-        // ▼▼▼ 이벤트 해제
-        UnsubscribeInventoryUI();
-        UnsubscribeChestUI();
     }
+    
     void Awake()
     {
         if (uiRect == null) uiRect = GetComponent<RectTransform>();
@@ -116,6 +107,7 @@ public class PanelManager : MonoBehaviour
     {
         isInvenOpen = true;
         inventoryUI.gameObject.SetActive(true);
+        SubscribeInventoryUI();
         CursorController.Apply(false);
     }
 
@@ -144,8 +136,9 @@ public class PanelManager : MonoBehaviour
     void OpenChestUI(Chest c)
     {
         isChestOpen = true;
-        chestPanel.deliverChest(c);
         chestPanel.gameObject.SetActive(true);
+        chestPanel.deliverChest(c);
+        SubscribeChestUI();
     }
 
     void CloseChestUI()
@@ -227,7 +220,6 @@ public class PanelManager : MonoBehaviour
     {
         if (slotUI == null || slotUI.EnterItem == null)
         {
-            NullChecker.NullCheck(this, nameof(slotUI));
             return;
         }
         // 슬롯 RectTransform

@@ -8,7 +8,7 @@ public class SlotPanel : MonoBehaviour
     [SerializeField] private Container container;
     [SerializeField] private GameObject slotPrefab;
 
-    private ItemType categoryFilter;
+    private ItemType categoryFilter = ItemType.All;
     private readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
 
     // ───────────────────────── 이벤트(재발행) ─────────────────────────
@@ -19,55 +19,32 @@ public class SlotPanel : MonoBehaviour
     public event Action<InventorySlotUI, PointerEventData> Dropped;
 
     // ───────────────────────── 라이프사이클 ─────────────────────────
-    private void Awake()
-    {
-        if (container == null)
-        {
-            NullChecker.NullCheck(this, nameof(container));
-            return;
-        }
-        SetContainer(container);
-    }
 
     private void OnEnable()
     {
-        // 컨테이너 구독 (중복 방지 가드)
-        SubscribeContainer();
-
-        // 슬롯 핸들러 구독
-        WireSlotHandlers(subscribe: true);
-        Refresh();
-    }
-
-    private void Start()
-    {
+        if (container == null) return;
+        SetContainer(container);
         SubscribeContainer();
         WireSlotHandlers(subscribe: true);
     }
+
 
     private void OnDisable()
     {
-        // 슬롯 핸들러 해제
-        WireSlotHandlers(subscribe: false);
-
-        // 컨테이너 해제
         UnsubscribeContainer();
+        WireSlotHandlers(subscribe: false);
     }
 
     // ───────────────────────── 컨테이너 바인딩 ─────────────────────────
     public void SetContainer(Container newContainer)
     {
-        if (ReferenceEquals(container, newContainer))
+        if(ReferenceEquals(container, newContainer))
         {
-            // 같은 컨테이너면 슬롯 수만 맞추고 끝
             EnsureSlotCount(newContainer != null ? newContainer.maxSlotNum : 0);
             Refresh();
             return;
         }
-
-        // 이전 컨테이너 해제
-        UnsubscribeContainer();
-
+        
         container = newContainer;
 
         // 슬롯 수 맞추기 (늘리기/줄이기 모두 고려)
@@ -75,6 +52,7 @@ public class SlotPanel : MonoBehaviour
 
         // 새로운 컨테이너 구독
         SubscribeContainer();
+        WireSlotHandlers(subscribe: true);
 
         Refresh();
     }
@@ -94,7 +72,7 @@ public class SlotPanel : MonoBehaviour
     {
         if (container == null)
         {
-            NullChecker.NullCheck(this, nameof(container));
+            //NullChecker.NullCheck(this, nameof(container));
             return;
         }
         container.Changed -= Refresh;
@@ -107,7 +85,7 @@ public class SlotPanel : MonoBehaviour
         {
             if (slot == null || slot.handler == null)
             {
-                NullChecker.NullCheck(this, nameof(slot));
+                //NullChecker.NullCheck(this, nameof(slot));
                 return;
             }
 

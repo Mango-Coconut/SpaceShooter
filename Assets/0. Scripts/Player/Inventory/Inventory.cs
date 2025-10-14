@@ -38,11 +38,6 @@ public class Inventory : Container
 
         return TryRemoveItem(slot.itemdata, slot.count);
     }
-    
-    public List<StoredItem> GetByCategory(ItemType type)
-    {
-        return slots.FindAll(s => s.itemdata.type == type);
-    }
 
     public void Sort(int index)
     {
