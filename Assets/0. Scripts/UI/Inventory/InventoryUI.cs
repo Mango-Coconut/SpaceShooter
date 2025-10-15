@@ -27,7 +27,7 @@ public class InventoryUI : MonoBehaviour
 
     public void SetSlotPanel(Chest chest)
     {
-        slotPanel.SetContainer(chest);
+        slotPanel.SetInventory(chest);
         SubscribeSlotPanel();
     }
 

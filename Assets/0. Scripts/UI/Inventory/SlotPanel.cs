@@ -5,12 +5,12 @@ using UnityEngine.EventSystems;
 
 public class SlotPanel : MonoBehaviour
 {
-    [SerializeField] private Container container;
-    public Container Container => container;
-    [SerializeField] private GameObject slotPrefab;
+    [SerializeField] Inventory inventory;
+    public Inventory Inventory => inventory;
+    [SerializeField] GameObject slotPrefab;
 
-    private ItemType categoryFilter = ItemType.All;
-    private readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
+    ItemType categoryFilter = ItemType.All;
+    readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
 
     // ───────────────────────── 이벤트(재발행) ─────────────────────────
     public event Action<InventorySlotUI> TooltipShown;
@@ -21,66 +21,66 @@ public class SlotPanel : MonoBehaviour
 
     // ───────────────────────── 라이프사이클 ─────────────────────────
 
-    private void OnEnable()
+    void OnEnable()
     {
-        if (container == null) return;
-        SetContainer(container);
-        SubscribeContainer();
+        if (inventory == null) return;
+        SetInventory(inventory);
+        SubscribeInventory();
         WireSlotHandlers(subscribe: true);
     }
 
 
-    private void OnDisable()
+    void OnDisable()
     {
-        UnsubscribeContainer();
+        UnsubscribeInventory();
         WireSlotHandlers(subscribe: false);
     }
 
     // ───────────────────────── 컨테이너 바인딩 ─────────────────────────
-    public void SetContainer(Container newContainer)
+    public void SetInventory(Inventory newInventory)
     {
-        if(ReferenceEquals(container, newContainer))
+        if(ReferenceEquals(inventory, newInventory))
         {
-            EnsureSlotCount(newContainer != null ? newContainer.maxSlotNum : 0);
+            EnsureSlotCount(newInventory != null ? newInventory.maxSlotNum : 0);
             Refresh();
             return;
         }
         
-        container = newContainer;
+        inventory = newInventory;
 
         // 슬롯 수 맞추기 (늘리기/줄이기 모두 고려)
-        EnsureSlotCount(container != null ? container.maxSlotNum : 0);
+        EnsureSlotCount(inventory != null ? inventory.maxSlotNum : 0);
 
         // 새로운 컨테이너 구독
-        SubscribeContainer();
+        SubscribeInventory();
         WireSlotHandlers(subscribe: true);
 
         Refresh();
     }
 
-    private void SubscribeContainer()
+    void SubscribeInventory()
     {
-        if (container == null)
+        if (inventory == null)
         {
-            NullChecker.NullCheck(this, nameof(container));
+            NullChecker.NullCheck(this, nameof(inventory));
             return;
         }
-        container.Changed -= Refresh;
-        container.Changed += Refresh;
+        inventory.Changed -= Refresh;
+        inventory.Changed += Refresh;
     }
 
-    private void UnsubscribeContainer()
+    void UnsubscribeInventory()
     {
-        if (container == null)
+        if (inventory == null)
         {
-            //NullChecker.NullCheck(this, nameof(container));
+            //NullChecker.NullCheck(this, nameof(inventory));
             return;
         }
-        container.Changed -= Refresh;
+        inventory.Changed -= Refresh;
     }
 
     // ───────────────────────── 슬롯 핸들러 구독/해제 ─────────────────────────
-    private void WireSlotHandlers(bool subscribe)
+    void WireSlotHandlers(bool subscribe)
     {
         foreach (InventorySlotUI slot in uiSlots)
         {
@@ -94,6 +94,7 @@ public class SlotPanel : MonoBehaviour
             {
                 slot.handler.PointerEnter += HandlePointerEnter;
                 slot.handler.PointerExit += HandlePointerExit;
+                slot.handler.RightClick += UseItem;
                 slot.handler.BeginDragSlot += HandleBeginDrag;
                 slot.handler.DragSlot += HandleDrag;
                 slot.handler.EndDragSlot += HandleEndDrag;
@@ -102,6 +103,7 @@ public class SlotPanel : MonoBehaviour
             {
                 slot.handler.PointerEnter -= HandlePointerEnter;
                 slot.handler.PointerExit -= HandlePointerExit;
+                slot.handler.RightClick -= UseItem;
                 slot.handler.BeginDragSlot -= HandleBeginDrag;
                 slot.handler.DragSlot -= HandleDrag;
                 slot.handler.EndDragSlot -= HandleEndDrag;
@@ -109,7 +111,7 @@ public class SlotPanel : MonoBehaviour
         }
     }
 
-    private void EnsureSlotCount(int targetCount)
+    void EnsureSlotCount(int targetCount)
     {
         // 부족하면 생성
         for (int i = uiSlots.Count; i < targetCount; i++)
@@ -127,6 +129,7 @@ public class SlotPanel : MonoBehaviour
             {
                 s.handler.PointerEnter -= HandlePointerEnter;
                 s.handler.PointerExit -= HandlePointerExit;
+                s.handler.RightClick -= UseItem;
                 s.handler.BeginDragSlot -= HandleBeginDrag;
                 s.handler.DragSlot -= HandleDrag;
                 s.handler.EndDragSlot -= HandleEndDrag;
@@ -143,16 +146,16 @@ public class SlotPanel : MonoBehaviour
         Refresh();
     }
 
-    private void Refresh()
+    void Refresh()
     {
-        if (container == null)
+        if (inventory == null)
         {
-            NullChecker.NullCheck(this, nameof(container));
+            NullChecker.NullCheck(this, nameof(inventory));
             return;
         }
 
         int uiIndex = 0;
-        foreach (StoredItem si in container.Slots)
+        foreach (StoredItem si in inventory.Slots)
         {
             if (categoryFilter == ItemType.All || categoryFilter == si.itemdata.type)
             {
@@ -163,38 +166,50 @@ public class SlotPanel : MonoBehaviour
                 uiIndex++;
             }
         }
+        
         // 남은 슬롯은 Clear
         for (int i = uiIndex; i < uiSlots.Count; i++)
         {
-            // 툴팁이 떠 있었을 수 있으니 상위에서 강제 Hide를 고려해도 좋음
             uiSlots[i].Clear();
         }
     }
 
+
     // ───────────────────────── 슬롯 → 패널 재발행 ─────────────────────────
-    private void HandlePointerEnter(InventorySlotUI slotUI)
+    void HandlePointerEnter(InventorySlotUI slotUI)
     {
         TooltipShown?.Invoke(slotUI);
     }
 
-    private void HandlePointerExit(InventorySlotUI slotUI)
+    void HandlePointerExit(InventorySlotUI slotUI)
     {
         TooltipHidden?.Invoke(slotUI);
     }
-
-    private void HandleBeginDrag(InventorySlotUI slotUI, PointerEventData e)
+    void UseItem(InventorySlotUI slotUI)
     {
-        // 드래그 시작 시 툴팁 강제 숨김 권장
+        ItemData data = slotUI.EnterItem.itemdata;
+        bool isUse = inventory.UseItem(data);
+        if (isUse)
+        {
+            Debug.Log($"{data.name} 1개 사용");
+        } 
+        else Debug.Log($"사용할 수 없습니다");
+        Refresh();
+    }
+
+    void HandleBeginDrag(InventorySlotUI slotUI, PointerEventData e)
+    {
+        // 드래그 시작 시 툴팁 강제 숨김
         TooltipHidden?.Invoke(slotUI);
         BeginDrag?.Invoke(slotUI, e);
     }
 
-    private void HandleDrag(InventorySlotUI slotUI, PointerEventData e)
+    void HandleDrag(InventorySlotUI slotUI, PointerEventData e)
     {
         Dragging?.Invoke(slotUI, e);
     }
 
-    private void HandleEndDrag(InventorySlotUI slotUI, PointerEventData e)
+    void HandleEndDrag(InventorySlotUI slotUI, PointerEventData e)
     {
         Refresh();
         Dropped?.Invoke(slotUI, e);

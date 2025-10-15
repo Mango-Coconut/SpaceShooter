@@ -20,7 +20,8 @@ public class Interactor : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= 0.1f) { timer = 0f; Scan(); }
+        if (timer >= 0.1f) { timer = 0f; Scan();}
+
     }
 
     void Scan()
@@ -68,11 +69,12 @@ public class Interactor : MonoBehaviour
         }
     }
 
-    public void OnInteractInput(PlayerController player)
+    public bool Interact(PlayerController player)
     {
-        if (current == null) return;
-        if (!current.IsAvailable()) return;
+        if (current == null) return false;
+        if (!current.IsAvailable()) return false;
         current.Interact(player);
+        return true;
     }
 
     void OnDrawGizmos()

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Chest : Container, IInteractable
+public class Chest : Inventory, IInteractable
 {
     //미리 들어있는 상자 내용물
     [SerializeField] ItemData[] chestitems;

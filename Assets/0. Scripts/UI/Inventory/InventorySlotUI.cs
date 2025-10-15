@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(InventorySlotUIHandler))]
@@ -31,6 +29,8 @@ public class InventorySlotUI : MonoBehaviour
 
     public void Bind(StoredItem item)
     {
+        handler.enabled = true;
+
         enterItem = item;
 
         itemImage.sprite = item.itemdata.icon;
@@ -42,7 +42,12 @@ public class InventorySlotUI : MonoBehaviour
 
     public void Clear()
     {
+        //툴팁 종료
+        handler.HideTooltip();
+        handler.enabled = false;
+
         enterItem = null;
+        
         itemImage.enabled = false;
         itemAmount.enabled = false;
     }

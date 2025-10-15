@@ -161,7 +161,6 @@ public class PanelManager : MonoBehaviour
     void CloseChestUI()
     {
         isChestOpen = false;
-        Debug.Log("chestclosed");
         //상자 닫힐 때 플레이어 행동 가능하게
         PlayerActionGate.Instance.PopInteract();
         chestPanel.gameObject.SetActive(false);
@@ -290,8 +289,8 @@ public class PanelManager : MonoBehaviour
         //시작과 끝이 서로 다르면 추가 제거
         if (!ReferenceEquals(fromSP, toSP))
         {
-            InventoryManager.Instance.TryRemoveItem(fromSP.Container, data, amount);
-            InventoryManager.Instance.TryAddItem(toSP.Container, data, amount);
+            InventoryManager.Instance.TryRemoveItem(fromSP.Inventory, data, amount);
+            InventoryManager.Instance.TryAddItem(toSP.Inventory, data, amount);
         }        
         dragSlot.gameObject.SetActive(false);
     }

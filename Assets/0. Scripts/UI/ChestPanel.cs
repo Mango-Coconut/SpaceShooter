@@ -6,7 +6,7 @@ public class ChestPanel : MonoBehaviour
 {
     [SerializeField] InventoryUI chestInventoryUI;
     public InventoryUI ChestInventoryUI => chestInventoryUI;
-    Chest chestContainer;
+    Chest chestInventory;
 
     void Awake()
     {
@@ -14,7 +14,7 @@ public class ChestPanel : MonoBehaviour
     }
     public void deliverChest(Chest chest)
     {
-        chestContainer = chest;
-        chestInventoryUI.SetSlotPanel(chestContainer);
+        chestInventory = chest;
+        chestInventoryUI.SetSlotPanel(chestInventory);
     }
 }

@@ -5,11 +5,11 @@ using UnityEngine;
 
 public sealed class InventoryManager : MonoBehaviour
 {
-    public bool TryAddItem(Container c, ItemData data, int amount = 1)
+    public bool TryAddItem(Inventory c, ItemData data, int amount = 1)
     {
         return c.TryAddItem(data, amount);
     }
-    public bool TryRemoveItem(Container c, ItemData data, int amount = 1)
+    public bool TryRemoveItem(Inventory c, ItemData data, int amount = 1)
     {
         return c.TryRemoveItem(data, amount);
     }
