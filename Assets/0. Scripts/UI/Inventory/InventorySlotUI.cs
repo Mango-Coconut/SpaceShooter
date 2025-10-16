@@ -5,17 +5,14 @@ using UnityEngine.UI;
 [RequireComponent(typeof(InventorySlotUIHandler))]
 public class InventorySlotUI : MonoBehaviour
 {
-    public InventorySlotUIHandler handler;
-    [SerializeField] Image frame;
-    [SerializeField] Image itemImage;
-
-    [SerializeField] TMP_Text itemAmount;
-
-    RectTransform rect;
-    public RectTransform Rect => rect;
+    [HideInInspector] public InventorySlotUIHandler handler;
 
     StoredItem enterItem;
     public StoredItem EnterItem => enterItem;
+  
+    //PanelManeger가 Tooltip 위치 변경시 사용
+    RectTransform rect;
+    public RectTransform Rect => rect;
 
     void Awake()
     {
@@ -27,6 +24,8 @@ public class InventorySlotUI : MonoBehaviour
         Clear();
     }
 
+    [SerializeField] Image itemImage;
+    [SerializeField] TMP_Text itemAmount;
     public void Bind(StoredItem item)
     {
         handler.enabled = true;
@@ -34,10 +33,11 @@ public class InventorySlotUI : MonoBehaviour
         enterItem = item;
 
         itemImage.sprite = item.itemdata.icon;
-        itemAmount.text = item.count.ToString();
-
-        itemAmount.enabled = true;
         itemImage.enabled = true;
+
+        if (itemAmount == null || item.count == 1) return;
+        itemAmount.text = item.count.ToString();
+        itemAmount.enabled = true;
     }
 
     public void Clear()
@@ -47,18 +47,21 @@ public class InventorySlotUI : MonoBehaviour
         handler.enabled = false;
 
         enterItem = null;
-        
-        itemImage.enabled = false;
-        itemAmount.enabled = false;
+
+        Invisible();
     }
     public void Invisible()
     {
         itemImage.enabled = false;
+
+        if (itemAmount == null) return;
         itemAmount.enabled = false;
     }
-        public void Visible()
+    public void Visible()
     {
         itemImage.enabled = false;
+
+        if (itemAmount == null) return;
         itemAmount.enabled = false;
     }
 }

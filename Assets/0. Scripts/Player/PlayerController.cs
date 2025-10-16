@@ -9,12 +9,12 @@ public class PlayerController : MonoBehaviour
 {
     public PlayerActionGate gate;
     [HideInInspector] public Inventory inventory;
+    [HideInInspector] public EquipInventory equipInventory;
+
     Interactor interactor;
     [SerializeField] float moveSpeed = 5;
 
     [SerializeField] PlayerWeapon playerWeapon;
-    float firetimer = 0;
-    [SerializeField] float delay = 0.1f;
 
     
     public int isMoving = 0;
@@ -31,18 +31,23 @@ public class PlayerController : MonoBehaviour
     {
         InputManager.Instance.OnFire += OnFire;
         InputManager.Instance.OnInteract += OnInteract;
+        equipInventory.OnEquipped += EquipItem;
+        equipInventory.OnUnequipped += UnEquipItem;
     }
 
     void OnDisable()
     {
         InputManager.Instance.OnFire -= OnFire;
         InputManager.Instance.OnInteract -= OnInteract;
+        equipInventory.OnEquipped += EquipItem;
+        equipInventory.OnUnequipped += UnEquipItem;
     }
 
     void Awake()
     {
         gate = PlayerActionGate.Instance;
         inventory = GetComponent<Inventory>();
+        equipInventory = GetComponent<EquipInventory>();
         interactor = GetComponent<Interactor>();
         animator = GetComponent<Animator>();
         curHP = maxHP;
@@ -59,11 +64,7 @@ public class PlayerController : MonoBehaviour
         if (!playerWeapon.CanFire()) return;
         if (!gate.Can(Block.Fire)) return;
         if (Cursor.lockState != CursorLockMode.Locked) return;
-        if (firetimer < delay) return;
-
-        fireHeat = Math.Clamp(fireHeat+0.1f, 0, 1);
-        firetimer = 0f;
-        playerWeapon.Fire(isMoving, fireHeat);
+        playerWeapon.Fire(isMoving);
         animator.SetTrigger("Fire");
     }
 
@@ -75,6 +76,16 @@ public class PlayerController : MonoBehaviour
         {
             gate.PushInteract();
         }
+    }
+
+    //equipInventory.OnEquipped += EquipItem
+    void EquipItem(StoredItem item)
+    {
+        playerWeapon.Equip(item);
+    }
+    void UnEquipItem(StoredItem item)
+    {
+        playerWeapon.UnEquip();
     }
 
     public void PlayAnimToTrigger(int triggerHash)

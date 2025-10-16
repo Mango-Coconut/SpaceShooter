@@ -12,6 +12,13 @@ IDragHandler,
 IEndDragHandler
 {
     InventorySlotUI mySlot;
+
+    void Awake()
+    {
+        mySlot = gameObject.GetComponent<InventorySlotUI>();
+    }
+
+    #region 이벤트 발행
     public event Action<InventorySlotUI> PointerEnter;
     public event Action<InventorySlotUI> PointerExit;
     public event Action<InventorySlotUI> RightClick;
@@ -19,10 +26,6 @@ IEndDragHandler
     public event Action<InventorySlotUI, PointerEventData> DragSlot;
     public event Action<InventorySlotUI, PointerEventData> EndDragSlot;
 
-    void Awake()
-    {
-        mySlot = gameObject.GetComponent<InventorySlotUI>();
-    }
 
     // 툴팁 띄우기
     void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
@@ -65,5 +68,5 @@ IEndDragHandler
         mySlot.Visible();
         EndDragSlot?.Invoke(mySlot, eventData);
     }
-
+    #endregion
 }

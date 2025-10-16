@@ -7,65 +7,58 @@ using UnityEngine.UI;
 
 public class PanelManager : MonoBehaviour
 {
-    [Header("References")]
+    #region 보유하고 있는 하위 패널들 연결
     [SerializeField] Interactor interactor;
-
-    [Header("InventoryPanels")]
     [SerializeField] InventoryUI inventoryUI;
-
-    [Header("InteractionPanels")]
-    [SerializeField] InteractionPanel iiPanel;
-
-    [Header("ChestPanel")]
     [SerializeField] ChestPanel chestPanel;
-
-    [Header("TooltipUI")]
+    [SerializeField] EquipInventoryPanel equipInventoryPanel;
     [SerializeField] TooltipUI tooltipUI;
-
-    [Header("DragSlot")]
     [SerializeField] DragSlot dragSlot;
-
-    [Header("UI Canvas")]
-    RectTransform uiRect;
-
-    bool isInvenOpen;
-    bool isChestOpen;
+    [SerializeField] InteractionPanel iiPanel;
+    #endregion
 
     void OnEnable()
     {
-        if (interactor != null) interactor.TargetChanged += IiPanelChange;
-        Chest.OnChestOpened += ChestUIToggle;
-
+        //Inventory 이벤트
         if (InputManager.Instance != null)
         {
             InputManager.Instance.OnToggleInventory += InventoryUIToggle;
             InputManager.Instance.OnEsc += InventoryUIHandleEsc;
         }
+        //Chest 이벤트()
+        Chest.OnChestOpened += ChestUIToggle;
 
+        //InventoryUI 이벤트
         SubscribeInventoryUI();
+        //ChestUI 이벤트
         SubscribeChestUI();
+
+        //InteractPanel 이벤트
+        if (interactor != null) interactor.TargetChanged += IiPanelChange;
     }
 
     void OnDisable()
     {
-        if (interactor != null) interactor.TargetChanged -= IiPanelChange;
-        Chest.OnChestOpened -= ChestUIToggle;
-
         if (InputManager.Instance != null)
         {
             InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
             InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
         }
+        Chest.OnChestOpened -= ChestUIToggle;
 
         UnsubscribeInventoryUI();
         UnsubscribeChestUI();
+
+        if (interactor != null) interactor.TargetChanged -= IiPanelChange;
     }
 
     void Awake()
     {
-        if (uiRect == null) uiRect = GetComponent<RectTransform>();
-        //Canvas Mode Overlay일 경우 null
-        //if (cam == null) cam = Camera.main;
+        inventoryUI.gameObject.SetActive(true);
+        iiPanel.gameObject.SetActive(true);
+        chestPanel.gameObject.SetActive(true);
+        tooltipUI.gameObject.SetActive(true);
+        dragSlot.gameObject.SetActive(true);
     }
     void Start()
     {
@@ -88,15 +81,11 @@ public class PanelManager : MonoBehaviour
         }
     }
 
-    // ───────────────────────────────── UI 토글/연계 ─────────────────────────────────
 
-    void IiPanelChange(IInteractable interactable)
-    {
-        bool show = interactable != null;
-        iiPanel.gameObject.SetActive(show);
-        if (show) iiPanel.OnTargetChange(interactable);
-    }
+    #region UI 열고 닫기 (Invnetory, Chest)
 
+    bool isInvenOpen;
+    bool isChestOpen;
     void InventoryUIHandleEsc()
     {
         if (isInvenOpen || isChestOpen)
@@ -165,8 +154,9 @@ public class PanelManager : MonoBehaviour
         PlayerActionGate.Instance.PopInteract();
         chestPanel.gameObject.SetActive(false);
     }
+    #endregion
 
-    // InventoryUI / ChestPanel 이벤트 구독
+    #region 이벤트 구독 (InventoryUI, CheestUI)
     void SubscribeInventoryUI()
     {
         if (inventoryUI == null) return;
@@ -217,7 +207,9 @@ public class PanelManager : MonoBehaviour
         ui.Dropped -= OnDroppedFromPanel;
     }
 
-    // ▼ Tooltip
+    #endregion
+
+    #region 아이템 툴팁 열고 닫기
     void OpenTooltip(InventorySlotUI slotUI)
     {
         if (slotUI == null || slotUI.EnterItem == null) return;
@@ -243,7 +235,18 @@ public class PanelManager : MonoBehaviour
     {
         tooltipUI.gameObject.SetActive(false);
     }
+    #endregion
 
+    #region InteractPanel 열고 닫기
+    void IiPanelChange(IInteractable interactable)
+    {
+        bool show = interactable != null;
+        iiPanel.gameObject.SetActive(show);
+        if (show) iiPanel.OnTargetChange(interactable);
+    }
+    #endregion
+
+    #region 아이템 슬롯 드래그 하기 & 아이템 옮기기(인벤토리↔상자)
     SlotPanel fromSP;
     void OnBeginDragFromPanel(InventorySlotUI slotUI, SlotPanel sp, PointerEventData e)
     {
@@ -263,9 +266,9 @@ public class PanelManager : MonoBehaviour
         dragSlot.transform.position = e.position;
     }
 
-    void OnDroppedFromPanel(InventorySlotUI slotUI, SlotPanel sp, PointerEventData e)
+    void OnDroppedFromPanel(InventorySlotUI slotUI, PointerEventData e)
     {
-        SlotPanel toSP = sp;
+        IStorable toInventory = fromSP.Inventory;
         ItemData data = slotUI.EnterItem.itemdata;
         int amount = slotUI.EnterItem.count;
         if (fromSP == null) return;
@@ -278,20 +281,29 @@ public class PanelManager : MonoBehaviour
         {
             if (result.gameObject.CompareTag("InventoryUI"))
             {
-                toSP = inventoryUI.SlotPanel;
+                toInventory = inventoryUI.SlotPanel.Inventory;
             }
             if (result.gameObject.CompareTag("ChestUI"))
             {
-                toSP = chestPanel.ChestInventoryUI.SlotPanel;
+                toInventory = chestPanel.ChestInventory;
+            }
+            if (result.gameObject.CompareTag("EquipUI"))
+            {
+                toInventory = equipInventoryPanel.EquipInventory;
             }
         }
-        
+
         //시작과 끝이 서로 다르면 추가 제거
-        if (!ReferenceEquals(fromSP, toSP))
+        if (!ReferenceEquals(fromSP.Inventory, toInventory))
         {
-            InventoryManager.Instance.TryRemoveItem(fromSP.Inventory, data, amount);
-            InventoryManager.Instance.TryAddItem(toSP.Inventory, data, amount);
-        }        
+            bool isAdd = InventoryManager.Instance.TryAddItem(toInventory, data, amount);
+            if (isAdd)
+            {
+                InventoryManager.Instance.TryRemoveItem(fromSP.Inventory, data, amount);
+            }
+
+        }
         dragSlot.gameObject.SetActive(false);
     }
+    #endregion
 }

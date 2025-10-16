@@ -8,12 +8,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private SlotPanel slotPanel;
     public SlotPanel SlotPanel => slotPanel;
 
-    // ── 위로 포워딩할 이벤트 (PanelManager 등 상위에서 구독) ──
-    public event Action<InventorySlotUI> ShowTooltip;
-    public event Action HideTooltip;
-    public event Action<InventorySlotUI, SlotPanel, PointerEventData> BeginDrag;
-    public event Action<InventorySlotUI, PointerEventData> Dragging;
-    public event Action<InventorySlotUI, SlotPanel, PointerEventData> Dropped;
 
     void OnEnable()
     {
@@ -51,6 +45,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (slotPanel == null)
         {
+            NullChecker.NullCheck(this, nameof(slotPanel));
             return;
         }
 
@@ -61,7 +56,14 @@ public class InventoryUI : MonoBehaviour
         slotPanel.Dropped -= OnSlotPanelDropped;
     }
 
-    // ── SlotPanel → InventoryUI 포워딩 핸들러 ──
+    
+    #region  ── 위로 포워딩할 이벤트 (PanelManager에서 구독) ──
+    public event Action<InventorySlotUI> ShowTooltip;
+    public event Action HideTooltip;
+    public event Action<InventorySlotUI, SlotPanel, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, PointerEventData> Dragging;
+    public event Action<InventorySlotUI, PointerEventData> Dropped;
+
     private void OnSlotPanelTooltipShown(InventorySlotUI slotUI)
     {
         ShowTooltip?.Invoke(slotUI);
@@ -84,6 +86,7 @@ public class InventoryUI : MonoBehaviour
 
     private void OnSlotPanelDropped(InventorySlotUI slotUI, PointerEventData e)
     {
-        Dropped?.Invoke(slotUI, slotPanel, e);
+        Dropped?.Invoke(slotUI, e);
     }
+    #endregion
 }

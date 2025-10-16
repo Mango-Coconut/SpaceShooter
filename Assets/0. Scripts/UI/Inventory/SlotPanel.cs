@@ -9,144 +9,74 @@ public class SlotPanel : MonoBehaviour
     public Inventory Inventory => inventory;
     [SerializeField] GameObject slotPrefab;
 
-    ItemType categoryFilter = ItemType.All;
-    readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
-
-    // ───────────────────────── 이벤트(재발행) ─────────────────────────
-    public event Action<InventorySlotUI> TooltipShown;
-    public event Action<InventorySlotUI> TooltipHidden;
-    public event Action<InventorySlotUI, PointerEventData> BeginDrag;
-    public event Action<InventorySlotUI, PointerEventData> Dragging;
-    public event Action<InventorySlotUI, PointerEventData> Dropped;
-
-    // ───────────────────────── 라이프사이클 ─────────────────────────
-
     void OnEnable()
     {
         if (inventory == null) return;
         SetInventory(inventory);
         SubscribeInventory();
-        WireSlotHandlers(subscribe: true);
     }
-
 
     void OnDisable()
     {
         UnsubscribeInventory();
-        WireSlotHandlers(subscribe: false);
+        UnSubscribeSlotUI();
     }
 
-    // ───────────────────────── 컨테이너 바인딩 ─────────────────────────
+    #region 인벤토리 세팅 관련
+    // 인벤토리 세팅
+    readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
     public void SetInventory(Inventory newInventory)
     {
-        if(ReferenceEquals(inventory, newInventory))
+        // 새 인벤토리 세팅
+        if (!ReferenceEquals(inventory, newInventory))
         {
-            EnsureSlotCount(newInventory != null ? newInventory.maxSlotNum : 0);
-            Refresh();
-            return;
+            inventory = newInventory;
+
+            // 새로운 인벤토리 이벤트 구독
+            SubscribeInventory();
         }
-        
-        inventory = newInventory;
 
-        // 슬롯 수 맞추기 (늘리기/줄이기 모두 고려)
-        EnsureSlotCount(inventory != null ? inventory.maxSlotNum : 0);
-
-        // 새로운 컨테이너 구독
-        SubscribeInventory();
-        WireSlotHandlers(subscribe: true);
+        // 슬롯 세팅
+        SetSlot(inventory == null ? 0 : inventory.maxSlotNum);
 
         Refresh();
     }
 
-    void SubscribeInventory()
+    // 인벤토리 세팅 시 슬롯 재생성
+    void SetSlot(int targetCount)
     {
-        if (inventory == null)
-        {
-            NullChecker.NullCheck(this, nameof(inventory));
-            return;
-        }
-        inventory.Changed -= Refresh;
-        inventory.Changed += Refresh;
-    }
+        Debug.Log($"inventory slot setting , {targetCount}");
+        //이벤트 해제
+        UnSubscribeSlotUI();
 
-    void UnsubscribeInventory()
-    {
-        if (inventory == null)
-        {
-            //NullChecker.NullCheck(this, nameof(inventory));
-            return;
-        }
-        inventory.Changed -= Refresh;
-    }
-
-    // ───────────────────────── 슬롯 핸들러 구독/해제 ─────────────────────────
-    void WireSlotHandlers(bool subscribe)
-    {
-        foreach (InventorySlotUI slot in uiSlots)
-        {
-            if (slot == null || slot.handler == null)
-            {
-                //NullChecker.NullCheck(this, nameof(slot));
-                return;
-            }
-
-            if (subscribe)
-            {
-                slot.handler.PointerEnter += HandlePointerEnter;
-                slot.handler.PointerExit += HandlePointerExit;
-                slot.handler.RightClick += UseItem;
-                slot.handler.BeginDragSlot += HandleBeginDrag;
-                slot.handler.DragSlot += HandleDrag;
-                slot.handler.EndDragSlot += HandleEndDrag;
-            }
-            else
-            {
-                slot.handler.PointerEnter -= HandlePointerEnter;
-                slot.handler.PointerExit -= HandlePointerExit;
-                slot.handler.RightClick -= UseItem;
-                slot.handler.BeginDragSlot -= HandleBeginDrag;
-                slot.handler.DragSlot -= HandleDrag;
-                slot.handler.EndDragSlot -= HandleEndDrag;
-            }
-        }
-    }
-
-    void EnsureSlotCount(int targetCount)
-    {
         // 부족하면 생성
         for (int i = uiSlots.Count; i < targetCount; i++)
         {
-            var child = Instantiate(slotPrefab, transform).GetComponent<InventorySlotUI>();
-            uiSlots.Add(child);
+            InventorySlotUI slot = Instantiate(slotPrefab, transform).GetComponent<InventorySlotUI>();
+            uiSlots.Add(slot);
         }
-        // 넘치면 제거(필요 시). 보통은 남겨두고 Clear만 해도 됨.
-        // 아래는 엄밀 모드:
+        // 넘치면 제거
         for (int i = uiSlots.Count - 1; i >= targetCount; i--)
         {
-            var s = uiSlots[i];
-            // 핸들러 구독되어 있을 수 있으니 안전하게 해제
-            if (s != null && s.handler != null)
-            {
-                s.handler.PointerEnter -= HandlePointerEnter;
-                s.handler.PointerExit -= HandlePointerExit;
-                s.handler.RightClick -= UseItem;
-                s.handler.BeginDragSlot -= HandleBeginDrag;
-                s.handler.DragSlot -= HandleDrag;
-                s.handler.EndDragSlot -= HandleEndDrag;
-            }
-            if (s != null) Destroy(s.gameObject);
+            InventorySlotUI slot = uiSlots[i];
+            if (slot != null) Destroy(slot.gameObject);
             uiSlots.RemoveAt(i);
         }
-    }
 
-    // ───────────────────────── UI 갱신 ─────────────────────────
+        //이벤트 구독
+        SubscribeSlotUI();
+    }
+    #endregion
+
+    #region UI 갱신
+    ItemType categoryFilter = ItemType.All;
     public void ChangeCategory(int index)
     {
         categoryFilter = (ItemType)index;
         Refresh();
     }
 
-    void Refresh()
+    public void Refresh()
     {
         if (inventory == null)
         {
@@ -166,16 +96,94 @@ public class SlotPanel : MonoBehaviour
                 uiIndex++;
             }
         }
-        
+
         // 남은 슬롯은 Clear
         for (int i = uiIndex; i < uiSlots.Count; i++)
         {
             uiSlots[i].Clear();
         }
+        Debug.Log($"Refresh");
     }
 
+    #endregion
 
-    // ───────────────────────── 슬롯 → 패널 재발행 ─────────────────────────
+    #region 인벤토리 이벤트 구독
+    void SubscribeInventory()
+    {
+        if (inventory == null)
+        {
+            NullChecker.NullCheck(this, nameof(inventory));
+            return;
+        }
+
+        UnsubscribeInventory();
+        inventory.Changed += Refresh;
+        Debug.Log($"SlotPanel이 Inventry 이벤트 구독");
+    }
+
+    void UnsubscribeInventory()
+    {
+        if (inventory == null) return;
+        inventory.Changed -= Refresh;
+        Debug.Log($"SlotPanel이 Inventry 이벤트 구독 취소");
+    }
+    #endregion
+
+    #region 인벤토리 슬롯 UI 이벤트 구독
+    //모든 인벤토리 슬롯 UI 이벤트 구독
+    void SubscribeSlotUI()
+    {
+        UnSubscribeSlotUI();
+
+        foreach (InventorySlotUI slot in uiSlots)
+        {
+            if (slot == null || slot.handler == null) continue;
+
+            slot.handler.PointerEnter += HandlePointerEnter;
+            slot.handler.PointerExit += HandlePointerExit;
+            slot.handler.RightClick += UseItem;
+            slot.handler.BeginDragSlot += HandleBeginDrag;
+            slot.handler.DragSlot += HandleDrag;
+            slot.handler.EndDragSlot += HandleEndDrag;
+        }
+    }
+    void UnSubscribeSlotUI()
+    {
+        foreach (InventorySlotUI slot in uiSlots)
+        {
+            if (slot == null || slot.handler == null) continue;
+
+            slot.handler.PointerEnter -= HandlePointerEnter;
+            slot.handler.PointerExit -= HandlePointerExit;
+            slot.handler.RightClick -= UseItem;
+            slot.handler.BeginDragSlot -= HandleBeginDrag;
+            slot.handler.DragSlot -= HandleDrag;
+            slot.handler.EndDragSlot -= HandleEndDrag;
+        }
+    }
+    #endregion
+
+    #region 이벤트 구현(재발행x 여기서 처리)
+    void UseItem(InventorySlotUI slotUI)
+    {
+        ItemData data = slotUI.EnterItem.itemdata;
+        bool isUse = inventory.UseItem(data);
+        if (isUse)
+        {
+            Debug.Log($"{data.name} 1개 사용");
+        }
+        else Debug.Log($"사용할 수 없습니다");
+        Refresh();
+    }
+    #endregion
+
+    #region 이벤트 포워딩(InventoryUI에서 구독)
+    public event Action<InventorySlotUI> TooltipShown;
+    public event Action<InventorySlotUI> TooltipHidden;
+    public event Action<InventorySlotUI, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, PointerEventData> Dragging;
+    public event Action<InventorySlotUI, PointerEventData> Dropped;
+
     void HandlePointerEnter(InventorySlotUI slotUI)
     {
         TooltipShown?.Invoke(slotUI);
@@ -184,17 +192,6 @@ public class SlotPanel : MonoBehaviour
     void HandlePointerExit(InventorySlotUI slotUI)
     {
         TooltipHidden?.Invoke(slotUI);
-    }
-    void UseItem(InventorySlotUI slotUI)
-    {
-        ItemData data = slotUI.EnterItem.itemdata;
-        bool isUse = inventory.UseItem(data);
-        if (isUse)
-        {
-            Debug.Log($"{data.name} 1개 사용");
-        } 
-        else Debug.Log($"사용할 수 없습니다");
-        Refresh();
     }
 
     void HandleBeginDrag(InventorySlotUI slotUI, PointerEventData e)
@@ -214,4 +211,5 @@ public class SlotPanel : MonoBehaviour
         Refresh();
         Dropped?.Invoke(slotUI, e);
     }
+    #endregion
 }

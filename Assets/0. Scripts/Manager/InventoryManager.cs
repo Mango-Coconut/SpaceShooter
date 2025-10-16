@@ -5,20 +5,17 @@ using UnityEngine;
 
 public sealed class InventoryManager : MonoBehaviour
 {
-    public bool TryAddItem(Inventory c, ItemData data, int amount = 1)
+    public bool TryAddItem(IStorable c, ItemData data, int amount = 1)
     {
         return c.TryAddItem(data, amount);
     }
-    public bool TryRemoveItem(Inventory c, ItemData data, int amount = 1)
+    public bool TryRemoveItem(IStorable c, ItemData data, int amount = 1)
     {
         return c.TryRemoveItem(data, amount);
     }
 
 
-
-
-
-    //싱글톤
+    #region 싱글톤
     private static InventoryManager instance;
     public static InventoryManager Instance
     {
@@ -65,7 +62,7 @@ public sealed class InventoryManager : MonoBehaviour
             instance = null;
         }
     }
-
+    #endregion
 
 
 }

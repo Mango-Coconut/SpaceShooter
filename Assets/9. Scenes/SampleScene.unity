@@ -3456,10 +3456,11 @@ GameObject:
   m_Component:
   - component: {fileID: 840540029}
   - component: {fileID: 840540031}
+  - component: {fileID: 840540032}
   - component: {fileID: 840540030}
   m_Layer: 5
   m_Name: EquipmentPanel
-  m_TagString: Untagged
+  m_TagString: EquipUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3525,6 +3526,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 840540028}
   m_CullTransparentMesh: 1
+--- !u!114 &840540032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840540028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba67b1fb3d366674785f2d72092fc1fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equipInventory: {fileID: 1089791406}
+  weaponSlot: {fileID: 1819219497}
 --- !u!1 &850562709
 GameObject:
   m_ObjectHideFlags: 0
@@ -4723,10 +4738,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 0}
+  equipInventory: {fileID: 0}
   moveSpeed: 10
   playerWeapon: {fileID: 1091952443}
-  delay: 0.15
-  fireHeat: 0
   isMoving: 0
 --- !u!205 &1012882841
 LODGroup:
@@ -5696,6 +5710,7 @@ GameObject:
   - component: {fileID: 1012882838}
   - component: {fileID: 1089791405}
   - component: {fileID: 1089791404}
+  - component: {fileID: 1089791406}
   - component: {fileID: 1089791402}
   - component: {fileID: 1089791398}
   - component: {fileID: 1089791397}
@@ -6650,6 +6665,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   gizmoEnable: 1
+--- !u!114 &1089791406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079786509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0220794da9f3cc4ea3082e4dd1c91b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Weapon:
+    itemdata: {fileID: 0}
+    count: 0
+    useCount: 0
 --- !u!1 &1091952440
 GameObject:
   m_ObjectHideFlags: 0
@@ -6792,7 +6823,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firePos: {fileID: 1081967013}
-  spread: 0.05
 --- !u!1 &1115770590
 GameObject:
   m_ObjectHideFlags: 0
@@ -8127,10 +8157,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactor: {fileID: 1089791405}
   inventoryUI: {fileID: 221234653}
-  iiPanel: {fileID: 1675221653}
   chestPanel: {fileID: 1915702324}
+  equipInventoryPanel: {fileID: 840540032}
   tooltipUI: {fileID: 1591596281}
   dragSlot: {fileID: 292378808458136392}
+  iiPanel: {fileID: 1675221653}
 --- !u!4 &1550936119 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6057398078812707135, guid: ea02b1fe8758e4b4cb657aac92385c2f, type: 3}
@@ -9111,7 +9142,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1819219492}
   - component: {fileID: 1819219494}
+  - component: {fileID: 1819219497}
+  - component: {fileID: 1819219496}
   - component: {fileID: 1819219493}
+  - component: {fileID: 1819219495}
   m_Layer: 5
   m_Name: WeaponSlot
   m_TagString: Untagged
@@ -9178,6 +9212,45 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1819219491}
   m_CullTransparentMesh: 1
+--- !u!114 &1819219495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819219491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a434cc82a2ef174788ff1856dffa88e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1819219496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819219491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a434cc82a2ef174788ff1856dffa88e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1819219497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819219491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc3d59e17380e1d4782867db6468510b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handler: {fileID: 0}
+  itemImage: {fileID: 178817330}
+  itemAmount: {fileID: 0}
 --- !u!1 &1852326329
 GameObject:
   m_ObjectHideFlags: 0

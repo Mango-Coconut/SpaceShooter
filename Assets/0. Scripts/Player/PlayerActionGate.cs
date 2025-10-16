@@ -28,17 +28,14 @@ public class PlayerActionGate
             return instance;
         }
     }
-
+    
     public bool Can(Block mask) => (Active & mask) == 0;
 
-
-    //상호작용 중일 때 제한할 행동들
+    #region Interaction
     private static readonly Block interactMask = Block.Move | Block.Fire | Block.Interact;
     public void PushInteract() => Push(interactMask);
     public void PopInteract() => Pop(interactMask);
-
-
-
+    #endregion
 
     public void Push(Block mask)
     {

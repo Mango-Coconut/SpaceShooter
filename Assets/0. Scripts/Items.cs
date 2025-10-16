@@ -60,7 +60,7 @@ public class Items : MonoBehaviour, IInteractable
     }
 
     public (string , string) GetPrompt() => ("F", "줍기");
-    public Sprite            GetIcon()   => itemData ? itemData.icon : null;
+    public Sprite GetIcon()   => itemData ? itemData.icon : null;
 
     public void Shining(bool enable)
     {
