@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EquipInventoryPanel : MonoBehaviour
+public class EquipSlotPanel : MonoBehaviour
 {
     [SerializeField] EquipInventory equipInventory;
     public EquipInventory EquipInventory => equipInventory;

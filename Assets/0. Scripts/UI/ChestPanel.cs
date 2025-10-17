@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class ChestPanel : MonoBehaviour
 {
-    [SerializeField] InventoryUI chestInventoryUI;
-    public InventoryUI ChestInventoryUI => chestInventoryUI;
+    [SerializeField] InventoryUI inventoryUI;
+    public InventoryUI InventoryUI => inventoryUI;
     Chest chestInventory;
     public Chest ChestInventory => chestInventory;
 
     void Awake()
     {
-        if (chestInventoryUI == null) chestInventoryUI = gameObject.GetComponent<InventoryUI>();
+        if (inventoryUI == null) inventoryUI = gameObject.GetComponent<InventoryUI>();
     }
     public void deliverChest(Chest chest)
     {
         chestInventory = chest;
-        chestInventoryUI.SetSlotPanel(chestInventory);
+        inventoryUI.SetSlotPanel(chestInventory);
     }
 }

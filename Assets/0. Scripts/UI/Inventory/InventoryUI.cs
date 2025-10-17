@@ -5,8 +5,13 @@ using UnityEngine.EventSystems;
 
 public class InventoryUI : MonoBehaviour
 {
-    [SerializeField] private SlotPanel slotPanel;
+    //인벤토리 슬롯
+    [SerializeField]  SlotPanel slotPanel;
     public SlotPanel SlotPanel => slotPanel;
+
+    //장비 슬롯
+    [SerializeField] EquipSlotPanel equipSlotPanel;
+    public EquipSlotPanel EquipSlotPanel => equipSlotPanel;
 
 
     void OnEnable()
@@ -60,7 +65,7 @@ public class InventoryUI : MonoBehaviour
     #region  ── 위로 포워딩할 이벤트 (PanelManager에서 구독) ──
     public event Action<InventorySlotUI> ShowTooltip;
     public event Action HideTooltip;
-    public event Action<InventorySlotUI, SlotPanel, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, IStorable, PointerEventData> BeginDrag;
     public event Action<InventorySlotUI, PointerEventData> Dragging;
     public event Action<InventorySlotUI, PointerEventData> Dropped;
 
@@ -74,9 +79,9 @@ public class InventoryUI : MonoBehaviour
         HideTooltip?.Invoke();
     }
 
-    private void OnSlotPanelBeginDrag(InventorySlotUI slotUI, PointerEventData e)
+    private void OnSlotPanelBeginDrag(InventorySlotUI slotUI, IStorable storage, PointerEventData e)
     {
-        BeginDrag?.Invoke(slotUI, slotPanel, e);
+        BeginDrag?.Invoke(slotUI, storage, e);
     }
 
     private void OnSlotPanelDragging(InventorySlotUI slotUI, PointerEventData e)

@@ -180,7 +180,7 @@ public class SlotPanel : MonoBehaviour
     #region 이벤트 포워딩(InventoryUI에서 구독)
     public event Action<InventorySlotUI> TooltipShown;
     public event Action<InventorySlotUI> TooltipHidden;
-    public event Action<InventorySlotUI, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, IStorable, PointerEventData> BeginDrag;
     public event Action<InventorySlotUI, PointerEventData> Dragging;
     public event Action<InventorySlotUI, PointerEventData> Dropped;
 
@@ -198,7 +198,7 @@ public class SlotPanel : MonoBehaviour
     {
         // 드래그 시작 시 툴팁 강제 숨김
         TooltipHidden?.Invoke(slotUI);
-        BeginDrag?.Invoke(slotUI, e);
+        BeginDrag?.Invoke(slotUI, inventory, e);
     }
 
     void HandleDrag(InventorySlotUI slotUI, PointerEventData e)
