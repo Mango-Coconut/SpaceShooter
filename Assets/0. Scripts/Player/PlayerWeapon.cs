@@ -69,6 +69,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         Clear();
     }
+    
     public void Clear()
     {
         if (currentModel != null)

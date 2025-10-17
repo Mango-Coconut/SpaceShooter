@@ -1,46 +1,62 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Inventory : MonoBehaviour, IStorable
 {
-    List<StoredItem> slots = new List<StoredItem>();
-    public List<StoredItem> Slots => slots;
-    public int maxSlotNum = 10;
+    [SerializeField] int maxSlotNum = 30;
+    public int MaxSlotNum => maxSlotNum;
+    [SerializeField] List<StoredItem> slots = new List<StoredItem>();
 
-    public event Action Changed;
+    public System.Action OnChanged;
 
-    protected void RaiseChanged()
+    public IReadOnlyList<StoredItem> Slots => slots;
+
+    void RaiseChanged() => OnChanged?.Invoke();
+
+    // 메인 진입점
+    public bool TryAddItem(StoredItem incoming)
     {
-        Changed?.Invoke();
+        if (incoming == null || incoming.itemdata == null) return false;
+        if (incoming.count <= 0) return true;
+
+        // 스택 가능한 경우 (un-unique)
+        if (!incoming.IsUniqueInstance())
+        {
+            return TryAddItem(incoming.itemdata, incoming.count);
+        }
+
+        // 유니크(강화, 파츠, 내구도 등) → 인스턴스 단위로 추가
+        int toAdd = Mathf.Max(1, incoming.count);
+        int added = 0;
+
+        for (int i = 0; i < toAdd; i++)
+        {
+            if (slots.Count >= maxSlotNum) break;
+
+            StoredItem copy = CloneAsSingle(incoming); // 상태 복제
+            copy.count = 1;
+            slots.Add(copy);
+            added++;
+        }
+
+        if (added == 0) return false;
+
+        // 통계(선택)
+        // ItemStatistics.Instance.OnItemGet(incoming.itemdata, added);
+
+        RaiseChanged();
+        return added == toAdd;
     }
 
-    protected StoredItem FindSlot(ItemData data)
-    {
-        return slots.Find(s => s.itemdata == data);
-    }
-
-    public int CountOf(ItemData data)
-    {
-        StoredItem slot = FindSlot(data);
-        return slot != null ? slot.count : 0;
-    }
-
-    public bool HasItem(ItemData data, int amount = 1)
-    {
-        return CountOf(data) >= amount;
-    }
-
+    // 스택형 전용 (ItemData + count)
     public bool TryAddItem(ItemData data, int amount = 1)
     {
-        if (data == null) return false;
-        if (amount <= 0) return true; // 넣을 게 없음
+        if (data == null || amount <= 0) return false;
 
         int remaining = amount;
         int actuallyAdded = 0;
 
-        // 1) 기존 동일 아이템 슬롯들에 먼저 채우기 (maxStack까지)
+        // 1. 기존 스택 채우기
         for (int i = 0; i < slots.Count; i++)
         {
             StoredItem s = slots[i];
@@ -58,7 +74,7 @@ public class Inventory : MonoBehaviour, IStorable
                 break;
         }
 
-        // 2) 아직 남았고, 새 슬롯을 만들 수 있으면 새 슬롯들로 나눠 담기
+        // 2. 새 스택 생성
         while (remaining > 0 && slots.Count < maxSlotNum)
         {
             int stackCount = remaining < data.maxStack ? remaining : data.maxStack;
@@ -67,20 +83,47 @@ public class Inventory : MonoBehaviour, IStorable
             actuallyAdded += stackCount;
         }
 
-        // 3) 아무것도 못 넣었다면 실패
         if (actuallyAdded == 0) return false;
 
-        Debug.Log($"Inventory에 {data.name}을 {actuallyAdded} 만큼 추가");
-        // 4) 이벤트 (성공한 만큼이라도 변화가 있었으니 갱신)
-        RaiseChanged();
-
-        // 5) 통계 반영 (나중에 구현할 때 여기서 actuallyAdded만큼 누적)
+        // 통계(선택)
         // ItemStatistics.Instance.OnItemGet(data, actuallyAdded);
 
-        // 전량 들어갔는지 여부 반환
+        RaiseChanged();
         return remaining == 0;
     }
 
+    // ✅ StoredItem 기반 제거
+    //   - 유니크(장비)는 instanceId로 정확히 제거
+    //   - 스택형은 같은 데이터에서 수량 제거 (전량/부분)
+    public bool TryRemoveItem(StoredItem target)
+    {
+        if (target == null || target.itemdata == null)
+        {
+            Debug.Log($"storeditem or itemdata is null");
+            return false;
+        }
+
+        // 유니크/개체 제거: instanceId로 정확히 찾기
+        if (target.IsUniqueInstance())
+        {
+            int idx = slots.FindIndex(s => s.instanceId == target.instanceId);
+            if (idx < 0)
+            {
+                Debug.Log($"idx < 0");
+                return false;
+            }
+
+            slots.RemoveAt(idx);
+            // ItemStatistics.Instance.OnItemUse(target.itemdata);
+            RaiseChanged();
+            return true;
+        }
+
+        // 스택형 제거: 해당 데이터에서 count 만큼 제거
+        return TryRemoveItem(target.itemdata, target.count);
+    }
+
+    // ✅ 기존 시그니처도 유지 (스택형 전용)
     public bool TryRemoveItem(ItemData data, int amount = 1)
     {
         if (data == null) return false;
@@ -89,11 +132,17 @@ public class Inventory : MonoBehaviour, IStorable
         int remaining = amount;
         int actuallyRemoved = 0;
 
-        // 1. 같은 아이템 슬롯들에서 순차적으로 제거
-        for (int i = slots.Count - 1; i >= 0; i--) // 뒤에서부터 제거 (Remove 안전)
+        // 뒤에서 앞으로(삭제 안전)
+        for (int i = slots.Count - 1; i >= 0; i--)
         {
             StoredItem s = slots[i];
             if (s.itemdata != data) continue;
+
+            if (s.IsUniqueInstance())
+            {
+                // 스택형 제거 경로에서는 유니크는 건드리지 않음
+                continue;
+            }
 
             if (s.count <= remaining)
             {
@@ -108,64 +157,28 @@ public class Inventory : MonoBehaviour, IStorable
                 remaining = 0;
                 break;
             }
-
-            if (remaining <= 0)
-                break;
+            if (remaining <= 0) break;
         }
 
-        Debug.Log($"Inventory에서 {data.name}을 {actuallyRemoved} 만큼 제거");
         if (actuallyRemoved > 0)
         {
-            RaiseChanged();
-
-            // 🔹 통계 반영 (나중에 구현)
             // ItemStatistics.Instance.OnItemUse(data);
+            RaiseChanged();
         }
 
-        // 전량 제거 성공 여부 반환
         return remaining == 0;
     }
 
-
-    // 사용 로직: 기록 + 차감
-    public bool UseItem(ItemData data, int useCount = 1)
+    public bool UseItem(StoredItem item)
     {
-        StoredItem slot = FindSlot(data);
-
-        if (slot == null) return false;
-        // 보유한 아이템이 충분하지 않습니다! (그럴일 없겠지만)
-        if (slot.count < useCount) return false;
-
-        // (아이템 고유의 사용 로직이 있다면 여기서 호출)
-        // 예: data.Use(this);
-
-        slot.useCount++;
-        slot.lastUsed = DateTime.Now;
-
-        return TryRemoveItem(slot.itemdata, 1);
+        return true;
     }
 
-    public void Sort(int index)
+    StoredItem CloneAsSingle(StoredItem src)
     {
-        SortType key = (SortType)index;
-
-        Comparison<StoredItem> comparison = (a, b) =>
-        {
-            switch (key)
-            {
-                case SortType.Rarity: return b.itemdata.rarity.CompareTo(a.itemdata.rarity);
-                case SortType.Price: return b.itemdata.price.CompareTo(a.itemdata.price);
-                case SortType.Weight: return b.itemdata.weight.CompareTo(a.itemdata.weight);
-                case SortType.Volume: return b.itemdata.volume.CompareTo(a.itemdata.volume);
-                case SortType.LastGet: return b.lastGet.CompareTo(a.lastGet);
-                case SortType.LastUsed: return b.lastUsed.CompareTo(a.lastUsed);
-                case SortType.UseCount: return b.useCount.CompareTo(a.useCount);
-                default: return 0;
-            }
-        };
-
-        Slots.Sort(comparison);
-        RaiseChanged();
+        // 유니크를 “1개짜리 복제본”으로 만들어 새 슬롯에 넣기
+        StoredItem c = new StoredItem(src.itemdata, 1);
+        c.enhancement = src.enhancement;
+        return c;
     }
-
 }

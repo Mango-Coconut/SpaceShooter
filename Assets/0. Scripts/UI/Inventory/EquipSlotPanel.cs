@@ -2,25 +2,138 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class EquipSlotPanel : MonoBehaviour
+public class EquipSlotPanel : MonoBehaviour, ISlotPanel
 {
     [SerializeField] EquipInventory equipInventory;
     public EquipInventory EquipInventory => equipInventory;
 
-    [SerializeField] InventorySlotUI weaponSlot;
-    //[SerializeField] InventorySlotUI helmetSlot;
-    //[SerializeField] InventorySlotUI chestArmorSlot;
+
+    private enum EquipIndex
+    {
+        Weapon = 0,
+        Helmet = 1,
+        ChestArmor = 2
+    }
+    [Tooltip("0: Weapon, 1: Helmet, 2: ChestArmor")]
+    [SerializeField] private InventorySlotUI[] uiSlots;
+    [SerializeField] InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon];
+    //[SerializeField] InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet];
+    //[SerializeField] InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor];
 
     void OnEnable()
     {
-        equipInventory.OnEquipped += Refresh;
-        equipInventory.OnUnequipped += Refresh;
+        SubscribeInventory();
+        SubscribeSlotUI();
+    }
+    void OnDisable()
+    {
+        UnSubscribeInventory();
+        UnSubscribeSlotUI();
     }
 
-    //item 안씀
-    public void Refresh(StoredItem item)
+    public void Refresh()
     {
         weaponSlot.Bind(equipInventory.Weapon);
     }
+
+    
+
+    void SubscribeInventory()
+    {
+        UnSubscribeInventory();
+        equipInventory.OnWeaponChanged += Refresh;
+        equipInventory.OnUnequipped += UnEquippedItemReturnHandler;
+    }
+    void UnSubscribeInventory()
+    {
+        equipInventory.OnWeaponChanged -= Refresh;
+        equipInventory.OnUnequipped -= UnEquippedItemReturnHandler;
+    }
+
+    #region 인벤토리 슬롯 UI 이벤트 구독
+    //모든 인벤토리 슬롯 UI 이벤트 구독
+    void SubscribeSlotUI()
+    {
+        UnSubscribeSlotUI();
+
+        foreach (InventorySlotUI slot in uiSlots)
+        {
+            if (slot == null || slot.handler == null) continue;
+
+            slot.handler.PointerEnter += HandlePointerEnter;
+            slot.handler.PointerExit += HandlePointerExit;
+            slot.handler.RightClick += UseItem;
+            slot.handler.BeginDragSlot += HandleBeginDrag;
+            slot.handler.DragSlot += HandleDrag;
+            slot.handler.EndDragSlot += HandleEndDrag;
+        }
+    }
+    void UnSubscribeSlotUI()
+    {
+        foreach (InventorySlotUI slot in uiSlots)
+        {
+            if (slot == null || slot.handler == null) continue;
+
+            slot.handler.PointerEnter -= HandlePointerEnter;
+            slot.handler.PointerExit -= HandlePointerExit;
+            slot.handler.RightClick -= UseItem;
+            slot.handler.BeginDragSlot -= HandleBeginDrag;
+            slot.handler.DragSlot -= HandleDrag;
+            slot.handler.EndDragSlot -= HandleEndDrag;
+        }
+    }
+    #endregion
+
+
+    // = InventoryUI의 UseItem. 여기선 그냥 장비 장착 해제
+    void UseItem(InventorySlotUI slotUI)
+    {
+        UnEquippedItemReturnHandler(slotUI.EnterItem);
+    }
+
+    #region 재발행할 이벤트
+    public event Action<InventorySlotUI> TooltipShown;
+    public event Action<InventorySlotUI> TooltipHidden;
+    public event Action<InventorySlotUI, IStorable, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, PointerEventData> Dragging;
+    public event Action<InventorySlotUI, PointerEventData> Dropped;
+
+    void HandlePointerEnter(InventorySlotUI slotUI)
+    {
+        TooltipShown?.Invoke(slotUI);
+    }
+
+    void HandlePointerExit(InventorySlotUI slotUI)
+    {
+        TooltipHidden?.Invoke(slotUI);
+    }
+
+    void HandleBeginDrag(InventorySlotUI slotUI, PointerEventData e)
+    {
+        // 드래그 시작 시 툴팁 강제 숨김
+        TooltipHidden?.Invoke(slotUI);
+        BeginDrag?.Invoke(slotUI, equipInventory, e);
+    }
+
+    void HandleDrag(InventorySlotUI slotUI, PointerEventData e)
+    {
+        Dragging?.Invoke(slotUI, e);
+    }
+
+    void HandleEndDrag(InventorySlotUI slotUI, PointerEventData e)
+    {
+        Refresh();
+        Dropped?.Invoke(slotUI, e);
+    }
+
+    #endregion
+
+    public event Action<StoredItem> UnequippedItemReturn;
+    public void UnEquippedItemReturnHandler(StoredItem item)
+    {
+        UnequippedItemReturn?.Invoke(item);
+    }
+
 }

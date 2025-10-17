@@ -10,7 +10,7 @@ public class PanelManager : MonoBehaviour
     #region 보유하고 있는 하위 패널들 연결
     [SerializeField] Interactor interactor;
     [SerializeField] InventoryUI inventoryUI;
-    [SerializeField] ChestPanel chestPanel;
+    [SerializeField] ChestUI chestUI; //public class ChestUI : InventoryUI { ... }
     [SerializeField] EquipSlotPanel equipSlotPanel;
     [SerializeField] TooltipUI tooltipUI;
     [SerializeField] DragSlot dragSlot;
@@ -31,7 +31,9 @@ public class PanelManager : MonoBehaviour
         //InventoryUI 이벤트
         SubscribeInventoryUI(inventoryUI);
         //ChestUI 이벤트
-        SubscribeInventoryUI(chestPanel.InventoryUI);
+        SubscribeInventoryUI(chestUI);
+        //EquipSlotPanel 이벤트(unequipped 장비 반환)
+        equipSlotPanel.UnequippedItemReturn += TryAddItem;
 
         //InteractPanel 이벤트
         if (interactor != null) interactor.TargetChanged += IiPanelChange;
@@ -47,7 +49,8 @@ public class PanelManager : MonoBehaviour
         Chest.OnChestOpened -= ChestUIToggle;
 
         UnsubscribeInventoryUI(inventoryUI);
-        UnsubscribeInventoryUI(chestPanel.InventoryUI);
+        UnsubscribeInventoryUI(chestUI);
+        equipSlotPanel.UnequippedItemReturn -= TryAddItem;
 
         if (interactor != null) interactor.TargetChanged -= IiPanelChange;
     }
@@ -56,7 +59,7 @@ public class PanelManager : MonoBehaviour
     {
         inventoryUI.gameObject.SetActive(true);
         iiPanel.gameObject.SetActive(true);
-        chestPanel.gameObject.SetActive(true);
+        chestUI.gameObject.SetActive(true);
         tooltipUI.gameObject.SetActive(true);
         dragSlot.gameObject.SetActive(true);
     }
@@ -64,7 +67,7 @@ public class PanelManager : MonoBehaviour
     {
         inventoryUI.gameObject.SetActive(false);
         iiPanel.gameObject.SetActive(false);
-        chestPanel.gameObject.SetActive(false);
+        chestUI.gameObject.SetActive(false);
         tooltipUI.gameObject.SetActive(false);
         dragSlot.gameObject.SetActive(false);
     }
@@ -142,9 +145,9 @@ public class PanelManager : MonoBehaviour
     void OpenChestUI(Chest c)
     {
         isChestOpen = true;
-        chestPanel.gameObject.SetActive(true);
-        chestPanel.deliverChest(c);
-        SubscribeInventoryUI(chestPanel.InventoryUI);
+        chestUI.gameObject.SetActive(true);
+        chestUI.deliverChest(c);
+        SubscribeInventoryUI(chestUI);
     }
 
     void CloseChestUI()
@@ -152,11 +155,11 @@ public class PanelManager : MonoBehaviour
         isChestOpen = false;
         //상자 닫힐 때 플레이어 행동 가능하게
         PlayerActionGate.Instance.PopInteract();
-        chestPanel.gameObject.SetActive(false);
+        chestUI.gameObject.SetActive(false);
     }
     #endregion
 
-    #region 이벤트 구독 (InventoryUI, CheestUI)
+    #region 이벤트 구독 (InventoryUI, ChestUI)
     void SubscribeInventoryUI(InventoryUI inventoryUI)
     {
         if (inventoryUI == null) return;
@@ -221,9 +224,11 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region 아이템 슬롯 드래그 하기 & 아이템 옮기기(인벤토리↔상자)
-    IStorable fromStorage;
+    IStorable fromStorage = null;
     void OnBeginDragFromPanel(InventorySlotUI slotUI, IStorable storage, PointerEventData e)
     {
+        fromStorage = null;
+        toStorage = null;
         if (slotUI.EnterItem == null) return;
 
         //드래그 시작한 곳(인벤토리or상자)
@@ -240,14 +245,14 @@ public class PanelManager : MonoBehaviour
         dragSlot.transform.position = e.position;
     }
 
+    IStorable toStorage = null;
     void OnDroppedFromPanel(InventorySlotUI slotUI, PointerEventData e)
     {
-        IStorable toInventory = fromStorage;
-        ItemData data = slotUI.EnterItem.itemdata;
-        int amount = slotUI.EnterItem.count;
+        StoredItem item = slotUI.EnterItem;
         if (fromStorage == null) return;
-        if (data == null) return;
+        if (item == null || item.itemdata == null) return;
 
+        // 마우스 놓은 Storage 창 구하기(인벤토리, 장비창, 상자)
         List<RaycastResult> results = new List<RaycastResult>();
         GraphicRaycaster raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         raycaster.Raycast(e, results);
@@ -255,29 +260,51 @@ public class PanelManager : MonoBehaviour
         {
             if (result.gameObject.CompareTag("InventoryUI"))
             {
-                toInventory = inventoryUI.SlotPanel.Inventory;
+                toStorage = inventoryUI.SlotPanel.Inventory;
             }
             if (result.gameObject.CompareTag("ChestUI"))
             {
-                toInventory = chestPanel.ChestInventory;
+                toStorage = chestUI.ChestInventory;
             }
             if (result.gameObject.CompareTag("EquipUI"))
             {
-                toInventory = equipSlotPanel.EquipInventory;
+                toStorage = equipSlotPanel.EquipInventory;
             }
         }
+        if (toStorage == null) return;
 
         //시작과 끝이 서로 다르면 추가 제거
-        if (!ReferenceEquals(fromStorage, toInventory))
+        if (!ReferenceEquals(fromStorage, toStorage))
         {
-            bool isAdd = InventoryManager.Instance.TryAddItem(toInventory, data, amount);
+            bool isAdd = InventoryManager.Instance.TryAddItem(toStorage, item);
             if (isAdd)
             {
-                InventoryManager.Instance.TryRemoveItem(fromStorage, data, amount);
+                Debug.Log("add 성공");
+                bool isRemove = InventoryManager.Instance.TryRemoveItem(fromStorage, item);
+                if (isRemove)
+                {
+                    Debug.Log("remove 성공");
+                }
             }
-
         }
         dragSlot.gameObject.SetActive(false);
+    }
+
+    //equip에서 장착 제거한 아이템 반환시 fromStorage에 넣기
+    void TryAddItem(StoredItem item)
+    {
+        if(fromStorage == null)
+        {
+            Debug.Log($"fromstorage null");
+            return;
+        }
+        bool isAdd = InventoryManager.Instance.TryAddItem(fromStorage, item);
+        if (!isAdd) Debug.Log($"{item.itemdata.name} 이미 장착도니 장비 제거 실패");
+        else Debug.Log($"{item.itemdata.name} 이미 장착된 장비 제거 성공");
+    }
+    void TryRemoveItem(StoredItem item)
+    {
+        
     }
     #endregion
 }

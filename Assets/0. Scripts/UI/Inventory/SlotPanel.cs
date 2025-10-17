@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SlotPanel : MonoBehaviour
+public class SlotPanel : MonoBehaviour, ISlotPanel
 {
     [SerializeField] Inventory inventory;
     public Inventory Inventory => inventory;
@@ -22,8 +22,7 @@ public class SlotPanel : MonoBehaviour
         UnSubscribeSlotUI();
     }
 
-    #region 인벤토리 세팅 관련
-    // 인벤토리 세팅
+    #region 새 인벤토리 불러오기
     readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
     public void SetInventory(Inventory newInventory)
     {
@@ -37,7 +36,7 @@ public class SlotPanel : MonoBehaviour
         }
 
         // 슬롯 세팅
-        SetSlot(inventory == null ? 0 : inventory.maxSlotNum);
+        SetSlot(inventory == null ? 0 : inventory.MaxSlotNum);
 
         Refresh();
     }
@@ -45,7 +44,6 @@ public class SlotPanel : MonoBehaviour
     // 인벤토리 세팅 시 슬롯 재생성
     void SetSlot(int targetCount)
     {
-        Debug.Log($"inventory slot setting , {targetCount}");
         //이벤트 해제
         UnSubscribeSlotUI();
 
@@ -102,7 +100,6 @@ public class SlotPanel : MonoBehaviour
         {
             uiSlots[i].Clear();
         }
-        Debug.Log($"Refresh");
     }
 
     #endregion
@@ -117,15 +114,13 @@ public class SlotPanel : MonoBehaviour
         }
 
         UnsubscribeInventory();
-        inventory.Changed += Refresh;
-        Debug.Log($"SlotPanel이 Inventry 이벤트 구독");
+        inventory.OnChanged += Refresh;
     }
 
     void UnsubscribeInventory()
     {
         if (inventory == null) return;
-        inventory.Changed -= Refresh;
-        Debug.Log($"SlotPanel이 Inventry 이벤트 구독 취소");
+        inventory.OnChanged -= Refresh;
     }
     #endregion
 
@@ -166,12 +161,9 @@ public class SlotPanel : MonoBehaviour
     #region 이벤트 구현(재발행x 여기서 처리)
     void UseItem(InventorySlotUI slotUI)
     {
-        ItemData data = slotUI.EnterItem.itemdata;
-        bool isUse = inventory.UseItem(data);
-        if (isUse)
-        {
-            Debug.Log($"{data.name} 1개 사용");
-        }
+        StoredItem item = slotUI.EnterItem;
+        bool isUse = inventory.UseItem(item);
+        if (isUse) Debug.Log($"{item.itemdata.name} 1개 사용");
         else Debug.Log($"사용할 수 없습니다");
         Refresh();
     }

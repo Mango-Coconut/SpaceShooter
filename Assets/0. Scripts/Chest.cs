@@ -10,8 +10,8 @@ public class Chest : Inventory, IInteractable
 
     [SerializeField] Sprite chestSprite;
 
-    void OnEnable() => Changed += Forward;
-    void OnDisable() => Changed -= Forward;
+    void OnEnable() => OnChanged += Forward;
+    void OnDisable() => OnChanged -= Forward;
     void Forward() => OnChestChanged?.Invoke();
 
     void Start()

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Items : MonoBehaviour, IInteractable
 {
+    public StoredItem item;
     public ItemData itemData;
     [SerializeField] int amount = 1;
     [HideInInspector] public bool isOn = false;

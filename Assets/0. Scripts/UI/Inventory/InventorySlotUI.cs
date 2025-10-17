@@ -28,6 +28,12 @@ public class InventorySlotUI : MonoBehaviour
     [SerializeField] TMP_Text itemAmount;
     public void Bind(StoredItem item)
     {
+        if (item == null)
+        {
+            Clear();
+            return;
+        }
+
         handler.enabled = true;
 
         enterItem = item;

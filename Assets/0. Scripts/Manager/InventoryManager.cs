@@ -9,11 +9,18 @@ public sealed class InventoryManager : MonoBehaviour
     {
         return c.TryAddItem(data, amount);
     }
+    public bool TryAddItem(IStorable c, StoredItem item)
+    {
+        return c.TryAddItem(item);
+    }
     public bool TryRemoveItem(IStorable c, ItemData data, int amount = 1)
     {
         return c.TryRemoveItem(data, amount);
     }
-
+    public bool TryRemoveItem(IStorable c, StoredItem item)
+    {
+        return c.TryRemoveItem(item);
+    }
 
     #region 싱글톤
     private static InventoryManager instance;

@@ -6,13 +6,20 @@ using UnityEngine.EventSystems;
 public class InventoryUI : MonoBehaviour
 {
     //인벤토리 슬롯
-    [SerializeField]  SlotPanel slotPanel;
+    [SerializeField] SlotPanel slotPanel;
     public SlotPanel SlotPanel => slotPanel;
 
     //장비 슬롯
     [SerializeField] EquipSlotPanel equipSlotPanel;
     public EquipSlotPanel EquipSlotPanel => equipSlotPanel;
 
+    //구독 편하게 하기 용
+    ISlotPanel[] panels;
+
+    void Awake()
+    {
+        panels = GetComponentsInChildren<ISlotPanel>(true);
+    }
 
     void OnEnable()
     {
@@ -32,36 +39,44 @@ public class InventoryUI : MonoBehaviour
 
     private void SubscribeSlotPanel()
     {
-        if (slotPanel == null)
+        if (panels == null)
         {
-            NullChecker.NullCheck(this, nameof(slotPanel));
+            NullChecker.NullCheck(this, nameof(panels));
             return;
         }
 
         UnsubscribeSlotPanel();
-        slotPanel.TooltipShown += OnSlotPanelTooltipShown;
-        slotPanel.TooltipHidden += OnSlotPanelTooltipHidden;
-        slotPanel.BeginDrag += OnSlotPanelBeginDrag;
-        slotPanel.Dragging += OnSlotPanelDragging;
-        slotPanel.Dropped += OnSlotPanelDropped;
+
+        for (int i = 0; i < panels.Length; i++)
+        {
+            panels[i].TooltipShown += OnSlotPanelTooltipShown;
+            panels[i].TooltipHidden += OnSlotPanelTooltipHidden;
+            panels[i].BeginDrag += OnSlotPanelBeginDrag;
+            panels[i].Dragging += OnSlotPanelDragging;
+            panels[i].Dropped += OnSlotPanelDropped;
+        }
+
     }
 
     private void UnsubscribeSlotPanel()
     {
-        if (slotPanel == null)
+        if (panels == null)
         {
-            NullChecker.NullCheck(this, nameof(slotPanel));
+            NullChecker.NullCheck(this, nameof(panels));
             return;
         }
 
-        slotPanel.TooltipShown -= OnSlotPanelTooltipShown;
-        slotPanel.TooltipHidden -= OnSlotPanelTooltipHidden;
-        slotPanel.BeginDrag -= OnSlotPanelBeginDrag;
-        slotPanel.Dragging -= OnSlotPanelDragging;
-        slotPanel.Dropped -= OnSlotPanelDropped;
+        for (int i = 0; i < panels.Length; i++)
+        {
+            panels[i].TooltipShown -= OnSlotPanelTooltipShown;
+            panels[i].TooltipHidden -= OnSlotPanelTooltipHidden;
+            panels[i].BeginDrag -= OnSlotPanelBeginDrag;
+            panels[i].Dragging -= OnSlotPanelDragging;
+            panels[i].Dropped -= OnSlotPanelDropped;
+        }
     }
 
-    
+
     #region  ── 위로 포워딩할 이벤트 (PanelManager에서 구독) ──
     public event Action<InventorySlotUI> ShowTooltip;
     public event Action HideTooltip;
