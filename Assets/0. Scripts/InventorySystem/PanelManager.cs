@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,8 +33,6 @@ public class PanelManager : MonoBehaviour
         SubscribeInventoryUI(inventoryUI);
         //ChestUI 이벤트
         SubscribeInventoryUI(chestUI);
-        //EquipSlotPanel 이벤트(unequipped 장비 반환)
-        equipSlotPanel.UnequippedItemReturn += TryAddItem;
 
         //InteractPanel 이벤트
         if (interactor != null) interactor.TargetChanged += IiPanelChange;
@@ -50,13 +49,13 @@ public class PanelManager : MonoBehaviour
 
         UnsubscribeInventoryUI(inventoryUI);
         UnsubscribeInventoryUI(chestUI);
-        equipSlotPanel.UnequippedItemReturn -= TryAddItem;
 
         if (interactor != null) interactor.TargetChanged -= IiPanelChange;
     }
 
     void Awake()
     {
+        fromStorage = inventoryUI.SlotPanel.Inventory;  
         inventoryUI.gameObject.SetActive(true);
         iiPanel.gameObject.SetActive(true);
         chestUI.gameObject.SetActive(true);
@@ -146,13 +145,14 @@ public class PanelManager : MonoBehaviour
     {
         isChestOpen = true;
         chestUI.gameObject.SetActive(true);
-        chestUI.deliverChest(c);
+        chestUI.SetChest(c);
         SubscribeInventoryUI(chestUI);
     }
 
     void CloseChestUI()
     {
         isChestOpen = false;
+        chestUI.SlotPanel.Clear();
         //상자 닫힐 때 플레이어 행동 가능하게
         PlayerActionGate.Instance.PopInteract();
         chestUI.gameObject.SetActive(false);
@@ -224,10 +224,10 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region 아이템 슬롯 드래그 하기 & 아이템 옮기기(인벤토리↔상자)
-    IStorable fromStorage = null;
-    void OnBeginDragFromPanel(InventorySlotUI slotUI, IStorable storage, PointerEventData e)
+    IItemSource fromStorage;
+    IItemSink toStorage = null;
+    void OnBeginDragFromPanel(InventorySlotUI slotUI, IItemSource storage, PointerEventData e)
     {
-        fromStorage = null;
         toStorage = null;
         if (slotUI.EnterItem == null) return;
 
@@ -245,12 +245,10 @@ public class PanelManager : MonoBehaviour
         dragSlot.transform.position = e.position;
     }
 
-    IStorable toStorage = null;
     void OnDroppedFromPanel(InventorySlotUI slotUI, PointerEventData e)
     {
         StoredItem item = slotUI.EnterItem;
-        if (fromStorage == null) return;
-        if (item == null || item.itemdata == null) return;
+        if (fromStorage == null || item == null || item.itemdata == null) return;
 
         // 마우스 놓은 Storage 창 구하기(인벤토리, 장비창, 상자)
         List<RaycastResult> results = new List<RaycastResult>();
@@ -260,44 +258,40 @@ public class PanelManager : MonoBehaviour
         {
             if (result.gameObject.CompareTag("InventoryUI"))
             {
+                Debug.Log("Dropped 인벤토리 창");
                 toStorage = inventoryUI.SlotPanel.Inventory;
             }
             if (result.gameObject.CompareTag("ChestUI"))
             {
+                Debug.Log("Dropped 상자 창");
                 toStorage = chestUI.ChestInventory;
             }
             if (result.gameObject.CompareTag("EquipUI"))
             {
+                Debug.Log("Dropped 장비창");
                 toStorage = equipSlotPanel.EquipInventory;
             }
         }
-        if (toStorage == null) return;
-
-        //시작과 끝이 서로 다르면 추가 제거
-        if (!ReferenceEquals(fromStorage, toStorage))
+        if (toStorage == null)
         {
-            bool isAdd = InventoryManager.Instance.TryAddItem(toStorage, item);
-            if (isAdd)
-            {
-                bool isRemove = InventoryManager.Instance.TryRemoveItem(fromStorage, item);
-            }
+            return;
+        } 
+
+        // 장비창인지 스왑 가능한지 확인
+        else if (toStorage is ISwapSink swapSink && fromStorage is IItemSource src)
+        {
+            // 보통 originSink는 fromStorage(원래 있던 곳)
+            InventoryManager.TryDeliverSwap(src, swapSink, item, (IItemSink)fromStorage);
         }
+        // 일반 컨테이너 간 이동
+        else if (fromStorage is IItemSource s && toStorage is IItemSink t)
+        {
+            InventoryManager.TryDeliver(s, t, item);
+        }
+
+        // 실패 시 드래그 프리뷰만 닫기
         dragSlot.gameObject.SetActive(false);
     }
 
-    //equip에서 장착 제거한 아이템 반환시 fromStorage에 넣기
-    void TryAddItem(StoredItem item)
-    {
-        if(fromStorage == null)
-        {
-            Debug.Log($"fromstorage null");
-            return;
-        }
-        bool isAdd = InventoryManager.Instance.TryAddItem(fromStorage, item);
-    }
-    void TryRemoveItem(StoredItem item)
-    {
-        
-    }
     #endregion
 }

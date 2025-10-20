@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour, IStorable
+public class Inventory : MonoBehaviour, IItemSource, IItemSink
 {
     [SerializeField] int maxSlotNum = 30;
     public int MaxSlotNum => maxSlotNum;
@@ -169,9 +169,110 @@ public class Inventory : MonoBehaviour, IStorable
         return remaining == 0;
     }
 
-    public bool UseItem(StoredItem item)
+    // 슬롯 여유 개수
+    int GetFreeSlotCount()
     {
-        return true;
+        int free = maxSlotNum - slots.Count;
+        return free > 0 ? free : 0;
+    }
+
+    // 해당 아이템(Data)의 기존 스택에서 더 담을 수 있는 총 공간
+    int GetStackableSpace(ItemData data)
+    {
+        if (data == null) return 0;
+        int space = 0;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            StoredItem s = slots[i];
+            if (s.itemdata != data) continue;
+            if (s.count >= data.maxStack) continue;
+            if (s.IsUniqueInstance()) continue; // 유니크는 스택 공간에 포함 X
+            space += (data.maxStack - s.count);
+        }
+        return space;
+    }
+
+    // ======================= CanAdd =======================
+
+    public bool CanAddItem(StoredItem incoming)
+    {
+        if (incoming == null || incoming.itemdata == null) return false;
+        if (incoming.count <= 0) return true;
+
+        if (!incoming.IsUniqueInstance())
+        {
+            // 스택형: 기존 스택 공간 + (빈 슬롯 * maxStack) 로 수용 가능 여부
+            int space = GetStackableSpace(incoming.itemdata)
+                        + GetFreeSlotCount() * incoming.itemdata.maxStack;
+            return space >= incoming.count;
+        }
+
+        // 유니크: 1개당 1슬롯 필요
+        int needed = Mathf.Max(1, incoming.count);
+        return GetFreeSlotCount() >= needed;
+    }
+
+    public bool CanAddItem(ItemData data, int amount = 1)
+    {
+        if (data == null) return false;
+        if (amount <= 0) return true;
+
+        // 스택형 전용 체크 (유니크는 StoredItem 기준으로 체크 권장)
+        int space = GetStackableSpace(data)
+                    + GetFreeSlotCount() * data.maxStack;
+        return space >= amount;
+    }
+
+    // ======================= CanRemove =======================
+
+    public bool CanRemoveItem(StoredItem target)
+    {
+        if (target == null || target.itemdata == null) return false;
+        if (target.count <= 0) return true;
+
+        if (target.IsUniqueInstance())
+        {
+            // instanceId로 정확히 존재하는지
+            int idx = slots.FindIndex(s => s.instanceId == target.instanceId);
+            return idx >= 0;
+        }
+
+        // 스택형: 동일 데이터(비-유니크) 총합이 충분한지
+        int total = 0;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            StoredItem s = slots[i];
+            if (s.itemdata != target.itemdata) continue;
+            if (s.IsUniqueInstance()) continue;
+            total += s.count;
+            if (total >= target.count) return true;
+        }
+        return false;
+    }
+
+    public bool CanRemoveItem(ItemData data, int amount = 1)
+    {
+        if (data == null) return false;
+        if (amount <= 0) return true;
+
+        int total = 0;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            StoredItem s = slots[i];
+            if (s.itemdata != data) continue;
+            if (s.IsUniqueInstance()) continue; // 유니크는 이 경로에서 제거하지 않음
+            total += s.count;
+            if (total >= amount) return true;
+        }
+        return false;
+    }
+
+    public bool UseItem(ItemData itemData)
+    {
+        bool isUse = TryRemoveItem(itemData);
+        if (isUse) Debug.Log($"아이템 사용 성공");
+        else Debug.Log($"아이템 사용 실패");
+        return isUse;
     }
 
     StoredItem CloneAsSingle(StoredItem src)

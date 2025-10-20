@@ -43,13 +43,11 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
     void SubscribeInventory()
     {
         UnSubscribeInventory();
-        equipInventory.OnWeaponChanged += Refresh;
-        equipInventory.OnUnequipped += UnEquippedItemReturnHandler;
+        equipInventory.OnChanged += Refresh;
     }
     void UnSubscribeInventory()
     {
-        equipInventory.OnWeaponChanged -= Refresh;
-        equipInventory.OnUnequipped -= UnEquippedItemReturnHandler;
+        equipInventory.OnChanged -= Refresh;
     }
 
     #region 인벤토리 슬롯 UI 이벤트 구독
@@ -90,13 +88,20 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
     // = InventoryUI의 UseItem. 여기선 그냥 장비 장착 해제
     void UseItem(InventorySlotUI slotUI)
     {
-        UnEquippedItemReturnHandler(slotUI.EnterItem);
+        bool isRemove = equipInventory.TryRemoveItem(slotUI.EnterItem);
+        //장착 해제 성공하면 벗은 무기 전달(인벤토리 or Chest or 바닥)
+        if(isRemove)
+        {
+            Refresh();
+            //PanelManager 구독
+            //UnEquippedItemReturnHandler(slotUI.EnterItem);
+        }
     }
 
     #region 재발행할 이벤트
     public event Action<InventorySlotUI> TooltipShown;
     public event Action<InventorySlotUI> TooltipHidden;
-    public event Action<InventorySlotUI, IStorable, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, IItemSource, PointerEventData> BeginDrag;
     public event Action<InventorySlotUI, PointerEventData> Dragging;
     public event Action<InventorySlotUI, PointerEventData> Dropped;
 
@@ -129,11 +134,5 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
     }
 
     #endregion
-
-    public event Action<StoredItem> UnequippedItemReturn;
-    public void UnEquippedItemReturnHandler(StoredItem item)
-    {
-        UnequippedItemReturn?.Invoke(item);
-    }
 
 }

@@ -80,7 +80,7 @@ public class InventoryUI : MonoBehaviour
     #region  ── 위로 포워딩할 이벤트 (PanelManager에서 구독) ──
     public event Action<InventorySlotUI> ShowTooltip;
     public event Action HideTooltip;
-    public event Action<InventorySlotUI, IStorable, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, IItemSource, PointerEventData> BeginDrag;
     public event Action<InventorySlotUI, PointerEventData> Dragging;
     public event Action<InventorySlotUI, PointerEventData> Dropped;
 
@@ -94,7 +94,7 @@ public class InventoryUI : MonoBehaviour
         HideTooltip?.Invoke();
     }
 
-    private void OnSlotPanelBeginDrag(InventorySlotUI slotUI, IStorable storage, PointerEventData e)
+    private void OnSlotPanelBeginDrag(InventorySlotUI slotUI, IItemSource storage, PointerEventData e)
     {
         BeginDrag?.Invoke(slotUI, storage, e);
     }

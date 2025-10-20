@@ -7,7 +7,7 @@ public class ChestUI : InventoryUI
     Chest chestInventory;
     public Chest ChestInventory => chestInventory;
 
-    public void deliverChest(Chest chest)
+    public void SetChest(Chest chest)
     {
         chestInventory = chest;
         SetSlotPanel(chestInventory);

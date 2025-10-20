@@ -31,16 +31,14 @@ public class PlayerController : MonoBehaviour
     {
         InputManager.Instance.OnFire += OnFire;
         InputManager.Instance.OnInteract += OnInteract;
-        equipInventory.OnEquipped += EquipItem;
-        equipInventory.OnUnequipped += UnEquipItem;
+        equipInventory.OnChanged += EquipRefresh;
     }
 
     void OnDisable()
     {
         InputManager.Instance.OnFire -= OnFire;
         InputManager.Instance.OnInteract -= OnInteract;
-        equipInventory.OnEquipped += EquipItem;
-        equipInventory.OnUnequipped += UnEquipItem;
+        equipInventory.OnChanged -= EquipRefresh;
     }
 
     void Awake()
@@ -79,13 +77,9 @@ public class PlayerController : MonoBehaviour
     }
 
     //equipInventory.OnEquipped += EquipItem
-    void EquipItem(StoredItem item)
+    void EquipRefresh()
     {
-        playerWeapon.Equip(item);
-    }
-    void UnEquipItem(StoredItem item)
-    {
-        playerWeapon.UnEquip();
+        playerWeapon.Equip(equipInventory.Weapon);
     }
 
     public void PlayAnimToTrigger(int triggerHash)

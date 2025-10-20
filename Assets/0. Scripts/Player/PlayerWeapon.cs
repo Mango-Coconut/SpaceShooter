@@ -37,6 +37,7 @@ public class PlayerWeapon : MonoBehaviour
         if (item == null || item.itemdata == null)
         {
             Debug.LogWarning("PlayerWeapon.Equip() -> StoredItem null");
+            Clear();
             return;
         }
 

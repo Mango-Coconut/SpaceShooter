@@ -21,6 +21,7 @@ IEndDragHandler
     #region 이벤트 발행
     public event Action<InventorySlotUI> PointerEnter;
     public event Action<InventorySlotUI> PointerExit;
+    public event Action<InventorySlotUI> LeftClick;
     public event Action<InventorySlotUI> RightClick;
     public event Action<InventorySlotUI, PointerEventData> BeginDragSlot;
     public event Action<InventorySlotUI, PointerEventData> DragSlot;
@@ -40,10 +41,14 @@ IEndDragHandler
     }
     public void HideTooltip() {PointerExit?.Invoke(mySlot);}
     
-    // 아이템 사용(우클릭)
+    // 아이템 사용, 장착(우클릭)
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(eventData.button == PointerEventData.InputButton.Right)
+        if(eventData.button == PointerEventData.InputButton.Left)
+        {
+            LeftClick?.Invoke(mySlot);
+        }
+        else if(eventData.button == PointerEventData.InputButton.Right)
         {
             RightClick?.Invoke(mySlot);
         }

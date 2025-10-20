@@ -24,6 +24,11 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
 
     #region 새 인벤토리 불러오기
     readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
+
+    public void Clear()
+    {
+        inventory = null;
+    }
     public void SetInventory(Inventory newInventory)
     {
         // 새 인벤토리 세팅
@@ -136,7 +141,8 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
 
             slot.handler.PointerEnter += HandlePointerEnter;
             slot.handler.PointerExit += HandlePointerExit;
-            slot.handler.RightClick += UseItem;
+            //slot.handler.LeftClick += 
+            //slot.handler.RightClick += 
             slot.handler.BeginDragSlot += HandleBeginDrag;
             slot.handler.DragSlot += HandleDrag;
             slot.handler.EndDragSlot += HandleEndDrag;
@@ -150,7 +156,8 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
 
             slot.handler.PointerEnter -= HandlePointerEnter;
             slot.handler.PointerExit -= HandlePointerExit;
-            slot.handler.RightClick -= UseItem;
+            //slot.handler.LeftClick -= 
+            //slot.handler.RightClick -= 
             slot.handler.BeginDragSlot -= HandleBeginDrag;
             slot.handler.DragSlot -= HandleDrag;
             slot.handler.EndDragSlot -= HandleEndDrag;
@@ -158,24 +165,15 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
     }
     #endregion
 
-    #region 이벤트 구현(재발행x 여기서 처리)
-    void UseItem(InventorySlotUI slotUI)
-    {
-        StoredItem item = slotUI.EnterItem;
-        bool isUse = inventory.UseItem(item);
-        if (isUse) Debug.Log($"{item.itemdata.name} 1개 사용");
-        else Debug.Log($"사용할 수 없습니다");
-        Refresh();
-    }
-    #endregion
+
 
     #region 이벤트 포워딩(InventoryUI에서 구독)
     public event Action<InventorySlotUI> TooltipShown;
     public event Action<InventorySlotUI> TooltipHidden;
-    public event Action<InventorySlotUI, IStorable, PointerEventData> BeginDrag;
+    public event Action<InventorySlotUI, IItemSource, PointerEventData> BeginDrag;
     public event Action<InventorySlotUI, PointerEventData> Dragging;
     public event Action<InventorySlotUI, PointerEventData> Dropped;
-
+    
     void HandlePointerEnter(InventorySlotUI slotUI)
     {
         TooltipShown?.Invoke(slotUI);
