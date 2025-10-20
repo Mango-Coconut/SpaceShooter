@@ -279,12 +279,7 @@ public class PanelManager : MonoBehaviour
             bool isAdd = InventoryManager.Instance.TryAddItem(toStorage, item);
             if (isAdd)
             {
-                Debug.Log("add 성공");
                 bool isRemove = InventoryManager.Instance.TryRemoveItem(fromStorage, item);
-                if (isRemove)
-                {
-                    Debug.Log("remove 성공");
-                }
             }
         }
         dragSlot.gameObject.SetActive(false);
@@ -299,8 +294,6 @@ public class PanelManager : MonoBehaviour
             return;
         }
         bool isAdd = InventoryManager.Instance.TryAddItem(fromStorage, item);
-        if (!isAdd) Debug.Log($"{item.itemdata.name} 이미 장착도니 장비 제거 실패");
-        else Debug.Log($"{item.itemdata.name} 이미 장착된 장비 제거 성공");
     }
     void TryRemoveItem(StoredItem item)
     {

@@ -27,13 +27,14 @@ public class EquipInventory : MonoBehaviour, IStorable
                 }
                 if (Weapon != null && Weapon.itemdata != null)
                 {
-                    TryRemoveItem(Weapon);
+                    if(TryRemoveItem(Weapon) == false)
+                    {
+                        return false;
+                    }
                 }
                 Weapon = item;
-                Debug.Log($"EquipInventory에 {item.itemdata.name}을 장착");
-
-                OnWeaponChanged?.Invoke();
                 OnEquipped?.Invoke(Weapon);
+                OnWeaponChanged?.Invoke();
                 return true;
             // TODO
             // case ItemType.Helmet : ...
@@ -57,13 +58,11 @@ public class EquipInventory : MonoBehaviour, IStorable
             case ItemType.Weapon:
                 if (Weapon == null || Weapon.itemdata == null) return false;
 
-                StoredItem unequipped = Weapon;
-                Weapon = null;
-                OnWeaponChanged?.Invoke();
-                //OnUnequipped?.Invoke(unequipped);
-                Debug.Log($"EquipInventory에 {item.itemdata.name}을 제거");
+                OnUnequipped?.Invoke(Weapon); //벗은 장비 전달
+                Weapon = null; //장비 비우기
+                OnWeaponChanged?.Invoke(); //Refresh
+                
                 return true;
-
             // case ItemType.Armor:
             //     if (Armor != null && Armor.itemdata == data) { ... }
 
@@ -77,9 +76,9 @@ public class EquipInventory : MonoBehaviour, IStorable
         return TryRemoveItem(new StoredItem(data));
     }
 
-    //장착한 아이템 반환(PlayerController.PlyerWeapon에서 장착)
+    //장착한 아이템 반환(PlayerController.PlyerWeapon에 전달)
     public event Action<StoredItem> OnEquipped;
-    //벗은 아이템 반환(EquipSlotPanel -> PanelManager로 반환)
+    //벗은 아이템 반환(EquipSlotPanel -> PanelManager로 전달)
     public event Action<StoredItem> OnUnequipped;
     //refresh(EquipSlotPanel이 구독)
     public event Action OnWeaponChanged;
