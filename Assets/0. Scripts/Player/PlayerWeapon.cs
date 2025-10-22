@@ -11,7 +11,7 @@ public class PlayerWeapon : MonoBehaviour
     new AudioSource audio;
     MeshRenderer muzzleFlash;
 
-    float fireTimer = 0;
+    [SerializeField] float fireTimer = 0;
     float fireHeat = 0;
     float fireSpread = 0;
 
@@ -32,37 +32,42 @@ public class PlayerWeapon : MonoBehaviour
         }
     }
 
-    public void Equip(StoredItem item)
+    public bool Equip(StoredItem item)
     {
         if (item == null || item.itemdata == null)
         {
             Debug.LogWarning("PlayerWeapon.Equip() -> StoredItem null");
             Clear();
-            return;
+            return false;
         }
 
         WeaponItemData data = item.itemdata as WeaponItemData;
         if (data == null)
         {
             Debug.LogWarning("PlayerWeapon.Equip() -> WeaponItemData null");
-            return;
+            return false;
         }
 
-        if (currentData == data) return;
+        if (currentData == data) return false;
 
         UnEquip();
         if (data.modelPrefab == null)
         {
             Debug.LogWarning("PlayerWeapon.Equip() -> modelPrefab is null");
-            return;
-        }   
-        
-        GameObject go = Instantiate(data.modelPrefab, transform);
-        currentModel = go.transform;
+            return false;
+        }
+
         currentData = data;
+
+        
+        GameObject go = Instantiate(data.modelPrefab, this.transform);
+
+        currentModel = go.transform;
+
 
         ApplyOffsets(data);
         DisablePhysicsAndScripts(currentModel);
+        return true;
     }
 
 
@@ -86,6 +91,8 @@ public class PlayerWeapon : MonoBehaviour
     /// <param name="moveFactor"></param>
     public void Fire(int moveFactor)
     {
+        if (fireTimer < currentData.fireDelay) return;
+
         Camera cam = Camera.main;
 
         // 1. 카메라 중앙에서 레이 발사
@@ -116,7 +123,7 @@ public class PlayerWeapon : MonoBehaviour
 
         // 3. 총알 생성 (총구 위치에서, 목표 방향으로)
         GameObject bulletObj = Instantiate(currentData.bulletPrefab, firePos.position, Quaternion.LookRotation(dir));
-
+        fireTimer = 0;
 
         audio.PlayOneShot(currentData.fireSound, 1.0f);
         StartCoroutine(ShowMuzzleFlash());
@@ -131,7 +138,7 @@ public class PlayerWeapon : MonoBehaviour
 
         currentModel.localPosition = Vector3.zero;
         currentModel.localRotation = Quaternion.Euler(Vector3.zero);
-        currentModel.localScale = Vector3.zero;
+        currentModel.localScale = Vector3.one;
     }
 
     public bool CanFire()
@@ -168,7 +175,7 @@ public class PlayerWeapon : MonoBehaviour
         muzzleFlash.transform.localRotation = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360));
         muzzleFlash.transform.localScale = Vector3.one * UnityEngine.Random.Range(0.5f, 1.0f);
         muzzleFlash.enabled = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.17f);
         muzzleFlash.enabled = false;
     }
 }

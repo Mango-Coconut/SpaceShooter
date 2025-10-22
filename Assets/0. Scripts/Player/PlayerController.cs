@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
 
     Interactor interactor;
     [SerializeField] float moveSpeed = 5;
-
+    [SerializeField] float rotateSpeed = 360f;
     [SerializeField] PlayerWeapon playerWeapon;
 
     
@@ -27,6 +27,8 @@ public class PlayerController : MonoBehaviour
     public static event PlayerDieHandler OnPlayerDie;
 
     Animator animator;
+
+
     void OnEnable()
     {
         InputManager.Instance.OnFire += OnFire;
@@ -79,34 +81,67 @@ public class PlayerController : MonoBehaviour
     //equipInventory.OnEquipped += EquipItem
     void EquipRefresh()
     {
-        playerWeapon.Equip(equipInventory.Weapon);
+        bool isEquip = playerWeapon.Equip(equipInventory.Weapon);
+        animator.SetBool("IsEquip", isEquip);
     }
 
+    // 외부에서 플레이어 Animator 조작
     public void PlayAnimToTrigger(int triggerHash)
     {
         if (animator) animator.SetTrigger(triggerHash);
     }
     
+    
+    float deadZone = 0.15f;       // 너무 미세한 입력 무시
+    float animDamp = 0.05f;       // 애니메이션 파라미터 감쇠
+    
+    static readonly int MoveXHash = Animator.StringToHash("MoveX");
+    static readonly int MoveYHash = Animator.StringToHash("MoveY");
     void HandleMovement()
     {
-        //회전
         Vector2 look = InputManager.Instance.Look;
-        transform.Rotate(Vector3.up * look.x * 360 * Time.deltaTime);
+        if (look.x != 0f)
+        {
+            transform.Rotate(Vector3.up * look.x * rotateSpeed * Time.deltaTime);
+        }
 
-        //이동
+        // 2) 이동 입력
         Vector2 mv = InputManager.Instance.Move;
 
-        animator.SetFloat("MoveX", mv.x);
-        animator.SetFloat("MoveY", mv.y);
+        // 3) 이동 불가면 애니 파라미터 0으로 감쇠 후 종료
+        if (!gate.Can(Block.Move))
+        {
+            animator.SetFloat(MoveXHash, 0f, animDamp, Time.deltaTime);
+            animator.SetFloat(MoveYHash, 0f, animDamp, Time.deltaTime);
+            isMoving = 0;
+            return;
+        }
 
-        if (mv.x + mv.y != 0) isMoving = 1;
-        else isMoving = 0;
+        // 4) 데드존 및 정규화
+        float mag = mv.magnitude;
+        if (mag < deadZone)
+        {
+            mv = Vector2.zero;
+            mag = 0f;
+        }
+        else if (mag > 1f)
+        {
+            mv /= mag; // 과도 입력 정규화
+            mag = 1f;
+        }
 
+        // 5) 애니메이터 파라미터(감쇠 적용)
+        animator.SetFloat(MoveXHash, mv.x, animDamp, Time.deltaTime);
+        animator.SetFloat(MoveYHash, mv.y, animDamp, Time.deltaTime);
 
-        if (!gate.Can(Block.Move)) return;
+        isMoving = mag > 0f ? 1 : 0;
 
-        Vector3 moveDir = new Vector3(mv.x, 0, mv.y).normalized;
-        transform.Translate(moveDir * moveSpeed * Time.deltaTime);
+        // 6) 실제 이동 (월드 기준)
+        if (mag > 0f)
+        {
+            Vector3 dir = new Vector3(mv.x, 0f, mv.y);
+            transform.Translate(dir * moveSpeed * Time.deltaTime);
+        }
     }
     void Die()
     {

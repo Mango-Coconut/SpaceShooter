@@ -4876,6 +4876,7 @@ MonoBehaviour:
   inventory: {fileID: 0}
   equipInventory: {fileID: 0}
   moveSpeed: 10
+  rotateSpeed: 360
   playerWeapon: {fileID: 1091952443}
   isMoving: 0
 --- !u!205 &1012882841
@@ -6814,12 +6815,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0220794da9f3cc4ea3082e4dd1c91b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Weapon:
-    instanceId: 
-    itemdata: {fileID: 0}
-    count: 0
-    enhancement: 0
-    useCount: 0
 --- !u!1 &1091952440
 GameObject:
   m_ObjectHideFlags: 0
@@ -6962,6 +6957,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firePos: {fileID: 1081967013}
+  fireTimer: 0
 --- !u!1 &1115770590
 GameObject:
   m_ObjectHideFlags: 0
@@ -12227,7 +12223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32e47cbe5bc34fa48a5c4105f2cfb08e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSlotNum: 10
+  maxSlotNum: 5
   slots: []
   chestitems:
   - {fileID: 11400000, guid: 15e68025ef792f246bb5b349b3ac7503, type: 2}
