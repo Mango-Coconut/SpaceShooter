@@ -18,6 +18,21 @@ public class PanelManager : MonoBehaviour
     [SerializeField] InteractionPanel iiPanel;
     #endregion
 
+    #region 프로퍼티
+    public Inventory PlayerInventory => inventoryUI.SlotPanel.Inventory;
+    public Inventory ChestInventory => chestUI.ChestInventory;
+    public EquipInventory EquipInventory => equipSlotPanel.EquipInventory;
+
+    public InventoryUI InventoryUI => inventoryUI;
+    public ChestUI ChestUI => chestUI;
+    public EquipSlotPanel EquipUI => equipSlotPanel;
+    #endregion
+
+    public bool IsOpen(GameObject gameObject)
+    {
+        return gameObject != null && gameObject.activeSelf;
+    }
+
     void OnEnable()
     {
         //Inventory 이벤트
@@ -55,7 +70,7 @@ public class PanelManager : MonoBehaviour
 
     void Awake()
     {
-        fromStorage = inventoryUI.SlotPanel.Inventory;  
+        fromStorage = inventoryUI.SlotPanel.Inventory;
         inventoryUI.gameObject.SetActive(true);
         iiPanel.gameObject.SetActive(true);
         chestUI.gameObject.SetActive(true);
@@ -86,11 +101,9 @@ public class PanelManager : MonoBehaviour
 
     #region UI 열고 닫기 (Invnetory, Chest)
 
-    bool isInvenOpen;
-    bool isChestOpen;
     void InventoryUIHandleEsc()
     {
-        if (isInvenOpen || isChestOpen)
+        if (IsOpen(inventoryUI.gameObject) || IsOpen(chestUI.gameObject))
         {
             CloseInventoryUI();
             CloseChestUI();
@@ -103,7 +116,7 @@ public class PanelManager : MonoBehaviour
 
     void InventoryUIToggle()
     {
-        if (!isInvenOpen) OpenInventoryUI();
+        if (!IsOpen(inventoryUI.gameObject)) OpenInventoryUI();
         else
         {
             CloseInventoryUI();
@@ -113,7 +126,6 @@ public class PanelManager : MonoBehaviour
 
     void OpenInventoryUI()
     {
-        isInvenOpen = true;
         inventoryUI.gameObject.SetActive(true);
         SubscribeInventoryUI(inventoryUI);
         CursorController.Apply(false);
@@ -121,7 +133,6 @@ public class PanelManager : MonoBehaviour
 
     void CloseInventoryUI()
     {
-        isInvenOpen = false;
         inventoryUI.gameObject.SetActive(false);
         CloseTooltip();
         CursorController.Apply(true);
@@ -129,7 +140,7 @@ public class PanelManager : MonoBehaviour
 
     void ChestUIToggle(Chest c)
     {
-        if (!isChestOpen)
+        if (!IsOpen(chestUI.gameObject))
         {
             OpenInventoryUI();
             OpenChestUI(c);
@@ -143,7 +154,6 @@ public class PanelManager : MonoBehaviour
 
     void OpenChestUI(Chest c)
     {
-        isChestOpen = true;
         chestUI.gameObject.SetActive(true);
         chestUI.SetChest(c);
         SubscribeInventoryUI(chestUI);
@@ -151,7 +161,6 @@ public class PanelManager : MonoBehaviour
 
     void CloseChestUI()
     {
-        isChestOpen = false;
         chestUI.SlotPanel.Clear();
         //상자 닫힐 때 플레이어 행동 가능하게
         PlayerActionGate.Instance.PopInteract();
@@ -271,26 +280,67 @@ public class PanelManager : MonoBehaviour
                 Debug.Log("Dropped 장비창");
                 toStorage = equipSlotPanel.EquipInventory;
             }
+            else
+            {
+                Debug.Log("Dropped 바닥");
+                //toStorage = worldInventory;
+            }
         }
         if (toStorage == null)
         {
             return;
-        } 
+        }
 
-        // 장비창인지 스왑 가능한지 확인
-        else if (toStorage is ISwapSink swapSink && fromStorage is IItemSource src)
-        {
-            // 보통 originSink는 fromStorage(원래 있던 곳)
-            InventoryManager.TryDeliverSwap(src, swapSink, item, (IItemSink)fromStorage);
-        }
-        // 일반 컨테이너 간 이동
-        else if (fromStorage is IItemSource s && toStorage is IItemSink t)
-        {
-            InventoryManager.TryDeliver(s, t, item);
-        }
+        InventoryManager.TryDeliver(fromStorage, toStorage, item);
 
         // 실패 시 드래그 프리뷰만 닫기
         dragSlot.gameObject.SetActive(false);
+    }
+    public void OnRightClick(StoredItem item, IItemSource fromStorage)
+    {
+        if (item == null || fromStorage == null)
+            return;
+
+        bool fromEquip = ReferenceEquals(fromStorage, EquipInventory);
+        bool fromChest = ReferenceEquals(fromStorage, ChestInventory);
+        bool fromInv = ReferenceEquals(fromStorage, PlayerInventory);
+
+        // 1️⃣ 장비창 → 언이퀍 (인벤토리 우선, 실패 시 Chest)
+        if (fromEquip)
+        {
+            IItemSink inv = PlayerInventory;
+            IItemSink chest = IsOpen(ChestUI.gameObject) ? ChestInventory : null;
+
+            bool moved = InventoryManager.TryDeliverWithFallbacks(fromStorage, item, inv, chest);
+            if (!moved)
+                Debug.Log("언이퀍 실패: 인벤토리/상자 공간 없음");
+            return;
+        }
+
+        // 2️⃣ 상자 → 인벤토리
+        else if (fromChest)
+        {
+            InventoryManager.TryDeliver(fromStorage, PlayerInventory, item);
+            return;
+        }
+
+        // 3️⃣ 인벤토리 → Chest 우선, 실패 시 Equip(장비 가능)
+        else if (fromInv)
+        {
+            IItemSink chest = IsOpen(ChestUI.gameObject) ? ChestInventory : null;
+            IItemSink equip = (item.itemdata != null && item.itemdata.type == ItemType.Weapon) ? EquipInventory : null;
+
+            bool moved = InventoryManager.TryDeliverWithFallbacks(fromStorage, item, chest, equip);
+            if (!moved)
+                Debug.Log("우클릭 이동 실패: Chest/Equip 모두 실패");
+            return;
+        }
+
+        // 4️⃣ 기타 → 인벤토리
+        else
+        {
+            InventoryManager.TryDeliver(fromStorage, PlayerInventory, item);
+        }
     }
 
     #endregion

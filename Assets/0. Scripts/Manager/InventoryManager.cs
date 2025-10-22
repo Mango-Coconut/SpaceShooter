@@ -21,8 +21,31 @@ public sealed class InventoryManager : MonoBehaviour
     {
         return c.TryRemoveItem(item);
     }
-    // 일반 전달 (Source -> Sink)
+
+
     public static bool TryDeliver(IItemSource from, IItemSink to, StoredItem item)
+    {
+        if (to is ISwapSink swap)
+            return TryDeliverSwap(from, swap, item, (IItemSink)from);
+        else
+            return TryDeliverBasic(from, to, item);
+    }
+    
+    // 여러 IItemSink에 순서대로 넣기 시도
+    public static bool TryDeliverWithFallbacks(IItemSource from, StoredItem item, params IItemSink[] sinks)
+    {
+        if (from == null || item == null || sinks == null) return false;
+
+        for (int i = 0; i < sinks.Length; i++)
+        {
+            IItemSink sink = sinks[i];
+            if (sink == null) continue;
+            if (TryDeliver(from, sink, item))
+                return true;
+        }
+        return false;
+    }
+    public static bool TryDeliverBasic(IItemSource from, IItemSink to, StoredItem item)
     {
         if (from == null || to == null || item == null) return false;
         if (!from.CanRemoveItem(item)) return false;
@@ -35,32 +58,36 @@ public sealed class InventoryManager : MonoBehaviour
     }
 
     public static bool TryDeliverSwap(IItemSource from, ISwapSink to, StoredItem item, IItemSink originSink)
-{
-    if (from == null || to == null || originSink == null || item == null) return false;
-
-    // 1) 사전검증: 꺼낼 수 있는가?
-    if (!from.CanRemoveItem(item)) return false;
-
-    // 2) 사전검증: 장비창이 이번 아이템을 받을 수 있는가? 그리고 무엇이 튀어나오는가?
-    if (!to.CanAddItemSwap(item, out var willBeSwapped)) return false;
-
-    // 3) 사전검증: 튀어나올 아이템이 있다면 원래 자리(or 지정된 곳)가 받을 수 있는가?
-    if (willBeSwapped != null && !originSink.CanAddItem(willBeSwapped)) return false;
-
-    // === 여기까지 오면 실패하지 않도록 보장됨 ===
-
-    // 4) 실제 실행
-    from.TryRemoveItem(item);                        // 꺼내기
-    to.TryAddItemSwap(item, out var swapped);        // 장비창에 넣고, 기존 장비를 받음 (swapped는 willBeSwapped와 동일해야 함)
-
-    // 5) 기존 장비를 원래 자리로 복귀
-    if (swapped != null)
     {
-        originSink.TryAddItem(swapped);
+        if (from == null || to == null || originSink == null || item == null) return false;
+
+        // 1) 사전검증: 꺼낼 수 있는가?
+        if (!from.CanRemoveItem(item)) return false;
+
+        // 2) 사전검증: 장비창이 이번 아이템을 받을 수 있는가? 그리고 무엇이 튀어나오는가?
+        if (!to.CanAddItemSwap(item, out var willBeSwapped)) return false;
+
+        // 3) 사전검증: 튀어나올 아이템이 있다면 원래 자리(or 지정된 곳)가 받을 수 있는가?
+        if (willBeSwapped != null && !originSink.CanAddItem(willBeSwapped)) return false;
+
+        // === 여기까지 오면 실패하지 않도록 보장됨 ===
+
+        // 4) 실제 실행
+        from.TryRemoveItem(item);                        // 꺼내기
+        to.TryAddItemSwap(item, out var swapped);        // 장비창에 넣고, 기존 장비를 받음 (swapped는 willBeSwapped와 동일해야 함)
+
+        // 5) 기존 장비를 원래 자리로 복귀
+        if (swapped != null)
+        {
+            originSink.TryAddItem(swapped);
+        }
+
+        return true;
     }
 
-    return true;
-}
+
+
+
 
     #region 싱글톤
     private static InventoryManager instance;

@@ -62,7 +62,7 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
 
             slot.handler.PointerEnter += HandlePointerEnter;
             slot.handler.PointerExit += HandlePointerExit;
-            slot.handler.RightClick += UseItem;
+            //slot.handler.RightClick += UseItem;
             slot.handler.BeginDragSlot += HandleBeginDrag;
             slot.handler.DragSlot += HandleDrag;
             slot.handler.EndDragSlot += HandleEndDrag;
@@ -76,7 +76,7 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
 
             slot.handler.PointerEnter -= HandlePointerEnter;
             slot.handler.PointerExit -= HandlePointerExit;
-            slot.handler.RightClick -= UseItem;
+            //slot.handler.RightClick -= UseItem;
             slot.handler.BeginDragSlot -= HandleBeginDrag;
             slot.handler.DragSlot -= HandleDrag;
             slot.handler.EndDragSlot -= HandleEndDrag;
@@ -84,19 +84,6 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
     }
     #endregion
 
-
-    // = InventoryUI의 UseItem. 여기선 그냥 장비 장착 해제
-    void UseItem(InventorySlotUI slotUI)
-    {
-        bool isRemove = equipInventory.TryRemoveItem(slotUI.EnterItem);
-        //장착 해제 성공하면 벗은 무기 전달(인벤토리 or Chest or 바닥)
-        if(isRemove)
-        {
-            Refresh();
-            //PanelManager 구독
-            //UnEquippedItemReturnHandler(slotUI.EnterItem);
-        }
-    }
 
     #region 재발행할 이벤트
     public event Action<InventorySlotUI> TooltipShown;
