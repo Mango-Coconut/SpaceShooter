@@ -14,11 +14,11 @@ public class InventoryUI : MonoBehaviour
     public EquipSlotPanel EquipSlotPanel => equipSlotPanel;
 
     //구독 편하게 하기 용
-    ISlotPanel[] panels;
+    SlotPanelBase[] panels;
 
     void Awake()
     {
-        panels = GetComponentsInChildren<ISlotPanel>(true);
+        panels = GetComponentsInChildren<SlotPanelBase>(true);
     }
 
     void OnEnable()
@@ -53,11 +53,12 @@ public class InventoryUI : MonoBehaviour
 
         for (int i = 0; i < panels.Length; i++)
         {
-            panels[i].TooltipShown += OnSlotPanelTooltipShown;
-            panels[i].TooltipHidden += OnSlotPanelTooltipHidden;
-            panels[i].BeginDrag += OnSlotPanelBeginDrag;
-            panels[i].Dragging += OnSlotPanelDragging;
-            panels[i].Dropped += OnSlotPanelDropped;
+            panels[i].PointerEnter += OnPointerEnter;
+            panels[i].PointerExit += OnPointerExit;
+            panels[i].RightClick += OnPointerRightClick;
+            panels[i].BeginDrag += OnBeginDrag;
+            panels[i].Dragging += OnDragging;
+            panels[i].EndDrag += OnEndDrag;
         }
 
     }
@@ -72,45 +73,38 @@ public class InventoryUI : MonoBehaviour
 
         for (int i = 0; i < panels.Length; i++)
         {
-            panels[i].TooltipShown -= OnSlotPanelTooltipShown;
-            panels[i].TooltipHidden -= OnSlotPanelTooltipHidden;
-            panels[i].BeginDrag -= OnSlotPanelBeginDrag;
-            panels[i].Dragging -= OnSlotPanelDragging;
-            panels[i].Dropped -= OnSlotPanelDropped;
+            panels[i].PointerEnter -= OnPointerEnter;
+            panels[i].PointerExit -= OnPointerExit;
+            panels[i].RightClick -= OnPointerRightClick;
+            panels[i].BeginDrag -= OnBeginDrag;
+            panels[i].Dragging -= OnDragging;
+            panels[i].EndDrag -= OnEndDrag;
         }
     }
 
 
     #region  ── 위로 포워딩할 이벤트 (PanelManager에서 구독) ──
-    public event Action<InventorySlotUI> ShowTooltip;
-    public event Action HideTooltip;
-    public event Action<InventorySlotUI, IItemSource, PointerEventData> BeginDrag;
-    public event Action<InventorySlotUI, PointerEventData> Dragging;
-    public event Action<InventorySlotUI, PointerEventData> Dropped;
+    public event Action<InventorySlotUI> PointerEnter;
+    public event Action PointerExit;
+    public event Action<StoredItem, IItemSource> RightClick;
+    public event Action<StoredItem, IItemSource, PointerEventData> BeginDrag;
+    public event Action<PointerEventData> Dragging;
+    public event Action<StoredItem, PointerEventData> EndDrag;
 
-    private void OnSlotPanelTooltipShown(InventorySlotUI slotUI)
+
+
+    void OnPointerEnter(InventorySlotUI slotUI) => PointerEnter?.Invoke(slotUI);
+    void OnPointerExit() => PointerExit?.Invoke();
+    public void OnPointerRightClick(StoredItem item, IItemSource fromStorage) => RightClick?.Invoke(item, fromStorage);
+    
+    void OnBeginDrag(StoredItem item, IItemSource source, PointerEventData e)
     {
-        ShowTooltip?.Invoke(slotUI);
+        PointerExit?.Invoke();
+        BeginDrag?.Invoke(item, source, e);
     }
 
-    private void OnSlotPanelTooltipHidden(InventorySlotUI slotUI)
-    {
-        HideTooltip?.Invoke();
-    }
+    void OnDragging(PointerEventData e) => Dragging?.Invoke(e);
 
-    private void OnSlotPanelBeginDrag(InventorySlotUI slotUI, IItemSource storage, PointerEventData e)
-    {
-        BeginDrag?.Invoke(slotUI, storage, e);
-    }
-
-    private void OnSlotPanelDragging(InventorySlotUI slotUI, PointerEventData e)
-    {
-        Dragging?.Invoke(slotUI, e);
-    }
-
-    private void OnSlotPanelDropped(InventorySlotUI slotUI, PointerEventData e)
-    {
-        Dropped?.Invoke(slotUI, e);
-    }
+    void OnEndDrag(StoredItem item, PointerEventData e) => EndDrag?.Invoke(item, e);
     #endregion
 }

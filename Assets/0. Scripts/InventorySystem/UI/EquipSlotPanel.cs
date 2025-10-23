@@ -1,15 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class EquipSlotPanel : SlotPanelBase, ISlotPanel
+public class EquipSlotPanel : SlotPanelBase
 {
     [SerializeField] EquipInventory equipInventory;
     public EquipInventory EquipInventory => equipInventory;
     protected override IItemSource GetSource() => equipInventory;
 
+    [SerializeField] private InventorySlotUI[] fixedSlots;
 
     private enum EquipIndex
     {
@@ -21,9 +18,14 @@ public class EquipSlotPanel : SlotPanelBase, ISlotPanel
     [SerializeField] InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon];
     //[SerializeField] InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet];
     //[SerializeField] InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor];
-
+    void Awake()
+    {
+        uiSlots.Clear();
+        uiSlots.AddRange(fixedSlots); // 수동 슬롯 연결
+    }
     void OnEnable()
     {
+        Log.Info($"{uiSlots.Count}");
         SubscribeInventory();
         SubscribeSlotUI();
     }
@@ -38,7 +40,7 @@ public class EquipSlotPanel : SlotPanelBase, ISlotPanel
         weaponSlot.Bind(equipInventory.Weapon);
     }
 
-    
+
     void SubscribeInventory()
     {
         UnSubscribeInventory();

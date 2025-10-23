@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public sealed class InventoryManager : MonoBehaviour
@@ -6,9 +7,13 @@ public sealed class InventoryManager : MonoBehaviour
     PanelManager panel;
 
     //인벤토리 조작용
-    public Inventory PlayerInventory { get; private set; }
-    public Inventory ChestInventory { get; private set; }
-    public EquipInventory EquipInventory { get; private set; }
+    [SerializeField] Inventory playerInventory;
+    [SerializeField] Inventory chestInventory;
+    [SerializeField] EquipInventory equipInventory;
+
+    public Inventory PlayerInventory => playerInventory;
+    public Inventory ChestInventory => chestInventory;
+    public EquipInventory EquipInventory => equipInventory;
 
     #region 싱글톤
     private static InventoryManager instance;
@@ -60,15 +65,40 @@ public sealed class InventoryManager : MonoBehaviour
     }
     #endregion
 
-    void Start()
+    void OnEnable()
     {
-        //panel 참조는 awake에서 했음
-        if (panel != null)
-        {
-            panel.OnItemDropped += HandleItemDropped;
-            panel.OnItemRightClicked += HandleRightClick;
-        }
+        SubsCribe();
     }
+    void OnDisable()
+    {
+        UnSubsCribe();
+    }
+    void SubsCribe()
+    {
+        UnSubsCribe();
+        panel.OnItemDropped += HandleItemDropped;
+        panel.OnItemRightClicked += HandleRightClick;
+        panel.OnChestClosed += ClearChestInventory;
+        Chest.OnChestOpened += HandleSetChestInventory;
+    }
+    void UnSubsCribe()
+    {
+        panel.OnItemDropped -= HandleItemDropped;
+        panel.OnItemRightClicked -= HandleRightClick;
+        panel.OnChestClosed -= ClearChestInventory;
+        Chest.OnChestOpened -= HandleSetChestInventory;
+    }
+
+    void HandleSetChestInventory(Chest chest)
+    {
+        if (chest == null) Log.Error("InventoryManager -> Chest null");
+        chestInventory = chest;
+    }
+    void ClearChestInventory()
+    {
+        chestInventory = null;
+    }
+
     void HandleItemDropped(IItemSource from, IItemSink to, StoredItem item)
     {
         TryDeliver(from, to, item);
@@ -77,7 +107,7 @@ public sealed class InventoryManager : MonoBehaviour
     void HandleRightClick(StoredItem item, IItemSource from)
     {
         if (item == null || from == null) return;
-
+        Log.Info($"InventoryManager -> RightClick, {item.itemdata.name}");
         bool fromEquip = ReferenceEquals(from, EquipInventory);
         bool fromChest = ReferenceEquals(from, ChestInventory);
         bool fromInv = ReferenceEquals(from, PlayerInventory);
@@ -86,17 +116,32 @@ public sealed class InventoryManager : MonoBehaviour
         {
             IItemSink inv = PlayerInventory;
             IItemSink chest = ChestInventory != null ? ChestInventory : null;
-            TryDeliverWithFallbacks(from, item, inv, chest);
+            Log.Info($"InventoryManager -> Equip to inv or chest, {item.itemdata.name}");
+            if (TryDeliverWithFallbacks(from, item, inv, chest))
+            {
+                Log.Info($"성공");
+            }
+            else Log.Info($"실패");
         }
         else if (fromChest)
         {
-            TryDeliver(from, PlayerInventory, item);
+            Log.Info($"InventoryManager -> chest to inv, {item.itemdata.name}");
+            if(TryDeliver(from, PlayerInventory, item))
+            {
+                Log.Info($"성공");
+            }
+            else Log.Info($"실패");
         }
         else if (fromInv)
         {
             IItemSink chest = ChestInventory != null ? ChestInventory : null;
             IItemSink equip = (item.itemdata?.type == ItemType.Weapon) ? EquipInventory : null;
-            TryDeliverWithFallbacks(from, item, chest, equip);
+            Log.Info($"InventoryManager -> inv to chest or equip, {item.itemdata.name}");
+            if (TryDeliverWithFallbacks(from, item, chest, equip))
+            {
+                Log.Info($"성공");
+            }
+            else Log.Info($"실패");
         }
         else
         {
@@ -151,7 +196,6 @@ public sealed class InventoryManager : MonoBehaviour
         if (from == null || to == null || item == null) return false;
         if (!from.CanRemoveItem(item)) return false;
         if (!to.CanAddItem(item)) return false;
-
         // 사전 검증으로 충분히 보장된 상태라면 이 아래는 거의 실패하지 않음
         from.TryRemoveItem(item);
         to.TryAddItem(item);
@@ -172,11 +216,13 @@ public sealed class InventoryManager : MonoBehaviour
         if (willBeSwapped != null && !originSink.CanAddItem(willBeSwapped)) return false;
 
         // === 여기까지 오면 실패하지 않도록 보장됨 ===
-
+        
+        Log.Info("Deliver 가능");
         // 4) 실제 실행
         from.TryRemoveItem(item);                        // 꺼내기
         to.TryAddItemSwap(item, out var swapped);        // 장비창에 넣고, 기존 장비를 받음 (swapped는 willBeSwapped와 동일해야 함)
-
+        
+        Log.Info("Deliver 실행");
         // 5) 기존 장비를 원래 자리로 복귀
         if (swapped != null)
         {

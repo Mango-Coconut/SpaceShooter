@@ -6,14 +6,16 @@ using UnityEngine.EventSystems;
 public abstract class SlotPanelBase : MonoBehaviour
 {
     protected List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
-
-    public event Action<InventorySlotUI> TooltipShown;
-    public event Action<InventorySlotUI> TooltipHidden;
-    public event Action<InventorySlotUI, IItemSource, PointerEventData> BeginDrag;
-    public event Action<InventorySlotUI, PointerEventData> Dragging;
-    public event Action<InventorySlotUI, PointerEventData> Dropped;
+    
+    public event Action<InventorySlotUI> PointerEnter;
+    public event Action PointerExit;
+    public event Action<StoredItem, IItemSource> RightClick;
+    public event Action<StoredItem, IItemSource, PointerEventData> BeginDrag;
+    public event Action<PointerEventData> Dragging;
+    public event Action<StoredItem, PointerEventData> EndDrag;
 
     protected abstract IItemSource GetSource(); // Inventory or EquipInventory
+
 
     protected virtual void SubscribeSlotUI()
     {
@@ -22,11 +24,12 @@ public abstract class SlotPanelBase : MonoBehaviour
         foreach (InventorySlotUI slot in uiSlots)
         {
             if (slot == null || slot.handler == null) continue;
-            slot.handler.PointerEnter += HandlePointerEnter;
-            slot.handler.PointerExit += HandlePointerExit;
-            slot.handler.BeginDragSlot += HandleBeginDrag;
-            slot.handler.DragSlot += HandleDrag;
-            slot.handler.EndDragSlot += HandleEndDrag;
+            slot.handler.PointerEnter += OnPointerEnter;
+            slot.handler.PointerExit += OnPointerExit;
+            slot.handler.RightClick += OnPointerRightClick;
+            slot.handler.BeginDrag += OnBeginDrag;
+            slot.handler.Dragging += OnDragging;
+            slot.handler.EndDrag += OnEndDrag;
         }
     }
 
@@ -35,27 +38,26 @@ public abstract class SlotPanelBase : MonoBehaviour
         foreach (InventorySlotUI slot in uiSlots)
         {
             if (slot == null || slot.handler == null) continue;
-            slot.handler.PointerEnter -= HandlePointerEnter;
-            slot.handler.PointerExit -= HandlePointerExit;
-            slot.handler.BeginDragSlot -= HandleBeginDrag;
-            slot.handler.DragSlot -= HandleDrag;
-            slot.handler.EndDragSlot -= HandleEndDrag;
+            slot.handler.PointerEnter -= OnPointerEnter;
+            slot.handler.PointerExit -= OnPointerExit;
+            slot.handler.RightClick -= OnPointerRightClick;
+            slot.handler.BeginDrag -= OnBeginDrag;
+            slot.handler.Dragging -= OnDragging;
+            slot.handler.EndDrag -= OnEndDrag;
         }
     }
 
-    void HandlePointerEnter(InventorySlotUI slotUI) => TooltipShown?.Invoke(slotUI);
-    void HandlePointerExit(InventorySlotUI slotUI) => TooltipHidden?.Invoke(slotUI);
-
-    void HandleBeginDrag(InventorySlotUI slotUI, PointerEventData e)
+    void OnPointerEnter(InventorySlotUI slotUI) => PointerEnter?.Invoke(slotUI);
+    void OnPointerExit() => PointerExit?.Invoke();
+    public void OnPointerRightClick(StoredItem item) => RightClick?.Invoke(item, GetSource());
+    
+    void OnBeginDrag(StoredItem item, PointerEventData e)
     {
-        TooltipHidden?.Invoke(slotUI);
-        BeginDrag?.Invoke(slotUI, GetSource(), e);
+        PointerExit?.Invoke();
+        BeginDrag?.Invoke(item, GetSource(), e);
     }
 
-    void HandleDrag(InventorySlotUI slotUI, PointerEventData e) => Dragging?.Invoke(slotUI, e);
+    void OnDragging(PointerEventData e) => Dragging?.Invoke(e);
 
-    void HandleEndDrag(InventorySlotUI slotUI, PointerEventData e)
-    {
-        Dropped?.Invoke(slotUI, e);
-    }
+    void OnEndDrag(StoredItem item, PointerEventData e) => EndDrag?.Invoke(item, e);
 }

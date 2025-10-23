@@ -48,8 +48,6 @@ public class InventorySlotUI : MonoBehaviour
 
     public void Clear()
     {
-        //툴팁 종료
-        handler.HideTooltip();
         handler.enabled = false;
 
         enterItem = null;

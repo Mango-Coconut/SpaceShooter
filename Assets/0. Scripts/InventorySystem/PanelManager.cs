@@ -28,6 +28,7 @@ public class PanelManager : MonoBehaviour
 
     public event Action<IItemSource, IItemSink, StoredItem> OnItemDropped;
     public event Action<StoredItem, IItemSource> OnItemRightClicked;
+    public event Action OnChestClosed;
 
     public bool IsOpen(GameObject gameObject)
     {
@@ -169,6 +170,7 @@ public class PanelManager : MonoBehaviour
         //상자 닫힐 때 플레이어 행동 가능하게
         PlayerActionGate.Instance.PopInteract();
         chestUI.gameObject.SetActive(false);
+        OnChestClosed?.Invoke();
     }
     #endregion
 
@@ -180,22 +182,23 @@ public class PanelManager : MonoBehaviour
         // 중복 방지
         UnsubscribeInventoryUI(inventoryUI);
 
-        inventoryUI.ShowTooltip += OpenTooltip;
-        inventoryUI.HideTooltip += CloseTooltip;
+        inventoryUI.PointerEnter += OpenTooltip;
+        inventoryUI.PointerExit += CloseTooltip;
+        inventoryUI.RightClick += OnRightClick;
         inventoryUI.BeginDrag += OnBeginDragFromPanel;
         inventoryUI.Dragging += OnDraggingFromPanel;
-        inventoryUI.Dropped += OnDroppedFromPanel;
+        inventoryUI.EndDrag += OnDroppedFromPanel;
     }
 
     void UnsubscribeInventoryUI(InventoryUI inventoryUI)
     {
         if (inventoryUI == null) return;
 
-        inventoryUI.ShowTooltip -= OpenTooltip;
-        inventoryUI.HideTooltip -= CloseTooltip;
+        inventoryUI.PointerEnter -= OpenTooltip;
+        inventoryUI.PointerExit -= CloseTooltip;
         inventoryUI.BeginDrag -= OnBeginDragFromPanel;
         inventoryUI.Dragging -= OnDraggingFromPanel;
-        inventoryUI.Dropped -= OnDroppedFromPanel;
+        inventoryUI.EndDrag -= OnDroppedFromPanel;
     }
     #endregion
 
@@ -239,28 +242,27 @@ public class PanelManager : MonoBehaviour
     #region 아이템 슬롯 드래그 하기 & 아이템 옮기기(인벤토리↔상자)
     IItemSource fromStorage;
     IItemSink toStorage = null;
-    void OnBeginDragFromPanel(InventorySlotUI slotUI, IItemSource storage, PointerEventData e)
+    void OnBeginDragFromPanel(StoredItem item, IItemSource storage, PointerEventData e)
     {
         toStorage = null;
-        if (slotUI.EnterItem == null) return;
+        if (item == null) return;
 
         //드래그 시작한 곳(인벤토리or상자)
         fromStorage = storage;
         CloseTooltip();
 
         dragSlot.gameObject.SetActive(true);
-        dragSlot.Bind(slotUI.EnterItem);
-        StoredItem i = slotUI.EnterItem;
+        dragSlot.Bind(item);
+        StoredItem i = item;
     }
 
-    void OnDraggingFromPanel(InventorySlotUI slotUI, PointerEventData e)
+    void OnDraggingFromPanel(PointerEventData e)
     {
         dragSlot.transform.position = e.position;
     }
 
-    void OnDroppedFromPanel(InventorySlotUI slotUI, PointerEventData e)
+    void OnDroppedFromPanel(StoredItem item, PointerEventData e)
     {
-        StoredItem item = slotUI.EnterItem;
         if (fromStorage == null || item == null || item.itemdata == null) return;
 
         // 마우스 놓은 Storage 창 구하기(인벤토리, 장비창, 상자)
@@ -284,24 +286,22 @@ public class PanelManager : MonoBehaviour
                 Debug.Log("Dropped 장비창");
                 toStorage = equipSlotPanel.EquipInventory;
             }
-            else
-            {
-                Debug.Log("Dropped 바닥");
-                //toStorage = worldInventory;
-            }
         }
+
         if (toStorage == null)
         {
-            return;
+            Debug.Log("Dropped 바닥");
+            //toStorage = worldInventory;
         }
 
         OnItemDropped?.Invoke(fromStorage, toStorage, item);
 
-        // 실패 시 드래그 프리뷰만 닫기
         dragSlot.gameObject.SetActive(false);
     }
     public void OnRightClick(StoredItem item, IItemSource fromStorage)
     {
+        Log.Info($"PanelManager -> RightClick, {item.itemdata.name}");
+        CloseTooltip();
         OnItemRightClicked?.Invoke(item, fromStorage);
     }
 

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SlotPanel : SlotPanelBase, ISlotPanel
+public class SlotPanel : SlotPanelBase
 {
     [SerializeField] Inventory inventory;
     public Inventory Inventory => inventory;
+    
+    [SerializeField] private GameObject slotPrefab;
     protected override IItemSource GetSource() => inventory;
-    [SerializeField] GameObject slotPrefab;
 
     void OnEnable()
     {
@@ -44,7 +45,7 @@ public class SlotPanel : SlotPanelBase, ISlotPanel
     }
 
     // 인벤토리 세팅 시 슬롯UI 재생성
-    void SetSlot(int targetCount)
+    protected void SetSlot(int targetCount)
     {
         //이벤트 해제
         UnSubscribeSlotUI();
@@ -66,6 +67,7 @@ public class SlotPanel : SlotPanelBase, ISlotPanel
         //이벤트 구독
         SubscribeSlotUI();
     }
+
 
     #endregion
 

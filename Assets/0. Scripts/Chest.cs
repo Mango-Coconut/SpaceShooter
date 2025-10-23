@@ -24,6 +24,7 @@ public class Chest : Inventory, IInteractable
     public void Interact(PlayerController pc)
     {
         //PanelManager가 받음
+        //InventoryManager도 받음
         OnChestOpened?.Invoke(this);
     }
 
