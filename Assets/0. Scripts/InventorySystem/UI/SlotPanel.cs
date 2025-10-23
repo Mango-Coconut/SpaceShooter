@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SlotPanel : MonoBehaviour, ISlotPanel
+public class SlotPanel : SlotPanelBase, ISlotPanel
 {
     [SerializeField] Inventory inventory;
     public Inventory Inventory => inventory;
+    protected override IItemSource GetSource() => inventory;
     [SerializeField] GameObject slotPrefab;
 
     void OnEnable()
@@ -23,7 +24,6 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
     }
 
     #region 인벤토리 세팅 관련
-    readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
 
     // 새로운 인벤토리 세팅
     public void SetInventory(Inventory newInventory)
@@ -124,80 +124,6 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
     {
         if (inventory == null) return;
         inventory.OnChanged -= Refresh;
-    }
-    #endregion
-
-    #region 인벤토리 슬롯 UI 이벤트 구독
-    //모든 인벤토리 슬롯 UI 이벤트 구독
-    void SubscribeSlotUI()
-    {
-        UnSubscribeSlotUI();
-
-        foreach (InventorySlotUI slot in uiSlots)
-        {
-            if (slot == null || slot.handler == null) continue;
-
-            slot.handler.PointerEnter += HandlePointerEnter;
-            slot.handler.PointerExit += HandlePointerExit;
-            //slot.handler.LeftClick += 
-            //slot.handler.RightClick += 
-            slot.handler.BeginDragSlot += HandleBeginDrag;
-            slot.handler.DragSlot += HandleDrag;
-            slot.handler.EndDragSlot += HandleEndDrag;
-        }
-    }
-    void UnSubscribeSlotUI()
-    {
-        foreach (InventorySlotUI slot in uiSlots)
-        {
-            if (slot == null || slot.handler == null) continue;
-
-            slot.handler.PointerEnter -= HandlePointerEnter;
-            slot.handler.PointerExit -= HandlePointerExit;
-            //slot.handler.LeftClick -= 
-            //slot.handler.RightClick -= 
-            slot.handler.BeginDragSlot -= HandleBeginDrag;
-            slot.handler.DragSlot -= HandleDrag;
-            slot.handler.EndDragSlot -= HandleEndDrag;
-        }
-    }
-    #endregion
-
-
-
-    #region 이벤트 포워딩(InventoryUI에서 구독)
-    public event Action<InventorySlotUI> TooltipShown;
-    public event Action<InventorySlotUI> TooltipHidden;
-    public event Action<InventorySlotUI, IItemSource, PointerEventData> BeginDrag;
-    public event Action<InventorySlotUI, PointerEventData> Dragging;
-    public event Action<InventorySlotUI, PointerEventData> Dropped;
-    
-    void HandlePointerEnter(InventorySlotUI slotUI)
-    {
-        TooltipShown?.Invoke(slotUI);
-    }
-
-    void HandlePointerExit(InventorySlotUI slotUI)
-    {
-        TooltipHidden?.Invoke(slotUI);
-    }
-
-    void HandleBeginDrag(InventorySlotUI slotUI, PointerEventData e)
-    {
-        // 드래그 시작 시 툴팁 강제 숨김
-        TooltipHidden?.Invoke(slotUI);
-        BeginDrag?.Invoke(slotUI, inventory, e);
-    }
-
-    void HandleDrag(InventorySlotUI slotUI, PointerEventData e)
-    {
-        Dragging?.Invoke(slotUI, e);
-    }
-
-    void HandleEndDrag(InventorySlotUI slotUI, PointerEventData e)
-    {
-        Refresh();
-        Dropped?.Invoke(slotUI, e);
     }
     #endregion
 }

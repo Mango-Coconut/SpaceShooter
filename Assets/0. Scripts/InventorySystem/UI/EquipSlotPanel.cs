@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class EquipSlotPanel : MonoBehaviour, ISlotPanel
+public class EquipSlotPanel : SlotPanelBase, ISlotPanel
 {
     [SerializeField] EquipInventory equipInventory;
     public EquipInventory EquipInventory => equipInventory;
+    protected override IItemSource GetSource() => equipInventory;
 
 
     private enum EquipIndex
@@ -17,7 +18,6 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
         ChestArmor = 2
     }
     [Tooltip("0: Weapon, 1: Helmet, 2: ChestArmor")]
-    [SerializeField] private InventorySlotUI[] uiSlots;
     [SerializeField] InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon];
     //[SerializeField] InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet];
     //[SerializeField] InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor];
@@ -39,7 +39,6 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
     }
 
     
-
     void SubscribeInventory()
     {
         UnSubscribeInventory();
@@ -49,77 +48,4 @@ public class EquipSlotPanel : MonoBehaviour, ISlotPanel
     {
         equipInventory.OnChanged -= Refresh;
     }
-
-    #region 인벤토리 슬롯 UI 이벤트 구독
-    //모든 인벤토리 슬롯 UI 이벤트 구독
-    void SubscribeSlotUI()
-    {
-        UnSubscribeSlotUI();
-
-        foreach (InventorySlotUI slot in uiSlots)
-        {
-            if (slot == null || slot.handler == null) continue;
-
-            slot.handler.PointerEnter += HandlePointerEnter;
-            slot.handler.PointerExit += HandlePointerExit;
-            //slot.handler.RightClick += UseItem;
-            slot.handler.BeginDragSlot += HandleBeginDrag;
-            slot.handler.DragSlot += HandleDrag;
-            slot.handler.EndDragSlot += HandleEndDrag;
-        }
-    }
-    void UnSubscribeSlotUI()
-    {
-        foreach (InventorySlotUI slot in uiSlots)
-        {
-            if (slot == null || slot.handler == null) continue;
-
-            slot.handler.PointerEnter -= HandlePointerEnter;
-            slot.handler.PointerExit -= HandlePointerExit;
-            //slot.handler.RightClick -= UseItem;
-            slot.handler.BeginDragSlot -= HandleBeginDrag;
-            slot.handler.DragSlot -= HandleDrag;
-            slot.handler.EndDragSlot -= HandleEndDrag;
-        }
-    }
-    #endregion
-
-
-    #region 재발행할 이벤트
-    public event Action<InventorySlotUI> TooltipShown;
-    public event Action<InventorySlotUI> TooltipHidden;
-    public event Action<InventorySlotUI, IItemSource, PointerEventData> BeginDrag;
-    public event Action<InventorySlotUI, PointerEventData> Dragging;
-    public event Action<InventorySlotUI, PointerEventData> Dropped;
-
-    void HandlePointerEnter(InventorySlotUI slotUI)
-    {
-        TooltipShown?.Invoke(slotUI);
-    }
-
-    void HandlePointerExit(InventorySlotUI slotUI)
-    {
-        TooltipHidden?.Invoke(slotUI);
-    }
-
-    void HandleBeginDrag(InventorySlotUI slotUI, PointerEventData e)
-    {
-        // 드래그 시작 시 툴팁 강제 숨김
-        TooltipHidden?.Invoke(slotUI);
-        BeginDrag?.Invoke(slotUI, equipInventory, e);
-    }
-
-    void HandleDrag(InventorySlotUI slotUI, PointerEventData e)
-    {
-        Dragging?.Invoke(slotUI, e);
-    }
-
-    void HandleEndDrag(InventorySlotUI slotUI, PointerEventData e)
-    {
-        Refresh();
-        Dropped?.Invoke(slotUI, e);
-    }
-
-    #endregion
-
 }

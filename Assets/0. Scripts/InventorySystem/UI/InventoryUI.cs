@@ -36,7 +36,7 @@ public class InventoryUI : MonoBehaviour
         slotPanel.SetInventory(chest);
         SubscribeSlotPanel();
     }
-    public void Clear()
+    public void ClearSlotPanel()
     {
         
     }
