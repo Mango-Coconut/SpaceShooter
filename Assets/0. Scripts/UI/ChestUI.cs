@@ -12,4 +12,8 @@ public class ChestUI : InventoryUI
         chestInventory = chest;
         SetSlotPanel(chestInventory);
     }
+    public void ClearChest()
+    {
+        chestInventory = null;
+    }
 }

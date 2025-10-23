@@ -1,10 +1,111 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public sealed class InventoryManager : MonoBehaviour
 {
+    //이벤트 구독용
+    PanelManager panel;
+
+    //인벤토리 조작용
+    public Inventory PlayerInventory { get; private set; }
+    public Inventory ChestInventory { get; private set; }
+    public EquipInventory EquipInventory { get; private set; }
+
+    #region 싱글톤
+    private static InventoryManager instance;
+    public static InventoryManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+#if UNITY_EDITOR
+                Debug.LogError("[InventoryManager] Instance is null. Make sure a GameObject with InventoryManager exists in the scene.");
+#endif
+            }
+            return instance;
+        }
+    }
+
+    [SerializeField] private bool dontDestroyOnLoad = true;
+
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+#if UNITY_EDITOR
+            Debug.LogWarning("[InventoryManager] Duplicate detected. Destroying this component.", this);
+#endif
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+
+        if (dontDestroyOnLoad == true)
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+
+        // TODO: 초기화 필요 시 여기서 수행
+        // Init();
+        panel = FindObjectOfType<PanelManager>();
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+    #endregion
+
+    void Start()
+    {
+        //panel 참조는 awake에서 했음
+        if (panel != null)
+        {
+            panel.OnItemDropped += HandleItemDropped;
+            panel.OnItemRightClicked += HandleRightClick;
+        }
+    }
+    void HandleItemDropped(IItemSource from, IItemSink to, StoredItem item)
+    {
+        TryDeliver(from, to, item);
+    }
+
+    void HandleRightClick(StoredItem item, IItemSource from)
+    {
+        if (item == null || from == null) return;
+
+        bool fromEquip = ReferenceEquals(from, EquipInventory);
+        bool fromChest = ReferenceEquals(from, ChestInventory);
+        bool fromInv = ReferenceEquals(from, PlayerInventory);
+
+        if (fromEquip)
+        {
+            IItemSink inv = PlayerInventory;
+            IItemSink chest = ChestInventory != null ? ChestInventory : null;
+            TryDeliverWithFallbacks(from, item, inv, chest);
+        }
+        else if (fromChest)
+        {
+            TryDeliver(from, PlayerInventory, item);
+        }
+        else if (fromInv)
+        {
+            IItemSink chest = ChestInventory != null ? ChestInventory : null;
+            IItemSink equip = (item.itemdata?.type == ItemType.Weapon) ? EquipInventory : null;
+            TryDeliverWithFallbacks(from, item, chest, equip);
+        }
+        else
+        {
+            TryDeliver(from, PlayerInventory, item);
+        }
+    }
+
+
+
     public bool TryAddItem(IItemSink c, ItemData data, int amount = 1)
     {
         return c.TryAddItem(new StoredItem(data, amount));
@@ -89,54 +190,6 @@ public sealed class InventoryManager : MonoBehaviour
 
 
 
-    #region 싱글톤
-    private static InventoryManager instance;
-    public static InventoryManager Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-#if UNITY_EDITOR
-                Debug.LogError("[InventoryManager] Instance is null. Make sure a GameObject with InventoryManager exists in the scene.");
-#endif
-            }
-            return instance;
-        }
-    }
-
-    [SerializeField] private bool dontDestroyOnLoad = true;
-
-    private void Awake()
-    {
-        if (instance != null && instance != this)
-        {
-#if UNITY_EDITOR
-            Debug.LogWarning("[InventoryManager] Duplicate detected. Destroying this component.", this);
-#endif
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-
-        if (dontDestroyOnLoad == true)
-        {
-            DontDestroyOnLoad(gameObject);
-        }
-
-        // TODO: 초기화 필요 시 여기서 수행
-        // Init();
-    }
-
-    private void OnDestroy()
-    {
-        if (instance == this)
-        {
-            instance = null;
-        }
-    }
-    #endregion
-
+    
 
 }

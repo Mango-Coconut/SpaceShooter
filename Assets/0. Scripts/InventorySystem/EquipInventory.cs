@@ -55,6 +55,7 @@ public class EquipInventory : MonoBehaviour, IItemSink, IItemSource, ISwapSink
         // 현재 무기가 있다면 그게 튀어나올 예정
         willBeSwapped = Weapon;
         return true;
+        
     }
 
     public bool TryAddItemSwap(StoredItem item, out StoredItem swapped)

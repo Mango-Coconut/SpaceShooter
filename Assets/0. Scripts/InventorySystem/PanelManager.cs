@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -27,6 +25,9 @@ public class PanelManager : MonoBehaviour
     public ChestUI ChestUI => chestUI;
     public EquipSlotPanel EquipUI => equipSlotPanel;
     #endregion
+
+    public event Action<IItemSource, IItemSink, StoredItem> OnItemDropped;
+    public event Action<StoredItem, IItemSource> OnItemRightClicked;
 
     public bool IsOpen(GameObject gameObject)
     {
@@ -99,7 +100,7 @@ public class PanelManager : MonoBehaviour
     }
 
 
-    #region UI 열고 닫기 (Invnetory, Chest)
+    #region Inventory UI 열고 닫기
 
     void InventoryUIHandleEsc()
     {
@@ -138,6 +139,9 @@ public class PanelManager : MonoBehaviour
         CursorController.Apply(true);
     }
 
+    #endregion
+
+    #region Chest UI 열고 닫기
     void ChestUIToggle(Chest c)
     {
         if (!IsOpen(chestUI.gameObject))
@@ -161,7 +165,7 @@ public class PanelManager : MonoBehaviour
 
     void CloseChestUI()
     {
-        chestUI.SlotPanel.Clear();
+        chestUI.ClearChest();
         //상자 닫힐 때 플레이어 행동 가능하게
         PlayerActionGate.Instance.PopInteract();
         chestUI.gameObject.SetActive(false);
@@ -291,56 +295,14 @@ public class PanelManager : MonoBehaviour
             return;
         }
 
-        InventoryManager.TryDeliver(fromStorage, toStorage, item);
+        OnItemDropped?.Invoke(fromStorage, toStorage, item);
 
         // 실패 시 드래그 프리뷰만 닫기
         dragSlot.gameObject.SetActive(false);
     }
     public void OnRightClick(StoredItem item, IItemSource fromStorage)
     {
-        if (item == null || fromStorage == null)
-            return;
-
-        bool fromEquip = ReferenceEquals(fromStorage, EquipInventory);
-        bool fromChest = ReferenceEquals(fromStorage, ChestInventory);
-        bool fromInv = ReferenceEquals(fromStorage, PlayerInventory);
-
-        // 1️⃣ 장비창 → 언이퀍 (인벤토리 우선, 실패 시 Chest)
-        if (fromEquip)
-        {
-            IItemSink inv = PlayerInventory;
-            IItemSink chest = IsOpen(ChestUI.gameObject) ? ChestInventory : null;
-
-            bool moved = InventoryManager.TryDeliverWithFallbacks(fromStorage, item, inv, chest);
-            if (!moved)
-                Debug.Log("언이퀍 실패: 인벤토리/상자 공간 없음");
-            return;
-        }
-
-        // 2️⃣ 상자 → 인벤토리
-        else if (fromChest)
-        {
-            InventoryManager.TryDeliver(fromStorage, PlayerInventory, item);
-            return;
-        }
-
-        // 3️⃣ 인벤토리 → Chest 우선, 실패 시 Equip(장비 가능)
-        else if (fromInv)
-        {
-            IItemSink chest = IsOpen(ChestUI.gameObject) ? ChestInventory : null;
-            IItemSink equip = (item.itemdata != null && item.itemdata.type == ItemType.Weapon) ? EquipInventory : null;
-
-            bool moved = InventoryManager.TryDeliverWithFallbacks(fromStorage, item, chest, equip);
-            if (!moved)
-                Debug.Log("우클릭 이동 실패: Chest/Equip 모두 실패");
-            return;
-        }
-
-        // 4️⃣ 기타 → 인벤토리
-        else
-        {
-            InventoryManager.TryDeliver(fromStorage, PlayerInventory, item);
-        }
+        OnItemRightClicked?.Invoke(item, fromStorage);
     }
 
     #endregion

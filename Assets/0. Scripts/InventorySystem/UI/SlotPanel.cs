@@ -22,13 +22,10 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
         UnSubscribeSlotUI();
     }
 
-    #region 새 인벤토리 불러오기
+    #region 인벤토리 세팅 관련
     readonly List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
 
-    public void Clear()
-    {
-        inventory = null;
-    }
+    // 새로운 인벤토리 세팅
     public void SetInventory(Inventory newInventory)
     {
         // 새 인벤토리 세팅
@@ -46,7 +43,7 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
         Refresh();
     }
 
-    // 인벤토리 세팅 시 슬롯 재생성
+    // 인벤토리 세팅 시 슬롯UI 재생성
     void SetSlot(int targetCount)
     {
         //이벤트 해제
@@ -69,6 +66,7 @@ public class SlotPanel : MonoBehaviour, ISlotPanel
         //이벤트 구독
         SubscribeSlotUI();
     }
+
     #endregion
 
     #region UI 갱신
