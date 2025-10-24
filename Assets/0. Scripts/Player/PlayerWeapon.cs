@@ -59,7 +59,7 @@ public class PlayerWeapon : MonoBehaviour
 
         currentData = data;
 
-        
+
         GameObject go = Instantiate(data.modelPrefab, this.transform);
 
         currentModel = go.transform;
@@ -75,7 +75,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         Clear();
     }
-    
+
     public void Clear()
     {
         if (currentModel != null)
@@ -89,45 +89,59 @@ public class PlayerWeapon : MonoBehaviour
     /// <summary> 이동 여부에 따라 bullet fireSpread 계수 적용
     /// </summary>
     /// <param name="moveFactor"></param>
-    public void Fire(int moveFactor)
+public void Fire(int moveFactor)
+{
+    if (fireTimer < currentData.fireDelay) return;
+
+    Camera cam = Camera.main;
+    if (cam == null) return;
+
+    // 1) 화면 중앙 조준선에서 Ray (불필요 레이어 제외)
+    Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+    Vector3 targetPoint = Physics.Raycast(ray, out RaycastHit hit, 1000f)
+        ? hit.point
+        : ray.GetPoint(1000f);
+
+    // 2) 기준 방향(한 번만 계산)
+    Vector3 baseDir = (targetPoint - firePos.position).normalized;
+
+    // 3) 최종 퍼짐 각도(도 단위) 계산
+    //    SpreadAngle는 SO에서 "기본 퍼짐"으로 관리하고,
+    //    이동/열 등에 따른 보정은 '도' 단위로 더해줌.
+    float baseSpreadDeg = (float)currentData.SpreadAngle;
+    float moveBonusDeg  = (float)(moveFactor * 0.5f);   // 필요에 맞게 계수 조정
+    float heatBonusDeg  = (float)(fireHeat   * 0.3f);   // 필요에 맞게 계수 조정
+    float finalSpreadDeg = baseSpreadDeg + moveBonusDeg + heatBonusDeg;
+
+    // 4) 탄환 스폰 (각 탄환은 독립적으로 퍼짐 적용)
+    for (int i = 0; i < currentData.PelletCount; i++)
     {
-        if (fireTimer < currentData.fireDelay) return;
+        // insideUnitCircle: 반지름 1 원 내 임의 벡터 → 최종 도수로 스케일
+        Vector2 r = UnityEngine.Random.insideUnitCircle * finalSpreadDeg;
 
-        Camera cam = Camera.main;
+        // 카메라 기준 좌우/상하 회전으로 퍼짐(각도 회전이 벡터 덧셈보다 확실하게 퍼짐이 보임)
+        Quaternion qPitch = Quaternion.AngleAxis(-r.y, cam.transform.right); // 위/아래
+        Quaternion qYaw   = Quaternion.AngleAxis( r.x, cam.transform.up);    // 좌/우
 
-        // 1. 카메라 중앙에서 레이 발사
-        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        RaycastHit hit;
+        Vector3 shotDir = (qYaw * qPitch) * baseDir;
 
-        Vector3 targetPoint;
-
-        if (Physics.Raycast(ray, out hit, 1000f))
-        {
-            // 맞은 지점
-            targetPoint = hit.point;
-        }
-        else
-        {
-            // 안 맞으면, 카메라 전방 일정 거리(예: 100m)
-            targetPoint = ray.GetPoint(1000f);
-        }
-
-        // 2. 총구에서 목표 지점을 향하는 방향 계산
-        Vector3 dir = (targetPoint - firePos.position).normalized;
-        float finalfireSpread = (float)(fireSpread + moveFactor * 0.02 + fireHeat * 0.02);
-        // 3. 퍼짐 적용
-        Vector2 rand = UnityEngine.Random.insideUnitCircle * finalfireSpread;
-        dir += cam.transform.right * rand.x;  // 좌우 흔들림
-        dir += cam.transform.up * rand.y;     // 상하 흔들림
-        dir.Normalize();
-
-        // 3. 총알 생성 (총구 위치에서, 목표 방향으로)
-        GameObject bulletObj = Instantiate(currentData.bulletPrefab, firePos.position, Quaternion.LookRotation(dir));
-        fireTimer = 0;
-
-        audio.PlayOneShot(currentData.fireSound, 1.0f);
-        StartCoroutine(ShowMuzzleFlash());
+        GameObject bulletObj = Instantiate(
+            currentData.bulletPrefab,
+            firePos.position,
+            Quaternion.LookRotation(shotDir)
+        );
     }
+
+    // 5) 반동(샷당 1회 적용 권장; 펠릿 수와 무관하게)
+    // 카메라/조준축에 RecoilPerShot(도 단위)만큼 올려주거나, 네가 쓰는 반동 시스템에 던져라.
+    // ApplyRecoil(currentData.RecoilPerShot);
+
+    // 6) 사운드/이펙트/쿨타임
+    fireTimer = 0f;
+    audio.PlayOneShot(currentData.fireSound, 1.0f);
+    StartCoroutine(ShowMuzzleFlash());
+}
 
 
 

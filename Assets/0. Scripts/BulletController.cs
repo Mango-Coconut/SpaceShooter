@@ -18,6 +18,7 @@ public class BulletController : MonoBehaviour
     {
         rb.AddForce(transform.forward * force, ForceMode.Impulse);
     }
+
     private void OnCollisionEnter(Collision other) {
         ContactPoint cp = other.GetContact(0);
         Quaternion rot = Quaternion.LookRotation(cp.normal);

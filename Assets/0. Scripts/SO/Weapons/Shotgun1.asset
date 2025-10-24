@@ -23,6 +23,9 @@ MonoBehaviour:
   maxStack: 1
   modelPrefab: {fileID: 100000, guid: 95f81fb2cce8b4b178fbfc95a2757b54, type: 3}
   bulletPrefab: {fileID: 8275824315985315568, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
+  PelletCount: 8
+  RecoilPerShot: 0.4
+  SpreadAngle: 6
   fireSound: {fileID: 8300000, guid: e0fb72457183d4665afc7b1b90c9e01b, type: 3}
   fireDelay: 1
   bulletSpread: 0.5
