@@ -129,7 +129,6 @@ public class PanelManager : MonoBehaviour
     void OpenInventoryUI()
     {
         inventoryUI.gameObject.SetActive(true);
-        SubscribeInventoryUI(inventoryUI);
         CursorController.Apply(false);
     }
 

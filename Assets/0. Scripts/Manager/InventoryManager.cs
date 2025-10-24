@@ -168,15 +168,6 @@ public sealed class InventoryManager : MonoBehaviour
         return c.TryRemoveItem(item);
     }
 
-
-    public static bool TryDeliver(IItemSource from, IItemSink to, StoredItem item)
-    {
-        if (to is ISwapSink swap)
-            return TryDeliverSwap(from, swap, item, (IItemSink)from);
-        else
-            return TryDeliverBasic(from, to, item);
-    }
-    
     // 여러 IItemSink에 순서대로 넣기 시도
     public static bool TryDeliverWithFallbacks(IItemSource from, StoredItem item, params IItemSink[] sinks)
     {
@@ -191,11 +182,31 @@ public sealed class InventoryManager : MonoBehaviour
         }
         return false;
     }
+
+    public static bool TryDeliver(IItemSource from, IItemSink to, StoredItem item)
+    {
+        if (to is ISwapSink swap)
+        {
+            Log.Info("장비창으로..");
+            return TryDeliverSwap(from, swap, item, (IItemSink)from);
+
+        }
+
+        else
+        {
+            Log.Info("일반창으로..");
+            return TryDeliverBasic(from, to, item);
+        }
+
+    }
+
     public static bool TryDeliverBasic(IItemSource from, IItemSink to, StoredItem item)
     {
+        Log.Info("TryDeliverBasic 시도");
         if (from == null || to == null || item == null) return false;
         if (!from.CanRemoveItem(item)) return false;
         if (!to.CanAddItem(item)) return false;
+        Log.Info("TryDeliverBasic 성공");
         // 사전 검증으로 충분히 보장된 상태라면 이 아래는 거의 실패하지 않음
         from.TryRemoveItem(item);
         to.TryAddItem(item);
@@ -204,6 +215,7 @@ public sealed class InventoryManager : MonoBehaviour
 
     public static bool TryDeliverSwap(IItemSource from, ISwapSink to, StoredItem item, IItemSink originSink)
     {
+        Log.Info("TryDeliverSwap 시도");
         if (from == null || to == null || originSink == null || item == null) return false;
 
         // 1) 사전검증: 꺼낼 수 있는가?

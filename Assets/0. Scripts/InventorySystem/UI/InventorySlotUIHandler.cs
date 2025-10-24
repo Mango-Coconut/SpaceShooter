@@ -40,18 +40,25 @@ IEndDragHandler
     {
         PointerExit?.Invoke();
     }
-    
+
     // 아이템 사용, 장착(우클릭)
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(eventData.button == PointerEventData.InputButton.Left)
+        if (eventData.button == PointerEventData.InputButton.Left)
         {
             LeftClick?.Invoke(mySlot);
         }
-        else if(eventData.button == PointerEventData.InputButton.Right)
+        else if (eventData.button == PointerEventData.InputButton.Right)
         {
             Log.Info($"SlotUIHandier -> rightClick{mySlot.EnterItem.itemdata.name}");
+            if (RightClick != null)
+            {
+                foreach (var d in RightClick.GetInvocationList())
+                    Debug.Log($"[RightClick] {d.Target} -> {d.Method}");
+            }
+
             RightClick?.Invoke(mySlot.EnterItem);
+
         }
     }
 
