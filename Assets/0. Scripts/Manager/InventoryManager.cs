@@ -104,10 +104,18 @@ public sealed class InventoryManager : MonoBehaviour
         TryDeliver(from, to, item);
     }
 
-    void HandleRightClick(StoredItem item, IItemSource from)
+    // 기존 이벤트 호출용 — 리턴값 없이 알림만 쏘는 버전
+    public void HandleRightClick(StoredItem item, IItemSource from)
     {
-        if (item == null || from == null) return;
-        Log.Info($"InventoryManager -> RightClick, {item.itemdata.name}");
+        TryHandleRightClick(item, from);
+    }
+
+    // DroppedItem, 월드 인터랙션 등에서 직접 호출할 수 있는 버전
+    public bool TryHandleRightClick(StoredItem item, IItemSource from)
+    {
+        if (item == null || from == null) return false;
+        Log.Info($"InventoryManager -> RightClick, {item.itemData.name}");
+
         bool fromEquip = ReferenceEquals(from, EquipInventory);
         bool fromChest = ReferenceEquals(from, ChestInventory);
         bool fromInv = ReferenceEquals(from, PlayerInventory);
@@ -116,36 +124,22 @@ public sealed class InventoryManager : MonoBehaviour
         {
             IItemSink inv = PlayerInventory;
             IItemSink chest = ChestInventory != null ? ChestInventory : null;
-            Log.Info($"InventoryManager -> Equip to inv or chest, {item.itemdata.name}");
-            if (TryDeliverWithFallbacks(from, item, inv, chest))
-            {
-                Log.Info($"성공");
-            }
-            else Log.Info($"실패");
+            return TryDeliverWithFallbacks(from, item, inv, chest);
         }
         else if (fromChest)
         {
-            Log.Info($"InventoryManager -> chest to inv, {item.itemdata.name}");
-            if(TryDeliver(from, PlayerInventory, item))
-            {
-                Log.Info($"성공");
-            }
-            else Log.Info($"실패");
+            return TryDeliver(from, PlayerInventory, item);
         }
         else if (fromInv)
         {
             IItemSink chest = ChestInventory != null ? ChestInventory : null;
-            IItemSink equip = (item.itemdata?.type == ItemType.Weapon) ? EquipInventory : null;
-            Log.Info($"InventoryManager -> inv to chest or equip, {item.itemdata.name}");
-            if (TryDeliverWithFallbacks(from, item, chest, equip))
-            {
-                Log.Info($"성공");
-            }
-            else Log.Info($"실패");
+            IItemSink equip = (item.itemData?.type == ItemType.Weapon) ? EquipInventory : null;
+            return TryDeliverWithFallbacks(from, item, chest, equip);
         }
         else
         {
-            TryDeliver(from, PlayerInventory, item);
+            // worldInventory → PlayerInventory
+            return TryDeliver(from, PlayerInventory, item);
         }
     }
 
@@ -228,12 +222,12 @@ public sealed class InventoryManager : MonoBehaviour
         if (willBeSwapped != null && !originSink.CanAddItem(willBeSwapped)) return false;
 
         // === 여기까지 오면 실패하지 않도록 보장됨 ===
-        
+
         Log.Info("Deliver 가능");
         // 4) 실제 실행
         from.TryRemoveItem(item);                        // 꺼내기
         to.TryAddItemSwap(item, out var swapped);        // 장비창에 넣고, 기존 장비를 받음 (swapped는 willBeSwapped와 동일해야 함)
-        
+
         Log.Info("Deliver 실행");
         // 5) 기존 장비를 원래 자리로 복귀
         if (swapped != null)
@@ -243,11 +237,5 @@ public sealed class InventoryManager : MonoBehaviour
 
         return true;
     }
-
-
-
-
-
-    
 
 }

@@ -13,8 +13,8 @@ public class EquipInventory : MonoBehaviour, IItemSink, IItemSource, ISwapSink
 
     public bool CanAddItem(StoredItem item)
     {
-        if (item == null || item.itemdata == null) return false;
-        return item.itemdata.type == ItemType.Weapon;
+        if (item == null || item.itemData == null) return false;
+        return item.itemData.type == ItemType.Weapon;
     }
 
     public bool TryAddItem(StoredItem item)

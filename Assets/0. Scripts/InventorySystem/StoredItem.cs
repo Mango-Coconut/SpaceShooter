@@ -7,7 +7,7 @@ using UnityEngine;
 public class StoredItem
 {
     public string instanceId;
-    public ItemData itemdata;
+    public ItemData itemData;
     public int count = 1;
 
     // 장비 유니크 상태
@@ -22,7 +22,7 @@ public class StoredItem
 
     public StoredItem(ItemData itemdata, int count = 1)
     {
-        this.itemdata = itemdata;
+        this.itemData = itemdata;
         this.count = count;
         this.instanceId = Guid.NewGuid().ToString("N");
         this.lastGet = DateTime.UtcNow;
@@ -32,7 +32,7 @@ public class StoredItem
     public bool IsMergeableWith(StoredItem other)
     {
         if (other == null) return false;
-        if (other.itemdata != itemdata) return false;
+        if (other.itemData != itemData) return false;
 
         // 장비/유니크 조건: 강화/내구/파츠 등 상태가 있으면 합치지 않음
         bool selfUnique  = IsUniqueInstance();
@@ -46,7 +46,7 @@ public class StoredItem
     public bool IsUniqueInstance()
     {
         // 정책: maxStack==1 이거나, 상태가 붙은 경우 유니크
-        if (itemdata != null && itemdata.maxStack <= 1) return true;
+        if (itemData != null && itemData.maxStack <= 1) return true;
         if (enhancement != 0) return true;
         return false;
     }

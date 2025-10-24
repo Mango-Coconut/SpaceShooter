@@ -90,7 +90,7 @@ public class SlotPanel : SlotPanelBase
         int uiIndex = 0;
         foreach (StoredItem si in inventory.Slots)
         {
-            if (categoryFilter == ItemType.All || categoryFilter == si.itemdata.type)
+            if (categoryFilter == ItemType.All || categoryFilter == si.itemData.type)
             {
                 if (uiIndex < uiSlots.Count)
                 {

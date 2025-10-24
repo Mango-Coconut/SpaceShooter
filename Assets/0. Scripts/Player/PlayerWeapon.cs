@@ -13,7 +13,6 @@ public class PlayerWeapon : MonoBehaviour
 
     [SerializeField] float fireTimer = 0;
     float fireHeat = 0;
-    float fireSpread = 0;
 
 
     void Awake()
@@ -34,14 +33,14 @@ public class PlayerWeapon : MonoBehaviour
 
     public bool Equip(StoredItem item)
     {
-        if (item == null || item.itemdata == null)
+        if (item == null || item.itemData == null)
         {
             Debug.LogWarning("PlayerWeapon.Equip() -> StoredItem null");
             Clear();
             return false;
         }
 
-        WeaponItemData data = item.itemdata as WeaponItemData;
+        WeaponItemData data = item.itemData as WeaponItemData;
         if (data == null)
         {
             Debug.LogWarning("PlayerWeapon.Equip() -> WeaponItemData null");

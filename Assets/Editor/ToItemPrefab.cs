@@ -17,9 +17,9 @@ public class ToItemPrefab : Editor
             GameObject instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 
             // Items 추가
-            if (instance.GetComponent<Items>() == null)
+            if (instance.GetComponent<DroppedItem>() == null)
             {
-                instance.AddComponent<Items>();
+                instance.AddComponent<DroppedItem>();
             }
 
             // Collider 추가 (기본 BoxCollider)

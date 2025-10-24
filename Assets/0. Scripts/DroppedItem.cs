@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
-public class Items : MonoBehaviour, IInteractable
+public class DroppedItem : MonoBehaviour, IInteractable
 {
+    WorldInventory worldInventory;
     public StoredItem item;
-    public ItemData itemData;
-    [SerializeField] int amount = 1;
     [HideInInspector] public bool isOn = false;
     Renderer rd;
     MaterialPropertyBlock mpb;
@@ -24,6 +22,12 @@ public class Items : MonoBehaviour, IInteractable
         }
     }
 
+    public void SetWorldInventory(WorldInventory WI)
+    {
+        worldInventory = WI;
+        transform.SetParent(WI.gameObject.transform);
+    }
+
     public bool IsAvailable()
     {
         return gameObject.activeInHierarchy;
@@ -39,29 +43,28 @@ public class Items : MonoBehaviour, IInteractable
         Shining(false);
     }
 
-    /// <summary>
-    /// Item의 Interact ---> PickUp 시스템
-    /// </summary>
-    /// <param name="player"></param>
     public void Interact(PlayerController player)
     {
         if (player == null || player.inventory == null) return;
+        if (worldInventory == null) return;
+        if (item == null || item.itemData == null) return;
 
-        bool added = player.inventory.TryAddItem(itemData, amount);
-        if (added)
+        bool picked = InventoryManager.Instance.TryHandleRightClick(item, worldInventory);
+
+        if (!picked)
         {
-            player.PlayAnimToTrigger(PickHash);
-            Shining(false);
-            gameObject.SetActive(false);
+            // 못 주움 (인벤토리 풀 등). 시각 피드백만 주고 그대로 둔다.
+            return;
         }
-        else
-        {
-            Debug.Log("주울 수 없음");
-        }
+
+        player.PlayAnimToTrigger(PickHash);
+        Shining(false);
+        worldInventory.NotifyPickedUp(this);
+        Destroy(gameObject);
     }
 
     public (string , string) GetPrompt() => ("F", "줍기");
-    public Sprite GetIcon()   => itemData ? itemData.icon : null;
+    public Sprite GetIcon()   => item.itemData ? item.itemData.icon : null;
 
     public void Shining(bool enable)
     {

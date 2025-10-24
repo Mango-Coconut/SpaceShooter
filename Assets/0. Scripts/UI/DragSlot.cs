@@ -11,7 +11,7 @@ public class DragSlot : MonoBehaviour
 
     public void Bind(StoredItem item)
     {
-        itemImage.sprite = item.itemdata.icon;
+        itemImage.sprite = item.itemData.icon;
         itemAmount.text = item.count.ToString();
     }
 }

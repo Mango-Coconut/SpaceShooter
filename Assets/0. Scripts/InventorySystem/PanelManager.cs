@@ -20,6 +20,7 @@ public class PanelManager : MonoBehaviour
     public Inventory PlayerInventory => inventoryUI.SlotPanel.Inventory;
     public Inventory ChestInventory => chestUI.ChestInventory;
     public EquipInventory EquipInventory => equipSlotPanel.EquipInventory;
+    public Inventory WorldInventory;
 
     public InventoryUI InventoryUI => inventoryUI;
     public ChestUI ChestUI => chestUI;
@@ -262,7 +263,7 @@ public class PanelManager : MonoBehaviour
 
     void OnDroppedFromPanel(StoredItem item, PointerEventData e)
     {
-        if (fromStorage == null || item == null || item.itemdata == null) return;
+        if (fromStorage == null || item == null || item.itemData == null) return;
 
         // 마우스 놓은 Storage 창 구하기(인벤토리, 장비창, 상자)
         List<RaycastResult> results = new List<RaycastResult>();
@@ -272,25 +273,21 @@ public class PanelManager : MonoBehaviour
         {
             if (result.gameObject.CompareTag("InventoryUI"))
             {
-                Debug.Log("Dropped 인벤토리 창");
                 toStorage = inventoryUI.SlotPanel.Inventory;
             }
             if (result.gameObject.CompareTag("ChestUI"))
             {
-                Debug.Log("Dropped 상자 창");
                 toStorage = chestUI.ChestInventory;
             }
             if (result.gameObject.CompareTag("EquipUI"))
             {
-                Debug.Log("Dropped 장비창");
                 toStorage = equipSlotPanel.EquipInventory;
             }
         }
 
         if (toStorage == null)
         {
-            Debug.Log("Dropped 바닥");
-            //toStorage = worldInventory;
+            toStorage = WorldInventory;
         }
 
         OnItemDropped?.Invoke(fromStorage, toStorage, item);
@@ -299,7 +296,7 @@ public class PanelManager : MonoBehaviour
     }
     public void OnRightClick(StoredItem item, IItemSource fromStorage)
     {
-        Log.Info($"PanelManager -> RightClick, {item.itemdata.name}");
+        Log.Info($"PanelManager -> RightClick, {item.itemData.name}");
         CloseTooltip();
         OnItemRightClicked?.Invoke(item, fromStorage);
     }

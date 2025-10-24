@@ -16,13 +16,13 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
     // 메인 진입점
     public bool TryAddItem(StoredItem incoming)
     {
-        if (incoming == null || incoming.itemdata == null) return false;
+        if (incoming == null || incoming.itemData == null) return false;
         if (incoming.count <= 0) return true;
 
         // 스택 가능한 경우 (un-unique)
         if (!incoming.IsUniqueInstance())
         {
-            return TryAddItem(incoming.itemdata, incoming.count);
+            return TryAddItem(incoming.itemData, incoming.count);
         }
 
         // 유니크(강화, 파츠, 내구도 등) → 인스턴스 단위로 추가
@@ -60,7 +60,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         for (int i = 0; i < slots.Count; i++)
         {
             StoredItem s = slots[i];
-            if (s.itemdata != data) continue;
+            if (s.itemData != data) continue;
             if (s.count >= data.maxStack) continue;
 
             int space = data.maxStack - s.count;
@@ -97,7 +97,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
     //   - 스택형은 같은 데이터에서 수량 제거 (전량/부분)
     public bool TryRemoveItem(StoredItem target)
     {
-        if (target == null || target.itemdata == null)
+        if (target == null || target.itemData == null)
         {
             Debug.Log($"storeditem or itemdata is null");
             return false;
@@ -120,7 +120,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         }
 
         // 스택형 제거: 해당 데이터에서 count 만큼 제거
-        return TryRemoveItem(target.itemdata, target.count);
+        return TryRemoveItem(target.itemData, target.count);
     }
 
     // ✅ 기존 시그니처도 유지 (스택형 전용)
@@ -136,7 +136,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         for (int i = slots.Count - 1; i >= 0; i--)
         {
             StoredItem s = slots[i];
-            if (s.itemdata != data) continue;
+            if (s.itemData != data) continue;
 
             if (s.IsUniqueInstance())
             {
@@ -184,7 +184,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         for (int i = 0; i < slots.Count; i++)
         {
             StoredItem s = slots[i];
-            if (s.itemdata != data) continue;
+            if (s.itemData != data) continue;
             if (s.count >= data.maxStack) continue;
             if (s.IsUniqueInstance()) continue; // 유니크는 스택 공간에 포함 X
             space += (data.maxStack - s.count);
@@ -196,14 +196,14 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
 
     public bool CanAddItem(StoredItem incoming)
     {
-        if (incoming == null || incoming.itemdata == null) return false;
+        if (incoming == null || incoming.itemData == null) return false;
         if (incoming.count <= 0) return true;
 
         if (!incoming.IsUniqueInstance())
         {
             // 스택형: 기존 스택 공간 + (빈 슬롯 * maxStack) 로 수용 가능 여부
-            int space = GetStackableSpace(incoming.itemdata)
-                        + GetFreeSlotCount() * incoming.itemdata.maxStack;
+            int space = GetStackableSpace(incoming.itemData)
+                        + GetFreeSlotCount() * incoming.itemData.maxStack;
             return space >= incoming.count;
         }
 
@@ -227,7 +227,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
 
     public bool CanRemoveItem(StoredItem target)
     {
-        if (target == null || target.itemdata == null) return false;
+        if (target == null || target.itemData == null) return false;
         if (target.count <= 0) return true;
 
         if (target.IsUniqueInstance())
@@ -242,7 +242,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         for (int i = 0; i < slots.Count; i++)
         {
             StoredItem s = slots[i];
-            if (s.itemdata != target.itemdata) continue;
+            if (s.itemData != target.itemData) continue;
             if (s.IsUniqueInstance()) continue;
             total += s.count;
             if (total >= target.count) return true;
@@ -259,7 +259,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         for (int i = 0; i < slots.Count; i++)
         {
             StoredItem s = slots[i];
-            if (s.itemdata != data) continue;
+            if (s.itemData != data) continue;
             if (s.IsUniqueInstance()) continue; // 유니크는 이 경로에서 제거하지 않음
             total += s.count;
             if (total >= amount) return true;
@@ -278,7 +278,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
     StoredItem CloneAsSingle(StoredItem src)
     {
         // 유니크를 “1개짜리 복제본”으로 만들어 새 슬롯에 넣기
-        StoredItem c = new StoredItem(src.itemdata, 1);
+        StoredItem c = new StoredItem(src.itemData, 1);
         c.enhancement = src.enhancement;
         return c;
     }

@@ -50,7 +50,7 @@ IEndDragHandler
         }
         else if (eventData.button == PointerEventData.InputButton.Right)
         {
-            Log.Info($"SlotUIHandier -> rightClick{mySlot.EnterItem.itemdata.name}");
+            Log.Info($"SlotUIHandier -> rightClick{mySlot.EnterItem.itemData.name}");
             if (RightClick != null)
             {
                 foreach (var d in RightClick.GetInvocationList())

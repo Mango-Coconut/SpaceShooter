@@ -38,7 +38,7 @@ public class InventorySlotUI : MonoBehaviour
 
         enterItem = item;
 
-        itemImage.sprite = item.itemdata.icon;
+        itemImage.sprite = item.itemData.icon;
         itemImage.enabled = true;
 
         if (itemAmount == null || item.count == 1) return;

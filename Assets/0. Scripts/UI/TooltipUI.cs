@@ -14,8 +14,8 @@ public class TooltipUI : MonoBehaviour
     }
     public void Set(StoredItem item)
     {
-        itemName.text = item.itemdata.name;
-        itemImage.sprite = item.itemdata.icon;
-        itemDescript.text = item.itemdata.description;
+        itemName.text = item.itemData.name;
+        itemImage.sprite = item.itemData.icon;
+        itemDescript.text = item.itemData.description;
     }
 }
