@@ -15,7 +15,9 @@ MonoBehaviour:
   itemName: Banana
   icon: {fileID: 21300000, guid: 4d9739ed467a58f4585e5132a703437f, type: 3}
   description: "\uB9DB\uC788\uB294 \uBC14\uB098\uB098"
+  modelPrefab: {fileID: 100000, guid: 461f0170c82b53340a9812199b63bbd4, type: 3}
   type: 2
+  equiptype: 0
   rarity: 6
   price: 10
   weight: 1

@@ -10,10 +10,13 @@ public class ItemData : ScriptableObject
     public string itemName;        // 이름
     public Sprite icon;            // UI 아이콘
     [TextArea] public string description; // 설명
+    
+    public GameObject modelPrefab;
 
 
     [Header("속성")]
-    public ItemType type;   //무기, 소모품, 재료 등
+    public ItemType type;   //장비, 소모품, 재료 등
+    public EquipType equiptype = EquipType.None; //장비 세부분류
 
     public int rarity;      //희귀도 (숫자가 클수록 희귀)
     public int price;       //가격

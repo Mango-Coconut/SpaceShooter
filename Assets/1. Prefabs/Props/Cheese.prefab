@@ -100,8 +100,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 11400000, guid: 862bd1f048d6cfe40ac54523ae36f0a0, type: 2}
-  amount: 1
+  initialData: {fileID: 11400000, guid: 862bd1f048d6cfe40ac54523ae36f0a0, type: 2}
+  initialCount: 1
+  initialEnhancement: 0
   isOn: 1
 --- !u!65 &6287470992441970848
 BoxCollider:

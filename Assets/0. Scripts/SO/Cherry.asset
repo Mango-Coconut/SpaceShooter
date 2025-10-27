@@ -15,7 +15,9 @@ MonoBehaviour:
   itemName: Cherry
   icon: {fileID: 21300000, guid: 4f42c303edc2e37479fe75f4af832a5d, type: 3}
   description: Cherrrrrrrrry
+  modelPrefab: {fileID: 100000, guid: da4eeef492c0d1842963d6576330682d, type: 3}
   type: 2
+  equiptype: 0
   rarity: 4
   price: 10
   weight: 1

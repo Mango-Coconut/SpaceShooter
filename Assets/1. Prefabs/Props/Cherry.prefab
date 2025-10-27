@@ -100,8 +100,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55fc8ba32ef4b545b84ced6ecfdf2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 11400000, guid: 0b2d07a0631b1b34c9af91afac43ac05, type: 2}
-  amount: 1
+  initialData: {fileID: 11400000, guid: 0b2d07a0631b1b34c9af91afac43ac05, type: 2}
+  initialCount: 1
+  initialEnhancement: 0
   isOn: 1
 --- !u!54 &2239323946910094969
 Rigidbody:

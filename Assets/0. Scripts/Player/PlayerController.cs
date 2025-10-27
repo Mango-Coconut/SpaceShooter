@@ -8,8 +8,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public PlayerActionGate gate;
-    [HideInInspector] public Inventory inventory;
-    [HideInInspector] public EquipInventory equipInventory;
+    [HideInInspector] public InventoryMono inventory;
+    [HideInInspector] public EquipInventoryMono equipInventory;
 
     Interactor interactor;
     [SerializeField] float moveSpeed = 5;
@@ -31,23 +31,23 @@ public class PlayerController : MonoBehaviour
 
     void OnEnable()
     {
-        InputManager.Instance.OnFire += OnFire;
-        InputManager.Instance.OnInteract += OnInteract;
-        equipInventory.OnChanged += EquipRefresh;
+        InputManager.Instance.OnFire += HandleFire;
+        InputManager.Instance.OnInteract += HandleInteract;
+        equipInventory.OnChanged += HandleEquipChanged;
     }
 
     void OnDisable()
     {
-        InputManager.Instance.OnFire -= OnFire;
-        InputManager.Instance.OnInteract -= OnInteract;
-        equipInventory.OnChanged -= EquipRefresh;
+        InputManager.Instance.OnFire -= HandleFire;
+        InputManager.Instance.OnInteract -= HandleInteract;
+        equipInventory.OnChanged -= HandleEquipChanged;
     }
 
     void Awake()
     {
         gate = PlayerActionGate.Instance;
-        inventory = GetComponent<Inventory>();
-        equipInventory = GetComponent<EquipInventory>();
+        inventory = GetComponent<InventoryMono>();
+        equipInventory = GetComponent<EquipInventoryMono>();
         interactor = GetComponent<Interactor>();
         animator = GetComponent<Animator>();
         curHP = maxHP;
@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
     }
 
-    void OnFire()
+    void HandleFire()
     {
         if (!playerWeapon.CanFire()) return;
         if (!gate.Can(Block.Fire)) return;
@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour
         animator.SetTrigger("Fire");
     }
 
-    void OnInteract()
+    void HandleInteract()
     {
         if (!gate.Can(Block.Interact)) return;
         //상호작용 중이면 다른 상호작용 x
@@ -78,11 +78,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //equipInventory.OnEquipped += EquipItem
-    void EquipRefresh()
+    //equipInventory.OnChanged += HandleEquipChanged
+    void HandleEquipChanged()
     {
-        bool isEquip = playerWeapon.Equip(equipInventory.Weapon);
-        animator.SetBool("IsEquip", isEquip);
+        StoredItem item;
+        bool isWeaponEquip = equipInventory.TryGetEquipped(EquipType.Weapon, out item); 
+        playerWeapon.Equip(item);
+        animator.SetBool("IsEquip", isWeaponEquip);
+
+        //playerArmor.HelmetEquip(equipInventory.GetEquipped(EquipType.Helmet, out item));
+        //playerArmor.ChestArmorEquip(equipInventory.GetEquipped(EquipType.ChestArmor, out item));
     }
 
     // 외부에서 플레이어 Animator 조작

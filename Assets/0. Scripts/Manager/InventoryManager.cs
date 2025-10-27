@@ -3,17 +3,21 @@ using UnityEngine;
 
 public sealed class InventoryManager : MonoBehaviour
 {
-    //이벤트 구독용
+    // 인스펙터 할당
+    [SerializeField] InventoryMono playerInventory;
+    [SerializeField] EquipInventoryMono equipInventory;
+    [SerializeField] WorldInventoryMono worldInventory;
+
+    public InventoryMono PlayerInventory => playerInventory;
+    public EquipInventoryMono EquipInventory => equipInventory;
+    public WorldInventoryMono WorldInventory => worldInventory;
+
+    // 런타임 할당
+    InventoryMono chestInventory;
+    public InventoryMono ChestInventory => chestInventory;
+
+    
     PanelManager panel;
-
-    //인벤토리 조작용
-    [SerializeField] Inventory playerInventory;
-    [SerializeField] Inventory chestInventory;
-    [SerializeField] EquipInventory equipInventory;
-
-    public Inventory PlayerInventory => playerInventory;
-    public Inventory ChestInventory => chestInventory;
-    public EquipInventory EquipInventory => equipInventory;
 
     #region 싱글톤
     private static InventoryManager instance;
@@ -122,24 +126,24 @@ public sealed class InventoryManager : MonoBehaviour
 
         if (fromEquip)
         {
-            IItemSink inv = PlayerInventory;
-            IItemSink chest = ChestInventory != null ? ChestInventory : null;
+            IItemSink inv = PlayerInventory.Core;
+            IItemSink chest = ChestInventory.Core != null ? ChestInventory.Core : null;
             return TryDeliverWithFallbacks(from, item, inv, chest);
         }
         else if (fromChest)
         {
-            return TryDeliver(from, PlayerInventory, item);
+            return TryDeliver(from, PlayerInventory.Core, item);
         }
         else if (fromInv)
         {
-            IItemSink chest = ChestInventory != null ? ChestInventory : null;
-            IItemSink equip = (item.itemData?.type == ItemType.Weapon) ? EquipInventory : null;
+            IItemSink chest = ChestInventory.Core != null ? ChestInventory.Core : null;
+            IItemSink equip = (item.itemData?.type == ItemType.Equip) ? EquipInventory.Core : null;
             return TryDeliverWithFallbacks(from, item, chest, equip);
         }
         else
         {
             // worldInventory → PlayerInventory
-            return TryDeliver(from, PlayerInventory, item);
+            return TryDeliver(from, PlayerInventory.Core, item);
         }
     }
 

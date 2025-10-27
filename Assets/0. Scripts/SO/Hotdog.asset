@@ -15,7 +15,9 @@ MonoBehaviour:
   itemName: Hotdog
   icon: {fileID: 21300000, guid: 52a43f862c24b5b498a74f2e8eb935fc, type: 3}
   description: Feverdog
+  modelPrefab: {fileID: 100000, guid: fdc7d8dffa381b54cb7740b8761d54c0, type: 3}
   type: 2
+  equiptype: 0
   rarity: 8
   price: 25
   weight: 2

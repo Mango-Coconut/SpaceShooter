@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "WeaponItemData", menuName = "ScriptableObjects/ItemData/WeaponItemData", order = 1)]
 public class WeaponItemData : ItemData
 {
-    public GameObject modelPrefab;
     public GameObject bulletPrefab;
     public int PelletCount = 1;
     //연발시 반동 

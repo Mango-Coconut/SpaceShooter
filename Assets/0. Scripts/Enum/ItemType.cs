@@ -1,1 +1,3 @@
-public enum ItemType { All, Weapon, Consumable, Material};
+public enum ItemType { All, Equip, Consumable, Material};
+
+public enum EquipType {None,Weapon, Helmet, ChestArmor}

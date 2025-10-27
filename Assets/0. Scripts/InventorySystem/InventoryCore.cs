@@ -1,15 +1,21 @@
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class Inventory : MonoBehaviour, IItemSource, IItemSink
+public class InventoryCore : IItemSource, IItemSink
 {
-    [SerializeField] int maxSlotNum = 30;
-    public int MaxSlotNum => maxSlotNum;
-    [SerializeField] List<StoredItem> slots = new List<StoredItem>();
+    int capacity = 20;
+    public int Capacity => capacity;
 
-    public System.Action OnChanged;
+    List<StoredItem> slots = new List<StoredItem>();
+
+    public Action OnChanged;
 
     public IReadOnlyList<StoredItem> Slots => slots;
+
+    public InventoryCore(int capacity)
+    {
+        this.capacity = capacity;
+    }
 
     void RaiseChanged() => OnChanged?.Invoke();
 
@@ -26,12 +32,12 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         }
 
         // 유니크(강화, 파츠, 내구도 등) → 인스턴스 단위로 추가
-        int toAdd = Mathf.Max(1, incoming.count);
+        int toAdd = Math.Max(1, incoming.count);
         int added = 0;
 
         for (int i = 0; i < toAdd; i++)
         {
-            if (slots.Count >= maxSlotNum) break;
+            if (slots.Count >= capacity) break;
 
             StoredItem copy = CloneAsSingle(incoming); // 상태 복제
             copy.count = 1;
@@ -75,7 +81,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         }
 
         // 2. 새 스택 생성
-        while (remaining > 0 && slots.Count < maxSlotNum)
+        while (remaining > 0 && slots.Count < capacity)
         {
             int stackCount = remaining < data.maxStack ? remaining : data.maxStack;
             slots.Add(new StoredItem(data, stackCount));
@@ -99,7 +105,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
     {
         if (target == null || target.itemData == null)
         {
-            Debug.Log($"storeditem or itemdata is null");
+            Log.Info($"storeditem or itemdata is null");
             return false;
         }
 
@@ -109,7 +115,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
             int idx = slots.FindIndex(s => s.instanceId == target.instanceId);
             if (idx < 0)
             {
-                Debug.Log($"idx < 0");
+                Log.Info($"idx < 0");
                 return false;
             }
 
@@ -172,7 +178,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
     // 슬롯 여유 개수
     int GetFreeSlotCount()
     {
-        int free = maxSlotNum - slots.Count;
+        int free = capacity - slots.Count;
         return free > 0 ? free : 0;
     }
 
@@ -208,7 +214,7 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
         }
 
         // 유니크: 1개당 1슬롯 필요
-        int needed = Mathf.Max(1, incoming.count);
+        int needed = Math.Max(1, incoming.count);
         return GetFreeSlotCount() >= needed;
     }
 
@@ -270,8 +276,8 @@ public class Inventory : MonoBehaviour, IItemSource, IItemSink
     public bool UseItem(ItemData itemData)
     {
         bool isUse = TryRemoveItem(itemData);
-        if (isUse) Debug.Log($"아이템 사용 성공");
-        else Debug.Log($"아이템 사용 실패");
+        if (isUse) Log.Info($"아이템 사용 성공");
+        else Log.Info($"아이템 사용 실패");
         return isUse;
     }
 

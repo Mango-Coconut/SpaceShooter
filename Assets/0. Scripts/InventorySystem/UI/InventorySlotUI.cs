@@ -34,8 +34,6 @@ public class InventorySlotUI : MonoBehaviour
             return;
         }
 
-        handler.enabled = true;
-
         enterItem = item;
 
         itemImage.sprite = item.itemData.icon;
@@ -48,10 +46,7 @@ public class InventorySlotUI : MonoBehaviour
 
     public void Clear()
     {
-        handler.enabled = false;
-
         enterItem = null;
-
         Invisible();
     }
     public void Invisible()

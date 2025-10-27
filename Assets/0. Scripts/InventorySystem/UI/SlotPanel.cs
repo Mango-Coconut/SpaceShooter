@@ -5,11 +5,11 @@ using UnityEngine.EventSystems;
 
 public class SlotPanel : SlotPanelBase
 {
-    [SerializeField] Inventory inventory;
-    public Inventory Inventory => inventory;
+    [SerializeField] InventoryMono inventory;
+    public InventoryMono Inventory => inventory;
     
     [SerializeField] private GameObject slotPrefab;
-    protected override IItemSource GetSource() => inventory;
+    protected override IItemSource GetSource() => inventory.Core;
 
     void OnEnable()
     {
@@ -27,7 +27,7 @@ public class SlotPanel : SlotPanelBase
     #region 인벤토리 세팅 관련
 
     // 새로운 인벤토리 세팅
-    public void SetInventory(Inventory newInventory)
+    public void SetInventory(InventoryMono newInventory)
     {
         // 새 인벤토리 세팅
         if (!ReferenceEquals(inventory, newInventory))
@@ -39,7 +39,7 @@ public class SlotPanel : SlotPanelBase
         }
 
         // 슬롯 세팅
-        SetSlot(inventory == null ? 0 : inventory.MaxSlotNum);
+        SetSlot(inventory == null ? 0 : inventory.Capacity);
 
         Refresh();
     }
@@ -119,7 +119,7 @@ public class SlotPanel : SlotPanelBase
         }
 
         UnsubscribeInventory();
-        inventory.OnChanged += Refresh;
+        inventory.OnChanged += Refresh; 
     }
 
     void UnsubscribeInventory()

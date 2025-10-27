@@ -17,10 +17,10 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region 프로퍼티
-    public Inventory PlayerInventory => inventoryUI.SlotPanel.Inventory;
-    public Inventory ChestInventory => chestUI.ChestInventory;
-    public EquipInventory EquipInventory => equipSlotPanel.EquipInventory;
-    public Inventory WorldInventory;
+    public InventoryMono PlayerInventory => inventoryUI.SlotPanel.Inventory;
+    public InventoryMono ChestInventory => chestUI.ChestInventory;
+    public EquipInventoryMono EquipInventory => equipSlotPanel.EquipInventory;
+    public WorldInventoryMono WorldInventory;
 
     public InventoryUI InventoryUI => inventoryUI;
     public ChestUI ChestUI => chestUI;
@@ -73,7 +73,7 @@ public class PanelManager : MonoBehaviour
 
     void Awake()
     {
-        fromStorage = inventoryUI.SlotPanel.Inventory;
+        //fromStorage = inventoryUI.SlotPanel.Inventory.Core;
         inventoryUI.gameObject.SetActive(true);
         iiPanel.gameObject.SetActive(true);
         chestUI.gameObject.SetActive(true);
@@ -244,7 +244,6 @@ public class PanelManager : MonoBehaviour
     IItemSink toStorage = null;
     void OnBeginDragFromPanel(StoredItem item, IItemSource storage, PointerEventData e)
     {
-        toStorage = null;
         if (item == null) return;
 
         //드래그 시작한 곳(인벤토리or상자)
@@ -264,6 +263,7 @@ public class PanelManager : MonoBehaviour
     void OnDroppedFromPanel(StoredItem item, PointerEventData e)
     {
         if (fromStorage == null || item == null || item.itemData == null) return;
+        toStorage = null;
 
         // 마우스 놓은 Storage 창 구하기(인벤토리, 장비창, 상자)
         List<RaycastResult> results = new List<RaycastResult>();
@@ -273,21 +273,21 @@ public class PanelManager : MonoBehaviour
         {
             if (result.gameObject.CompareTag("InventoryUI"))
             {
-                toStorage = inventoryUI.SlotPanel.Inventory;
+                toStorage = inventoryUI.SlotPanel.Inventory.Core;
             }
             if (result.gameObject.CompareTag("ChestUI"))
             {
-                toStorage = chestUI.ChestInventory;
+                toStorage = chestUI.ChestInventory.Core;
             }
             if (result.gameObject.CompareTag("EquipUI"))
             {
-                toStorage = equipSlotPanel.EquipInventory;
+                toStorage = equipSlotPanel.EquipInventory.Core;
             }
         }
 
         if (toStorage == null)
         {
-            toStorage = WorldInventory;
+            toStorage = WorldInventory.Core;
         }
 
         OnItemDropped?.Invoke(fromStorage, toStorage, item);

@@ -1,0 +1,101 @@
+using System;
+using System.Collections.Generic;
+
+public class WorldInventoryCore : IItemSource, IItemSink
+{
+    readonly List<DroppedItem> worldItems = new List<DroppedItem>();
+
+    public event Action OnChanged;
+
+    // Mono에게 실제 씬 조작을 부탁하는 이벤트
+    public event Action<StoredItem> OnSpawnRequest;     // 플레이어가 버림 (→ 새 DroppedItem 필요)
+    public event Action<DroppedItem> OnDespawnRequest;  // 플레이어가 주움 (→ 해당 DroppedItem 파괴)
+
+    void RaiseChanged()
+    {
+        OnChanged?.Invoke();
+    }
+
+    public void RegisterExistingDrop(DroppedItem di)
+    {
+        // 씬 시작 시나 Spawn 후 Mono가 호출
+        if (di == null) return;
+        if (di.Item == null || di.Item.itemData == null) return;
+
+        if (!worldItems.Contains(di))
+        {
+            worldItems.Add(di);
+            RaiseChanged();
+        }
+    }
+
+    public void UnregisterDrop(DroppedItem di)
+    {
+        if (di == null) return;
+        if (worldItems.Remove(di))
+        {
+            RaiseChanged();
+        }
+    }
+
+    DroppedItem FindDropByInstanceId(string instanceId)
+    {
+        // StoredItem은 instanceId 고유값을 들고 있음. :contentReference[oaicite:10]{index=10}
+        for (int i = 0; i < worldItems.Count; i++)
+        {
+            DroppedItem d = worldItems[i];
+            if (d != null && d.Item != null && d.Item.instanceId == instanceId)
+            {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    // ===== IItemSource (줍기) =====
+    public bool CanRemoveItem(StoredItem item)
+    {
+        if (item == null) return false;
+        if (item.itemData == null) return false;
+        return FindDropByInstanceId(item.instanceId) != null;
+    }
+
+    public bool TryRemoveItem(StoredItem item)
+    {
+        if (!CanRemoveItem(item)) return false;
+
+        DroppedItem target = FindDropByInstanceId(item.instanceId);
+        if (target == null) return false;
+
+        // 목록에서 제거
+        worldItems.Remove(target);
+
+        // 실제 GameObject 제거는 Mono에게 부탁
+        OnDespawnRequest?.Invoke(target);
+
+        RaiseChanged();
+        return true;
+    }
+
+    // ===== IItemSink (버리기) =====
+    public bool CanAddItem(StoredItem item)
+    {
+        if (item == null) return false;
+        if (item.itemData == null) return false;
+        return true;
+        // 바닥은 무한. 나중에 '금지 구역이면 false' 같은 룰 추가 가능
+    }
+
+    public bool TryAddItem(StoredItem item)
+    {
+        if (!CanAddItem(item)) return false;
+
+        // Core는 "드랍 오브젝트 만들어줘" 요청만 보냄.
+        // 실제 DroppedItem 인스턴스 생성 -> RegisterExistingDrop까지는 Mono가 후속 처리.
+        OnSpawnRequest?.Invoke(item);
+
+        // worldItems에는 아직 안 넣었는데,
+        // Mono가 Instantiate 한 직후 RegisterExistingDrop()으로 넣어줄 거라 일단 여기선 끝.
+        return true;
+    }
+}

@@ -15,13 +15,14 @@ MonoBehaviour:
   itemName: Shotgun1
   icon: {fileID: 21300000, guid: 6ac0659915f5eff43accd6403e93bba7, type: 3}
   description: Basic Shotgun
+  modelPrefab: {fileID: 100000, guid: 95f81fb2cce8b4b178fbfc95a2757b54, type: 3}
   type: 1
+  equiptype: 1
   rarity: 9
   price: 2000
   weight: 11
   volume: 5
   maxStack: 1
-  modelPrefab: {fileID: 100000, guid: 95f81fb2cce8b4b178fbfc95a2757b54, type: 3}
   bulletPrefab: {fileID: 8275824315985315568, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
   PelletCount: 8
   RecoilPerShot: 0.4

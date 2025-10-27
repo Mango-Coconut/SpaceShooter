@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class EquipSlotPanel : SlotPanelBase
 {
-    [SerializeField] EquipInventory equipInventory;
-    public EquipInventory EquipInventory => equipInventory;
-    protected override IItemSource GetSource() => equipInventory;
+    [SerializeField] EquipInventoryMono equipInventory;
+    public EquipInventoryMono EquipInventory => equipInventory;
+    protected override IItemSource GetSource() => equipInventory.Core;
 
     [SerializeField] private InventorySlotUI[] fixedSlots;
 
@@ -15,9 +15,9 @@ public class EquipSlotPanel : SlotPanelBase
         ChestArmor = 2
     }
     [Tooltip("0: Weapon, 1: Helmet, 2: ChestArmor")]
-    [SerializeField] InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon];
-    //[SerializeField] InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet];
-    //[SerializeField] InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor];
+    InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon];
+    InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet];
+    InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor];
     void Awake()
     {
         uiSlots.Clear();
@@ -25,9 +25,9 @@ public class EquipSlotPanel : SlotPanelBase
     }
     void OnEnable()
     {
-        Log.Info($"{uiSlots.Count}");
         SubscribeInventory();
         SubscribeSlotUI();
+        RefreshAll();
     }
     void OnDisable()
     {
@@ -35,19 +35,26 @@ public class EquipSlotPanel : SlotPanelBase
         UnSubscribeSlotUI();
     }
 
-    public void Refresh()
+    public void RefreshAll()
     {
-        weaponSlot.Bind(equipInventory.Weapon);
+        // 무기
+        weaponSlot.Bind(equipInventory.GetEquipped(EquipType.Weapon));
+
+        // 헬멧
+        helmetSlot.Bind(equipInventory.GetEquipped(EquipType.Helmet));
+
+        // 갑옷
+        chestArmorSlot.Bind(equipInventory.GetEquipped(EquipType.ChestArmor));
     }
 
 
     void SubscribeInventory()
     {
         UnSubscribeInventory();
-        equipInventory.OnChanged += Refresh;
+        equipInventory.OnChanged += RefreshAll;
     }
     void UnSubscribeInventory()
     {
-        equipInventory.OnChanged -= Refresh;
+        equipInventory.OnChanged -= RefreshAll;
     }
 }
