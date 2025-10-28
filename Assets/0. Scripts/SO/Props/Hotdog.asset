@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 730438daa48e06e428b81b5c41ebb2aa, type: 3}
-  m_Name: Hamburger
+  m_Name: Hotdog
   m_EditorClassIdentifier: 
-  itemName: Hamburger
-  icon: {fileID: 21300000, guid: ed76000053418924ab9f123fb2d555d8, type: 3}
-  description: HamBUGI
-  modelPrefab: {fileID: 100000, guid: 54b107e50acd7e24b96d7de887c68833, type: 3}
+  itemName: Hotdog
+  icon: {fileID: 21300000, guid: 52a43f862c24b5b498a74f2e8eb935fc, type: 3}
+  description: Feverdog
+  modelPrefab: {fileID: 5300123813000865838, guid: eee3b3ac89bc67a429efdaf8e1c8e743, type: 3}
   type: 2
   equiptype: 0
-  rarity: 9
-  price: 50
-  weight: 3
-  volume: 3
+  rarity: 8
+  price: 25
+  weight: 2
+  volume: 2
   maxStack: 9999

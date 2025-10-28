@@ -3,27 +3,34 @@ using UnityEngine;
 
 public class DroppedItem : MonoBehaviour, IInteractable
 {
+    [Header("References")]
+    [SerializeField] Transform modelRoot;
+
     WorldInventoryMono worldInventory;
 
-    // --- 에디터에서 세팅할 값들 ---
-    [Header("Editor Setup")]
+    [Header("Editor Setup (for pre-placed drops)")]
     public ItemData initialData;
     public int initialCount = 1;
     public int initialEnhancement = 0;
 
+    // 실제 들고 있는 아이템 데이터(스택/강화/고유ID 등)
     StoredItem item;
     public StoredItem Item => item;
 
-    [HideInInspector] public bool isOn = false;
-    Renderer rd;
+    // 하이라이트/발광 관련
+    Renderer[] renderers;
     MaterialPropertyBlock mpb;
+    bool isOn = false;
+
     static readonly int EmissionColorID = Shader.PropertyToID("_EmissionColor");
-    float onIntensity = 0.75f;
+    const float onIntensity = 0.75f;
+
+    // 줍기 연출용
     static readonly int PickHash = Animator.StringToHash("Pick");
 
     void Awake()
     {
-        // 1) 아직 item이 안 만들어져 있으면 여기서 자동 생성
+        // 1) 씬에 미리 놓은 드랍(에디터 세팅용)
         if (item == null)
         {
             if (initialData != null)
@@ -33,63 +40,138 @@ public class DroppedItem : MonoBehaviour, IInteractable
             }
             else
             {
-                Log.Info($"DroppedItem 에디터 초기화 값 필요");
+                // 이 DroppedItem이 월드인벤에서 런타임으로 Bind될 예정이라면
+                // initialData 없어도 정상.
+                // 단, 여기서 item == null 상태로 남는 건 허용.
             }
         }
 
-        // 2) 외형 모델 적용
+        // 2) 실제 모델 프리팹 적용
         ApplyVisualModel();
 
         // 3) 발광 준비
         mpb = new MaterialPropertyBlock();
-        rd = GetComponentInChildren<Renderer>(true);
-        if (rd != null)
-        {
-            foreach (var mat in rd.materials)
-                mat.EnableKeyword("_EMISSION");
-        }
+        RefreshRendererArray();
+        EnableEmissionKeywordOnAll();
         Shining(false);
     }
+
+    // 월드 인벤토리가 런타임에 생성한 직후 호출하는 초기화 루틴
+    // 저장된 StoredItem을 통째로 갖고 옴 (instanceId, count 등 포함)
     public void Bind(StoredItem newItem)
     {
         item = newItem;
-        ApplyVisualModel();
 
-        // 여기서 시각적인 동기화도 같이 가능:
-        // - 아이콘에 맞춘 머티리얼 색
-        // - 무기 모델 프리팹 인스턴스 등
-        // 지금은 단순히 현재 머티리얼 발광 세기만 초기화 정도로 충분
+        ApplyVisualModel();
+        RefreshRendererArray();
+        EnableEmissionKeywordOnAll();
         Shining(false);
     }
 
+    // 외형 모델링을 modelRoot 밑에 붙여준다.
+    // 기존 모델은 제거하고 새 모델로 교체.
     void ApplyVisualModel()
     {
-        if (item == null || item.itemData == null) return;
-
-        GameObject prefab = item.itemData.modelPrefab;
-        if (prefab == null) return;
-
-        // 현재 자식 비우고
-        for (int i = transform.childCount - 1; i >= 0; i--)
+        // modelRoot 확인
+        if (modelRoot == null)
         {
-            Transform child = transform.GetChild(i);
-            Destroy(child.gameObject);
+            Debug.LogWarning($"[{name}] modelRoot is not assigned — please set it in the DroppedItem prefab!");
+            return;
+        }
+
+        // 기존 모델 제거
+        for (int i = modelRoot.childCount - 1; i >= 0; i--)
+        {
+            Destroy(modelRoot.GetChild(i).gameObject);
         }
 
         // 새 모델 생성
-        GameObject modelInstance = GameObject.Instantiate(prefab, this.transform);
+        if (item != null && item.itemData != null && item.itemData.modelPrefab != null)
+        {
+            GameObject modelInstance = Instantiate(item.itemData.modelPrefab, modelRoot);
+            modelInstance.transform.localPosition = Vector3.zero;
+            modelInstance.transform.localRotation = Quaternion.identity;
+            modelInstance.transform.localScale = Vector3.one;
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] modelPrefab missing in ItemData ({item?.itemData?.name ?? "null"})");
+        }
     }
 
-    public void SetWorldInventory(WorldInventoryMono WI)
+    // 현재 모델에서 하이라이트 대상 Renderer들을 전부 모은다.
+    void RefreshRendererArray()
     {
-        worldInventory = WI;
-        transform.SetParent(WI.gameObject.transform);
+        renderers = modelRoot.GetComponentsInChildren<Renderer>(true);
     }
 
-    public bool IsAvailable()
+    // "_EMISSION" 키워드를 켠다. (Shining에서 색만 바꿀 수 있게)
+    void EnableEmissionKeywordOnAll()
     {
-        return gameObject.activeInHierarchy;
+        if (renderers == null) return;
+
+        for (int r = 0; r < renderers.Length; r++)
+        {
+            var rd = renderers[r];
+            if (rd == null) continue;
+
+            var mats = rd.materials;
+            for (int m = 0; m < mats.Length; m++)
+            {
+                // 머티리얼이 null일 수도 있으니 방어
+                var mat = mats[m];
+                if (mat != null)
+                {
+                    mat.EnableKeyword("_EMISSION");
+                }
+            }
+        }
     }
+
+    // 하이라이트 토글
+    public void Shining(bool enable)
+    {
+        if (isOn == enable) return;
+        isOn = enable;
+
+        if (renderers == null || renderers.Length == 0) return;
+        if (mpb == null) mpb = new MaterialPropertyBlock();
+
+        for (int r = 0; r < renderers.Length; r++)
+        {
+            Renderer rd = renderers[r];
+
+            // 이미 Destroy된 Renderer는 skip
+            if (rd == null) continue;
+
+            // sharedMaterials 접근 전에 rd가 여전히 유효한지 재확인
+            var mats = rd.sharedMaterials;
+            for (int m = 0; m < mats.Length; m++)
+            {
+                rd.GetPropertyBlock(mpb, m);
+                mpb.SetColor(
+                    EmissionColorID,
+                    enable ? Color.white * onIntensity : Color.black
+                );
+                rd.SetPropertyBlock(mpb, m);
+            }
+        }
+    }
+
+    // 월드 인벤토리 연결
+    public void SetWorldInventory(WorldInventoryMono wi)
+    {
+        worldInventory = wi;
+
+        if (wi != null)
+        {
+            transform.SetParent(wi.transform);
+        }
+    }
+
+    // IInteractable 구현들 ------------------------
+
+    public bool IsAvailable() => gameObject.activeInHierarchy;
 
     public void OnFocus()
     {
@@ -101,39 +183,33 @@ public class DroppedItem : MonoBehaviour, IInteractable
         Shining(false);
     }
 
+    public (string, string) GetPrompt() => ("F", "줍기");
+
+    public Sprite GetIcon()
+    {
+        return (item != null && item.itemData != null) ? item.itemData.icon : null;
+    }
+
+    // 플레이어가 이 아이템을 줍으려고 했을 때 호출
     public void Interact(PlayerController player)
     {
         if (player == null || player.inventory == null) return;
         if (worldInventory == null) return;
         if (item == null || item.itemData == null) return;
 
+        // InventoryManager가 StorageTarget.World에서 Player로의 이동/검증을 담당
         bool picked = InventoryManager.Instance.TryAutoDeliver(item, StorageTarget.World);
 
         if (!picked)
         {
-            // 못 주움 (인벤토리 풀 등). 시각 피드백만 주고 그대로 둔다.
+            // 인벤 공간 없거나 등등 -> 그냥 바닥에 남아있음.
             return;
         }
 
+        // 성공적으로 플레이어 인벤으로 들어갔으면 줍는 애니메이션 및 하이라이트 종료
         player.PlayAnimToTrigger(PickHash);
         Shining(false);
-        //worldInventory.NotifyPickedUp(this);
-        //Destroy(gameObject);
-    }
 
-    public (string, string) GetPrompt() => ("F", "줍기");
-    public Sprite GetIcon() => item.itemData ? item.itemData.icon : null;
-
-    public void Shining(bool enable)
-    {
-        if (isOn == enable) return;
-        isOn = enable;
-
-        for (int i = 0; i < rd.sharedMaterials.Length; i++)
-        {
-            rd.GetPropertyBlock(mpb, i);
-            mpb.SetColor(EmissionColorID, enable ? Color.white * onIntensity : Color.black);
-            rd.SetPropertyBlock(mpb, i);
-        }
+        // 실제 파괴는 WorldInventory 쪽에서 처리됨. 여기서는 안 없앰.
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class WorldInventoryCore : IItemSource, IItemSink
 {
@@ -8,7 +9,8 @@ public class WorldInventoryCore : IItemSource, IItemSink
     public event Action OnChanged;
 
     // Mono에게 실제 씬 조작을 부탁하는 이벤트
-    public event Action<StoredItem> OnSpawnRequest;     // 플레이어가 버림 (→ 새 DroppedItem 필요)
+    public event Action<StoredItem> OnSpawnRequest;     //기본 인터페이스 함스
+    public event Action<StoredItem, Transform> OnSpawnRequest_fromPlayer; // 플레이어가 버림 (→ 새 DroppedItem 필요)
     public event Action<DroppedItem> OnDespawnRequest;  // 플레이어가 주움 (→ 해당 DroppedItem 파괴)
 
     void RaiseChanged()
@@ -85,7 +87,6 @@ public class WorldInventoryCore : IItemSource, IItemSink
         return true;
         // 바닥은 무한. 나중에 '금지 구역이면 false' 같은 룰 추가 가능
     }
-
     public bool TryAddItem(StoredItem item)
     {
         if (!CanAddItem(item)) return false;
@@ -96,6 +97,13 @@ public class WorldInventoryCore : IItemSource, IItemSink
 
         // worldItems에는 아직 안 넣었는데,
         // Mono가 Instantiate 한 직후 RegisterExistingDrop()으로 넣어줄 거라 일단 여기선 끝.
+        return true;
+    }
+    public bool TryAddItem_PlayerDrop(StoredItem item, Transform dropper)
+    {
+        if (!CanAddItem(item)) return false;
+        
+        OnSpawnRequest_fromPlayer?.Invoke(item, dropper);
         return true;
     }
 }

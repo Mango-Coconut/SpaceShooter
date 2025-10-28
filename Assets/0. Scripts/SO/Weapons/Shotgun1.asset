@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Shotgun1
   icon: {fileID: 21300000, guid: 6ac0659915f5eff43accd6403e93bba7, type: 3}
   description: Basic Shotgun
-  modelPrefab: {fileID: 100000, guid: 95f81fb2cce8b4b178fbfc95a2757b54, type: 3}
+  modelPrefab: {fileID: 7205101053788738131, guid: 559c708d064297e47a99b621c9214e69, type: 3}
   type: 1
   equiptype: 1
   rarity: 9

@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 730438daa48e06e428b81b5c41ebb2aa, type: 3}
-  m_Name: Hotdog
+  m_Name: Watermelon
   m_EditorClassIdentifier: 
-  itemName: Hotdog
-  icon: {fileID: 21300000, guid: 52a43f862c24b5b498a74f2e8eb935fc, type: 3}
-  description: Feverdog
-  modelPrefab: {fileID: 100000, guid: fdc7d8dffa381b54cb7740b8761d54c0, type: 3}
+  itemName: Watermelon
+  icon: {fileID: 21300000, guid: 55751922fdc544c44aba9e0b5ed0b7b1, type: 3}
+  description: "\uC218\uBC15\uC218"
+  modelPrefab: {fileID: 4097685758412066965, guid: 0c9a353596c4bf54db149629e7721dd1, type: 3}
   type: 2
   equiptype: 0
-  rarity: 8
-  price: 25
-  weight: 2
-  volume: 2
+  rarity: 10
+  price: 30
+  weight: 10
+  volume: 10
   maxStack: 9999

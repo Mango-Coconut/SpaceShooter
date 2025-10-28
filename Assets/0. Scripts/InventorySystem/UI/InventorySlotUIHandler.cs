@@ -32,39 +32,39 @@ IEndDragHandler
     // 툴팁 띄우기
     void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
     {
+        if (mySlot.EnterItem == null || mySlot.EnterItem.itemData == null) return; 
+
         PointerEnter?.Invoke(mySlot);
     }
 
     // 툴팁 숨기기
     void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
     {
+        if (mySlot.EnterItem == null || mySlot.EnterItem.itemData == null) return; 
+        
         PointerExit?.Invoke();
     }
 
     // 아이템 사용, 장착(우클릭)
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (mySlot.EnterItem == null || mySlot.EnterItem.itemData == null) return; 
+        
         if (eventData.button == PointerEventData.InputButton.Left)
         {
             LeftClick?.Invoke(mySlot);
         }
         else if (eventData.button == PointerEventData.InputButton.Right)
         {
-            Log.Info($"SlotUIHandier -> rightClick{mySlot.EnterItem.itemData.name}");
-            if (RightClick != null)
-            {
-                foreach (var d in RightClick.GetInvocationList())
-                    Debug.Log($"[RightClick] {d.Target} -> {d.Method}");
-            }
-
             RightClick?.Invoke(mySlot.EnterItem);
-
         }
     }
 
     //아이템 옮기기 1
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
+        if (mySlot.EnterItem == null || mySlot.EnterItem.itemData == null) return; 
+
         mySlot.Invisible();
         BeginDrag?.Invoke(mySlot.EnterItem, eventData);
     }
@@ -72,12 +72,16 @@ IEndDragHandler
     //아이템 옮기기 2
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
+        if (mySlot.EnterItem == null || mySlot.EnterItem.itemData == null) return; 
+
         Dragging?.Invoke(eventData);
     }
 
     //아이템 옮기기 3
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
     {
+        if (mySlot.EnterItem == null || mySlot.EnterItem.itemData == null) return; 
+
         mySlot.Visible();
         EndDrag?.Invoke(mySlot.EnterItem, eventData);
     }

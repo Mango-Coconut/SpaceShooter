@@ -4,6 +4,8 @@ using UnityEngine;
 
 public sealed class InventoryManager : MonoBehaviour
 {
+    [SerializeField] PlayerController player;
+
     // 인스펙터 할당
     [SerializeField] InventoryMono playerInventoryMono;
     [SerializeField] EquipInventoryMono equipInventoryMono;
@@ -17,9 +19,29 @@ public sealed class InventoryManager : MonoBehaviour
     InventoryMono chestInventoryMono;
     public InventoryMono ChestInventoryMono => chestInventoryMono;
 
-    Dictionary<StorageTarget, IItemSource> sources = new Dictionary<StorageTarget, IItemSource>();
-    Dictionary<StorageTarget, IItemSink> sinks = new Dictionary<StorageTarget, IItemSink>();
 
+    IItemSource GetSource(StorageTarget target)
+    {
+        switch (target)
+        {
+            case StorageTarget.Player: return playerInventoryMono?.Core;
+            case StorageTarget.Chest: return chestInventoryMono?.Core;
+            case StorageTarget.Equip: return equipInventoryMono?.Core;
+            case StorageTarget.World: return worldInventoryMono?.Core;
+            default: return null;
+        }
+    }
+    IItemSink GetSink(StorageTarget target)
+    {
+        switch (target)
+        {
+            case StorageTarget.Player: return playerInventoryMono?.Core;
+            case StorageTarget.Chest: return chestInventoryMono?.Core;
+            case StorageTarget.Equip: return equipInventoryMono?.Core;
+            case StorageTarget.World: return worldInventoryMono?.Core;
+            default: return null;
+        }
+    }
 
     PanelManager panel;
 
@@ -62,14 +84,6 @@ public sealed class InventoryManager : MonoBehaviour
         // TODO: 초기화 필요 시 여기서 수행
         // Init();
         panel = FindObjectOfType<PanelManager>();
-        sources[StorageTarget.Player] = playerInventoryMono.Core;
-        sinks[StorageTarget.Player] = playerInventoryMono.Core;
-
-        sources[StorageTarget.Equip] = equipInventoryMono.Core;
-        sinks[StorageTarget.Equip] = equipInventoryMono.Core;
-
-        sources[StorageTarget.World] = worldInventoryMono.Core;
-        sinks[StorageTarget.World] = worldInventoryMono.Core;
     }
 
     private void OnDestroy()
@@ -110,60 +124,60 @@ public sealed class InventoryManager : MonoBehaviour
         if (chestMono == null) Log.Error("InventoryManager -> Chest null");
 
         chestInventoryMono = chestMono;
-        sources[StorageTarget.Chest] = chestMono.Core;
-        sinks[StorageTarget.Chest] = chestMono.Core;
     }
     void ClearChestInventory()
     {
         chestInventoryMono = null;
-        sources.Remove(StorageTarget.Chest);
-        sinks.Remove(StorageTarget.Chest);
     }
 
+    // 인벤토리에서 드래그 놓을 시 시작과 끝지점 이미 알고 있음
     void HandleItemDropped(StorageTarget from, StorageTarget to, StoredItem item)
     {
-        TryDeliver(sources[from], sinks[to], item);
+        TryDeliver(GetSource(from), GetSink(to), item);
     }
 
-    // 기존 이벤트 호출용 — 리턴값 없이 알림만 쏘는 버전
+    // 인벤토리에서 우클릭시 시작 지점만 알고 있기에 옮길 Storage를 자동으로 설정
     public void HandleRightClick(StoredItem item, StorageTarget from)
     {
         TryAutoDeliver(item, from);
     }
 
-    // DroppedItem, 월드 인터랙션 등에서 직접 호출할 수 있는 버전
     public bool TryAutoDeliver(StoredItem item, StorageTarget from)
     {
         if (item == null) return false;
         Log.Info($"InventoryManager -> TryAutoDeliver, {item.itemData.name}");
 
-        bool fromEquip = ReferenceEquals(sources[from], equipInventoryMono.Core);
-        bool fromChest = ReferenceEquals(sources[from], chestInventoryMono?.Core);
-        bool fromInv = ReferenceEquals(sources[from], playerInventoryMono.Core);
+        var fromSrc = GetSource(from);
+        var playerInv = playerInventoryMono?.Core;
+        var chestInv = chestInventoryMono?.Core;
+        var equipInv = equipInventoryMono?.Core;
+        var worldInv = worldInventoryMono?.Core;
+
+        bool fromEquip = ReferenceEquals(GetSource(from), equipInventoryMono?.Core);
+        bool fromChest = ReferenceEquals(GetSource(from), chestInventoryMono?.Core);
+        bool fromInv = ReferenceEquals(GetSource(from), playerInventoryMono?.Core);
 
 
         if (fromEquip)
         {
-            IItemSink inv = PlayerInventoryMono.Core;
-            IItemSink chest = ChestInventoryMono.Core != null ? ChestInventoryMono.Core : null;
-            return TryDeliverWithFallbacks(sources[from], item, inv, chest);
+            return TryDeliverWithFallbacks(fromSrc, item, playerInv, chestInv);
         }
         else if (fromChest)
         {
-            return TryDeliver(sources[from], PlayerInventoryMono.Core, item);
+            return TryDeliver(fromSrc, playerInv, item);
         }
         else if (fromInv)
         {
-            IItemSink chest = ChestInventoryMono.Core != null ? ChestInventoryMono.Core : null;
-            IItemSink equip = (item.itemData?.type == ItemType.Equip) ? EquipInventoryMono.Core : null;
-            return TryDeliverWithFallbacks(sources[from], item, chest, equip);
+            IItemSink maybeChest = chestInv;
+            IItemSink maybeEquip = (item.itemData?.type == ItemType.Equip) ? equipInv : null;
+
+            return TryDeliverWithFallbacks(fromSrc, item, maybeChest, maybeEquip);
         }
         else // worldInventory → PlayerInventory
         {
-            return TryDeliver(sources[from], PlayerInventoryMono.Core, item);
+            return TryDeliver(fromSrc, playerInv, item);
         }
     }
-
 
 
     public bool TryAddItem(IItemSink c, ItemData data, int amount = 1)
@@ -184,7 +198,7 @@ public sealed class InventoryManager : MonoBehaviour
     }
 
     // 여러 IItemSink에 순서대로 넣기 시도
-    public static bool TryDeliverWithFallbacks(IItemSource from, StoredItem item, params IItemSink[] sinks)
+    public bool TryDeliverWithFallbacks(IItemSource from, StoredItem item, params IItemSink[] sinks)
     {
         if (from == null || item == null || sinks == null) return false;
 
@@ -198,36 +212,53 @@ public sealed class InventoryManager : MonoBehaviour
         return false;
     }
 
-    public static bool TryDeliver(IItemSource from, IItemSink to, StoredItem item)
+    public bool TryDeliver(IItemSource from, IItemSink to, StoredItem item)
     {
+        if (ReferenceEquals(to, worldInventoryMono.Core))
+        {
+            return DropToWorld(from, item);
+        }
         if (to is ISwapSink swap)
         {
-            Log.Info("장비창으로..");
             return TryDeliverSwap(from, swap, item, (IItemSink)from);
         }
         else
         {
-            Log.Info("일반창으로..");
             return TryDeliverBasic(from, to, item);
         }
     }
-
-    public static bool TryDeliverBasic(IItemSource from, IItemSink to, StoredItem item)
+    bool DropToWorld(IItemSource from, StoredItem item)
     {
-        Log.Info("TryDeliverBasic 시도");
+        if (from == null || item == null) return false;
+        if (worldInventoryMono == null || worldInventoryMono.Core == null) return false;
+
+        // 1. from 인벤토리에서 뺄 수 있는지
+        if (!from.CanRemoveItem(item)) return false;
+        // 2. 월드가 받을 수 있는지
+        if (!worldInventoryMono.Core.CanAddItem(item)) return false;
+
+        // 3. 실제로 from에서 제거
+        bool removed = from.TryRemoveItem(item);
+        if (!removed) return false;
+        // 4. 월드에 추가 (플레이어 Transform 넘겨줌)
+        bool added = worldInventoryMono.Core.TryAddItem_PlayerDrop(item, player.transform);
+
+        return added;
+    }
+
+    public bool TryDeliverBasic(IItemSource from, IItemSink to, StoredItem item)
+    {
         if (from == null || to == null || item == null) return false;
         if (!from.CanRemoveItem(item)) return false;
         if (!to.CanAddItem(item)) return false;
-        Log.Info("TryDeliverBasic 성공");
-        // 사전 검증으로 충분히 보장된 상태라면 이 아래는 거의 실패하지 않음
+
         from.TryRemoveItem(item);
         to.TryAddItem(item);
         return true;
     }
 
-    public static bool TryDeliverSwap(IItemSource from, ISwapSink to, StoredItem item, IItemSink originSink)
+    public bool TryDeliverSwap(IItemSource from, ISwapSink to, StoredItem item, IItemSink originSink)
     {
-        Log.Info("TryDeliverSwap 시도");
         if (from == null || to == null || originSink == null || item == null) return false;
 
         // 1) 사전검증: 꺼낼 수 있는가?
@@ -241,12 +272,10 @@ public sealed class InventoryManager : MonoBehaviour
 
         // === 여기까지 오면 실패하지 않도록 보장됨 ===
 
-        Log.Info("Deliver 가능");
         // 4) 실제 실행
-        from.TryRemoveItem(item);                        // 꺼내기
-        to.TryAddItemSwap(item, out var swapped);        // 장비창에 넣고, 기존 장비를 받음 (swapped는 willBeSwapped와 동일해야 함)
+        from.TryRemoveItem(item);                
+        to.TryAddItemSwap(item, out var swapped);
 
-        Log.Info("Deliver 실행");
         // 5) 기존 장비를 원래 자리로 복귀
         if (swapped != null)
         {

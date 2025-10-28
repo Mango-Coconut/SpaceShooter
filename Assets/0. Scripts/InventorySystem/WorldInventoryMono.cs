@@ -14,6 +14,7 @@ public class WorldInventoryMono : MonoBehaviour
 
         // Core -> Mono 이벤트 구독
         Core.OnSpawnRequest += HandleSpawnRequest;
+        Core.OnSpawnRequest_fromPlayer += HandleSpawnRequest_FromPlayer;
         Core.OnDespawnRequest += HandleDespawnRequest;
     }
 
@@ -48,22 +49,28 @@ public class WorldInventoryMono : MonoBehaviour
     // Core.TryAddItem() 에 의해 호출됨 = "버린 아이템 월드에 스폰해줘"
     void HandleSpawnRequest(StoredItem item)
     {
+        HandleSpawn(item, null);
+    }
+    void HandleSpawnRequest_FromPlayer(StoredItem item, Transform dropper)
+    {
+        HandleSpawn(item, dropper);
+    }
+
+    void HandleSpawn(StoredItem item, Transform dropper)
+    {
         if (item == null || item.itemData == null) return;
         if (droppedItemPrefab == null)
         {
-            Debug.LogWarning("WorldInventoryMono.HandleSpawnRequest: droppedItemPrefab is null");
+            Debug.LogWarning("WorldInventoryMono.HandleSpawn: droppedItemPrefab is null");
             return;
         }
 
-        // 드랍 위치: 지금은 월드인벤토리 오브젝트 기준 임시
-        // 나중에 플레이어 위치나 마우스 위치로 개선 가능
-        Vector3 spawnPos = GetDropPosition();
+        Vector3 spawnPos = GetDropPosition(dropper);
 
         DroppedItem newDrop = Instantiate(droppedItemPrefab, spawnPos, Quaternion.identity);
         newDrop.Bind(item);
         newDrop.SetWorldInventory(this);
 
-        // Core에 실제로 존재한다고 알려준다
         Core.RegisterExistingDrop(newDrop);
     }
 
@@ -85,9 +92,15 @@ public class WorldInventoryMono : MonoBehaviour
         Core.UnregisterDrop(di);
     }
 
-    Vector3 GetDropPosition()
+    Vector3 GetDropPosition(Transform t)
     {
-        // TODO: 실제로는 PlayerController 위치 앞 등으로 바꿔야 자연스러움. 
-        return transform.position + transform.forward * 1.0f + Vector3.up * 0.5f;
+        Vector3 basePos = transform.position;
+
+        if (t != null)
+        {
+            basePos = t.position + t.forward * 1.2f;
+        }
+
+        return basePos + Vector3.up * 0.5f;
     }
 }

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Rifle1
   icon: {fileID: 21300000, guid: de737d234d1c361498c3843caed6f33b, type: 3}
   description: Basic Rifle
-  modelPrefab: {fileID: 100000, guid: fb8b8a16fd3ec410a89c2880b5e18f47, type: 3}
+  modelPrefab: {fileID: 7657748502117391617, guid: e9dd67156ac80ca4a8cc61e784522ce0, type: 3}
   type: 1
   equiptype: 1
   rarity: 8

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Rifle3
   icon: {fileID: 21300000, guid: 66dd227edfe744a498a2e2435e34d11d, type: 3}
   description: Advanced Rifle
-  modelPrefab: {fileID: 100000, guid: 2d02fd77a820e476e8c9047328380cd9, type: 3}
+  modelPrefab: {fileID: 2903986463026317606, guid: 919fd5b6bbf194f44921234948f40ad9, type: 3}
   type: 1
   equiptype: 1
   rarity: 10

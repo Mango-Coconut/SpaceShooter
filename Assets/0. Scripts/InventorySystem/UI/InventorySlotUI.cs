@@ -58,9 +58,9 @@ public class InventorySlotUI : MonoBehaviour
     }
     public void Visible()
     {
-        itemImage.enabled = false;
+        itemImage.enabled = true;
 
         if (itemAmount == null) return;
-        itemAmount.enabled = false;
+        itemAmount.enabled = true;
     }
 }
