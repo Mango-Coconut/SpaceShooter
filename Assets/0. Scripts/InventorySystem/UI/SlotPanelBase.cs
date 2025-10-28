@@ -9,12 +9,12 @@ public abstract class SlotPanelBase : MonoBehaviour
     
     public event Action<InventorySlotUI> PointerEnter;
     public event Action PointerExit;
-    public event Action<StoredItem, IItemSource> RightClick;
-    public event Action<StoredItem, IItemSource, PointerEventData> BeginDrag;
+    public event Action<StoredItem, StorageTarget> RightClick;
+    public event Action<StoredItem, StorageTarget, PointerEventData> BeginDrag;
     public event Action<PointerEventData> Dragging;
     public event Action<StoredItem, PointerEventData> EndDrag;
 
-    protected abstract IItemSource GetSource(); // Inventory or EquipInventory
+    protected abstract StorageTarget GetSource(); // Inventory or EquipInventory
 
 
     protected virtual void SubscribeSlotUI()

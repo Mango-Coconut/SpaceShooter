@@ -16,20 +16,12 @@ public class PanelManager : MonoBehaviour
     [SerializeField] InteractionPanel iiPanel;
     #endregion
 
-    #region 프로퍼티
-    public InventoryMono PlayerInventory => inventoryUI.SlotPanel.Inventory;
-    public InventoryMono ChestInventory => chestUI.ChestInventory;
-    public EquipInventoryMono EquipInventory => equipSlotPanel.EquipInventory;
-    public WorldInventoryMono WorldInventory;
-
-    public InventoryUI InventoryUI => inventoryUI;
-    public ChestUI ChestUI => chestUI;
-    public EquipSlotPanel EquipUI => equipSlotPanel;
-    #endregion
-
-    public event Action<IItemSource, IItemSink, StoredItem> OnItemDropped;
-    public event Action<StoredItem, IItemSource> OnItemRightClicked;
+    public event Action<StorageTarget, StorageTarget, StoredItem> OnItemDropped;
+    public event Action<StoredItem, StorageTarget> OnItemRightClicked;
     public event Action OnChestClosed;
+
+
+    GraphicRaycaster raycaster;
 
     public bool IsOpen(GameObject gameObject)
     {
@@ -73,6 +65,7 @@ public class PanelManager : MonoBehaviour
 
     void Awake()
     {
+        raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         //fromStorage = inventoryUI.SlotPanel.Inventory.Core;
         inventoryUI.gameObject.SetActive(true);
         iiPanel.gameObject.SetActive(true);
@@ -240,14 +233,14 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region 아이템 슬롯 드래그 하기 & 아이템 옮기기(인벤토리↔상자)
-    IItemSource fromStorage;
-    IItemSink toStorage = null;
-    void OnBeginDragFromPanel(StoredItem item, IItemSource storage, PointerEventData e)
+    StorageTarget fromStorage;
+    StorageTarget toStorage;
+    void OnBeginDragFromPanel(StoredItem item, StorageTarget from, PointerEventData e)
     {
         if (item == null) return;
 
         //드래그 시작한 곳(인벤토리or상자)
-        fromStorage = storage;
+        fromStorage = from;
         CloseTooltip();
 
         dragSlot.gameObject.SetActive(true);
@@ -260,45 +253,48 @@ public class PanelManager : MonoBehaviour
         dragSlot.transform.position = e.position;
     }
 
+
     void OnDroppedFromPanel(StoredItem item, PointerEventData e)
     {
-        if (fromStorage == null || item == null || item.itemData == null) return;
-        toStorage = null;
+        if (item == null || item.itemData == null) return;
+        toStorage = StorageTarget.None;
 
         // 마우스 놓은 Storage 창 구하기(인벤토리, 장비창, 상자)
         List<RaycastResult> results = new List<RaycastResult>();
-        GraphicRaycaster raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         raycaster.Raycast(e, results);
         foreach (RaycastResult result in results)
         {
             if (result.gameObject.CompareTag("InventoryUI"))
             {
-                toStorage = inventoryUI.SlotPanel.Inventory.Core;
+                toStorage = StorageTarget.Player;
+                break;
             }
-            if (result.gameObject.CompareTag("ChestUI"))
+            else if (result.gameObject.CompareTag("ChestUI"))
             {
-                toStorage = chestUI.ChestInventory.Core;
+                toStorage = StorageTarget.Chest;
+                break;
             }
-            if (result.gameObject.CompareTag("EquipUI"))
+            else if (result.gameObject.CompareTag("EquipUI"))
             {
-                toStorage = equipSlotPanel.EquipInventory.Core;
+                toStorage = StorageTarget.Equip;
+                break;
             }
         }
 
-        if (toStorage == null)
+        if (toStorage == StorageTarget.None)
         {
-            toStorage = WorldInventory.Core;
+            toStorage = StorageTarget.World;
         }
 
         OnItemDropped?.Invoke(fromStorage, toStorage, item);
 
         dragSlot.gameObject.SetActive(false);
     }
-    public void OnRightClick(StoredItem item, IItemSource fromStorage)
+    public void OnRightClick(StoredItem item, StorageTarget from)
     {
         Log.Info($"PanelManager -> RightClick, {item.itemData.name}");
         CloseTooltip();
-        OnItemRightClicked?.Invoke(item, fromStorage);
+        OnItemRightClicked?.Invoke(item, from);
     }
 
     #endregion

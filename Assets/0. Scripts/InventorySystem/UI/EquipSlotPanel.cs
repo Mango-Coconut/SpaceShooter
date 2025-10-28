@@ -4,7 +4,6 @@ public class EquipSlotPanel : SlotPanelBase
 {
     [SerializeField] EquipInventoryMono equipInventory;
     public EquipInventoryMono EquipInventory => equipInventory;
-    protected override IItemSource GetSource() => equipInventory.Core;
 
     [SerializeField] private InventorySlotUI[] fixedSlots;
 
@@ -56,5 +55,10 @@ public class EquipSlotPanel : SlotPanelBase
     void UnSubscribeInventory()
     {
         equipInventory.OnChanged -= RefreshAll;
+    }
+
+    protected override StorageTarget GetSource()
+    {
+        return StorageTarget.Equip;
     }
 }

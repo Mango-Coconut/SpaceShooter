@@ -86,8 +86,8 @@ public class InventoryUI : MonoBehaviour
     #region  ── 위로 포워딩할 이벤트 (PanelManager에서 구독) ──
     public event Action<InventorySlotUI> PointerEnter;
     public event Action PointerExit;
-    public event Action<StoredItem, IItemSource> RightClick;
-    public event Action<StoredItem, IItemSource, PointerEventData> BeginDrag;
+    public event Action<StoredItem, StorageTarget> RightClick;
+    public event Action<StoredItem, StorageTarget, PointerEventData> BeginDrag;
     public event Action<PointerEventData> Dragging;
     public event Action<StoredItem, PointerEventData> EndDrag;
 
@@ -95,9 +95,9 @@ public class InventoryUI : MonoBehaviour
 
     void OnPointerEnter(InventorySlotUI slotUI) => PointerEnter?.Invoke(slotUI);
     void OnPointerExit() => PointerExit?.Invoke();
-    public void OnPointerRightClick(StoredItem item, IItemSource fromStorage) => RightClick?.Invoke(item, fromStorage);
+    public void OnPointerRightClick(StoredItem item, StorageTarget fromStorage) => RightClick?.Invoke(item, fromStorage);
     
-    void OnBeginDrag(StoredItem item, IItemSource source, PointerEventData e)
+    void OnBeginDrag(StoredItem item, StorageTarget source, PointerEventData e)
     {
         PointerExit?.Invoke();
         BeginDrag?.Invoke(item, source, e);

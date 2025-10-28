@@ -107,7 +107,7 @@ public class DroppedItem : MonoBehaviour, IInteractable
         if (worldInventory == null) return;
         if (item == null || item.itemData == null) return;
 
-        bool picked = InventoryManager.Instance.TryHandleRightClick(item, worldInventory.Core);
+        bool picked = InventoryManager.Instance.TryAutoDeliver(item, StorageTarget.World);
 
         if (!picked)
         {

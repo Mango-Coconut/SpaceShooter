@@ -1,22 +1,26 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public sealed class InventoryManager : MonoBehaviour
 {
     // 인스펙터 할당
-    [SerializeField] InventoryMono playerInventory;
-    [SerializeField] EquipInventoryMono equipInventory;
-    [SerializeField] WorldInventoryMono worldInventory;
+    [SerializeField] InventoryMono playerInventoryMono;
+    [SerializeField] EquipInventoryMono equipInventoryMono;
+    [SerializeField] WorldInventoryMono worldInventoryMono;
 
-    public InventoryMono PlayerInventory => playerInventory;
-    public EquipInventoryMono EquipInventory => equipInventory;
-    public WorldInventoryMono WorldInventory => worldInventory;
+    public InventoryMono PlayerInventoryMono => playerInventoryMono;
+    public EquipInventoryMono EquipInventoryMono => equipInventoryMono;
+    public WorldInventoryMono WorldInventoryMono => worldInventoryMono;
 
     // 런타임 할당
-    InventoryMono chestInventory;
-    public InventoryMono ChestInventory => chestInventory;
+    InventoryMono chestInventoryMono;
+    public InventoryMono ChestInventoryMono => chestInventoryMono;
 
-    
+    Dictionary<StorageTarget, IItemSource> sources = new Dictionary<StorageTarget, IItemSource>();
+    Dictionary<StorageTarget, IItemSink> sinks = new Dictionary<StorageTarget, IItemSink>();
+
+
     PanelManager panel;
 
     #region 싱글톤
@@ -58,6 +62,14 @@ public sealed class InventoryManager : MonoBehaviour
         // TODO: 초기화 필요 시 여기서 수행
         // Init();
         panel = FindObjectOfType<PanelManager>();
+        sources[StorageTarget.Player] = playerInventoryMono.Core;
+        sinks[StorageTarget.Player] = playerInventoryMono.Core;
+
+        sources[StorageTarget.Equip] = equipInventoryMono.Core;
+        sinks[StorageTarget.Equip] = equipInventoryMono.Core;
+
+        sources[StorageTarget.World] = worldInventoryMono.Core;
+        sinks[StorageTarget.World] = worldInventoryMono.Core;
     }
 
     private void OnDestroy()
@@ -93,57 +105,62 @@ public sealed class InventoryManager : MonoBehaviour
         Chest.OnChestOpened -= HandleSetChestInventory;
     }
 
-    void HandleSetChestInventory(Chest chest)
+    void HandleSetChestInventory(InventoryMono chestMono)
     {
-        if (chest == null) Log.Error("InventoryManager -> Chest null");
-        chestInventory = chest;
+        if (chestMono == null) Log.Error("InventoryManager -> Chest null");
+
+        chestInventoryMono = chestMono;
+        sources[StorageTarget.Chest] = chestMono.Core;
+        sinks[StorageTarget.Chest] = chestMono.Core;
     }
     void ClearChestInventory()
     {
-        chestInventory = null;
+        chestInventoryMono = null;
+        sources.Remove(StorageTarget.Chest);
+        sinks.Remove(StorageTarget.Chest);
     }
 
-    void HandleItemDropped(IItemSource from, IItemSink to, StoredItem item)
+    void HandleItemDropped(StorageTarget from, StorageTarget to, StoredItem item)
     {
-        TryDeliver(from, to, item);
+        TryDeliver(sources[from], sinks[to], item);
     }
 
     // 기존 이벤트 호출용 — 리턴값 없이 알림만 쏘는 버전
-    public void HandleRightClick(StoredItem item, IItemSource from)
+    public void HandleRightClick(StoredItem item, StorageTarget from)
     {
-        TryHandleRightClick(item, from);
+        TryAutoDeliver(item, from);
     }
 
     // DroppedItem, 월드 인터랙션 등에서 직접 호출할 수 있는 버전
-    public bool TryHandleRightClick(StoredItem item, IItemSource from)
+    public bool TryAutoDeliver(StoredItem item, StorageTarget from)
     {
-        if (item == null || from == null) return false;
-        Log.Info($"InventoryManager -> RightClick, {item.itemData.name}");
+        if (item == null) return false;
+        Log.Info($"InventoryManager -> TryAutoDeliver, {item.itemData.name}");
 
-        bool fromEquip = ReferenceEquals(from, EquipInventory);
-        bool fromChest = ReferenceEquals(from, ChestInventory);
-        bool fromInv = ReferenceEquals(from, PlayerInventory);
+        bool fromEquip = ReferenceEquals(sources[from], equipInventoryMono.Core);
+        bool fromChest = ReferenceEquals(sources[from], chestInventoryMono?.Core);
+        bool fromInv = ReferenceEquals(sources[from], playerInventoryMono.Core);
+
 
         if (fromEquip)
         {
-            IItemSink inv = PlayerInventory.Core;
-            IItemSink chest = ChestInventory.Core != null ? ChestInventory.Core : null;
-            return TryDeliverWithFallbacks(from, item, inv, chest);
+            IItemSink inv = PlayerInventoryMono.Core;
+            IItemSink chest = ChestInventoryMono.Core != null ? ChestInventoryMono.Core : null;
+            return TryDeliverWithFallbacks(sources[from], item, inv, chest);
         }
         else if (fromChest)
         {
-            return TryDeliver(from, PlayerInventory.Core, item);
+            return TryDeliver(sources[from], PlayerInventoryMono.Core, item);
         }
         else if (fromInv)
         {
-            IItemSink chest = ChestInventory.Core != null ? ChestInventory.Core : null;
-            IItemSink equip = (item.itemData?.type == ItemType.Equip) ? EquipInventory.Core : null;
-            return TryDeliverWithFallbacks(from, item, chest, equip);
+            IItemSink chest = ChestInventoryMono.Core != null ? ChestInventoryMono.Core : null;
+            IItemSink equip = (item.itemData?.type == ItemType.Equip) ? EquipInventoryMono.Core : null;
+            return TryDeliverWithFallbacks(sources[from], item, chest, equip);
         }
-        else
+        else // worldInventory → PlayerInventory
         {
-            // worldInventory → PlayerInventory
-            return TryDeliver(from, PlayerInventory.Core, item);
+            return TryDeliver(sources[from], PlayerInventoryMono.Core, item);
         }
     }
 
@@ -187,15 +204,12 @@ public sealed class InventoryManager : MonoBehaviour
         {
             Log.Info("장비창으로..");
             return TryDeliverSwap(from, swap, item, (IItemSink)from);
-
         }
-
         else
         {
             Log.Info("일반창으로..");
             return TryDeliverBasic(from, to, item);
         }
-
     }
 
     public static bool TryDeliverBasic(IItemSource from, IItemSink to, StoredItem item)

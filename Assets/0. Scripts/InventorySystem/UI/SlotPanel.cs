@@ -7,9 +7,9 @@ public class SlotPanel : SlotPanelBase
 {
     [SerializeField] InventoryMono inventory;
     public InventoryMono Inventory => inventory;
-    
     [SerializeField] private GameObject slotPrefab;
-    protected override IItemSource GetSource() => inventory.Core;
+    [SerializeField] StorageTarget myStorageType;
+    
 
     void OnEnable()
     {
@@ -23,7 +23,7 @@ public class SlotPanel : SlotPanelBase
         UnsubscribeInventory();
         UnSubscribeSlotUI();
     }
-
+ 
     #region 인벤토리 세팅 관련
 
     // 새로운 인벤토리 세팅
@@ -126,6 +126,11 @@ public class SlotPanel : SlotPanelBase
     {
         if (inventory == null) return;
         inventory.OnChanged -= Refresh;
+    }
+
+    protected override StorageTarget GetSource()
+    {
+        return myStorageType;
     }
     #endregion
 }
