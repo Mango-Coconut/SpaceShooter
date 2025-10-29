@@ -286,7 +286,29 @@ public class InventoryCore : IItemSource, IItemSink
     {
         // 유니크를 “1개짜리 복제본”으로 만들어 새 슬롯에 넣기
         StoredItem c = new StoredItem(src.itemData, 1);
-        c.enhancement = src.enhancement;
+        //c.enhancement = src.enhancement;
         return c;
+    }
+
+    public PlayerInventoryData SaveData()
+    {
+        PlayerInventoryData data = new PlayerInventoryData();
+        data.capacity = this.Capacity;
+
+        data.slots = new List<StoredItemData>();
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            StoredItem s = Slots[i];
+            if (s == null || s.itemData == null) continue;
+
+            StoredItemData sd = new StoredItemData();
+            
+            sd.instanceId = s.instanceId;
+            sd.itemDataId = s.itemData.id;
+            sd.count = s.count;
+            data.slots.Add(sd);
+        }
+
+        return data;
     }
 }

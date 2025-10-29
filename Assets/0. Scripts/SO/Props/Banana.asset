@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730438daa48e06e428b81b5c41ebb2aa, type: 3}
   m_Name: Banana
   m_EditorClassIdentifier: 
+  id: 0
   itemName: Banana
   icon: {fileID: 21300000, guid: 4d9739ed467a58f4585e5132a703437f, type: 3}
   description: "\uB9DB\uC788\uB294 \uBC14\uB098\uB098"

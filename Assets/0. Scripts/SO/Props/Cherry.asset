@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730438daa48e06e428b81b5c41ebb2aa, type: 3}
   m_Name: Cherry
   m_EditorClassIdentifier: 
+  id: 2
   itemName: Cherry
   icon: {fileID: 21300000, guid: 4f42c303edc2e37479fe75f4af832a5d, type: 3}
   description: Cherrrrrrrrry

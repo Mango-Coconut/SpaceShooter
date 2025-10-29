@@ -43,7 +43,7 @@ public class DroppedItem : MonoBehaviour, IInteractable
                 initialData,
                 Mathf.Max(initialCount, 1)
             );
-            item.enhancement = initialEnhancement;
+            //item.enhancement = initialEnhancement;
 
             // 이제 이 아이템의 비주얼 반영
             ApplyVisualModel();

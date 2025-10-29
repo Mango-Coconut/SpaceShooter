@@ -7,6 +7,7 @@ using UnityEngine;
 public class ItemData : ScriptableObject
 {
     [Header("기본 정보")]
+    public string id;
     public string itemName;        // 이름
     public Sprite icon;            // UI 아이콘
     [TextArea] public string description; // 설명

@@ -1209,7 +1209,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &275500542
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3672,12 +3672,10 @@ MonoBehaviour:
     itemData: {fileID: 11400000, guid: 626522c38983e11448bf8e1274298878, type: 2}
     count: 0
     enhancement: 0
-    useCount: 0
   - instanceId: 
     itemData: {fileID: 11400000, guid: fc6f8d891062bb040a77a4074e8ea2b0, type: 2}
     count: 0
     enhancement: 0
-    useCount: 0
   chestSprite: {fileID: 21300000, guid: c6372abae4e0907439fea38a0d9a8ef0, type: 3}
 --- !u!23 &811290939
 MeshRenderer:
@@ -4847,7 +4845,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &974011807
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11233,7 +11231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2126410833
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12116,15 +12114,12 @@ MonoBehaviour:
     itemData: {fileID: 11400000, guid: 86044fbbca0a5224f94b4f652f8c4271, type: 2}
     count: 0
     enhancement: 0
-    useCount: 0
   - instanceId: 
     itemData: {fileID: 11400000, guid: 6d8f3cfc78fcfc7408174a685a39ac68, type: 2}
     count: 0
     enhancement: 0
-    useCount: 0
   - instanceId: 
     itemData: {fileID: 11400000, guid: 15e68025ef792f246bb5b349b3ac7503, type: 2}
     count: 0
     enhancement: 0
-    useCount: 0
   chestSprite: {fileID: 21300000, guid: c6372abae4e0907439fea38a0d9a8ef0, type: 3}

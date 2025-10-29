@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 184f33b670f0f324b8432b4b5283a2ac, type: 3}
   m_Name: Rifle1
   m_EditorClassIdentifier: 
+  id: 100
   itemName: Rifle1
   icon: {fileID: 21300000, guid: de737d234d1c361498c3843caed6f33b, type: 3}
   description: Basic Rifle

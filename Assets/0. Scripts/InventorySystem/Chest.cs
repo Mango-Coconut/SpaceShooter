@@ -5,7 +5,7 @@ using UnityEngine;
 public class Chest : InventoryMono, IInteractable
 {
     [Header("Chest Identification")]
-    [SerializeField] string instanceId; // 고유 식별자 (수동 or 자동)
+    [SerializeField] string instanceId; // 고유 식별자
 
     [Header("Initial Items (for editor setup)")]
     [SerializeField] StoredItem[] chestitems;

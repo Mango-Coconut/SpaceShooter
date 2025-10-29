@@ -19,7 +19,6 @@ public class PanelManager : MonoBehaviour
 
     public event Action<StorageTarget, StorageTarget, StoredItem> OnItemDropped;
     public event Action<StoredItem, StorageTarget> OnItemRightClicked;
-    public event Action OnChestClosed;
 
 
     GraphicRaycaster raycaster;
@@ -106,7 +105,7 @@ public class PanelManager : MonoBehaviour
         if (IsOpen(inventoryUI.gameObject))
         {
             CloseInventoryUI();
-            if(curChest) curChest.ForceCloseFromUI();
+            curChest?.ForceCloseFromUI();
         }
         else
         {
@@ -123,7 +122,7 @@ public class PanelManager : MonoBehaviour
         else
         {
             CloseInventoryUI();
-            if(curChest) curChest.ForceCloseFromUI();
+            curChest?.ForceCloseFromUI();
         }
     }
 

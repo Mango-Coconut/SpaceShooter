@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 184f33b670f0f324b8432b4b5283a2ac, type: 3}
   m_Name: Rifle3
   m_EditorClassIdentifier: 
+  id: 101
   itemName: Rifle3
   icon: {fileID: 21300000, guid: 66dd227edfe744a498a2e2435e34d11d, type: 3}
   description: Advanced Rifle

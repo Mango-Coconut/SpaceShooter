@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 184f33b670f0f324b8432b4b5283a2ac, type: 3}
   m_Name: Shotgun1
   m_EditorClassIdentifier: 
+  id: 110
   itemName: Shotgun1
   icon: {fileID: 21300000, guid: 6ac0659915f5eff43accd6403e93bba7, type: 3}
   description: Basic Shotgun
