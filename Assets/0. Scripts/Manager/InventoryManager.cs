@@ -108,14 +108,14 @@ public sealed class InventoryManager : MonoBehaviour
         UnSubsCribe();
         panel.OnItemDropped += HandleItemDropped;
         panel.OnItemRightClicked += HandleRightClick;
-        panel.OnChestClosed += ClearChestInventory;
+        Chest.OnChestClosed += ClearChestInventory;
         Chest.OnChestOpened += HandleSetChestInventory;
     }
     void UnSubsCribe()
     {
         panel.OnItemDropped -= HandleItemDropped;
         panel.OnItemRightClicked -= HandleRightClick;
-        panel.OnChestClosed -= ClearChestInventory;
+        Chest.OnChestClosed -= ClearChestInventory;
         Chest.OnChestOpened -= HandleSetChestInventory;
     }
 
@@ -125,8 +125,10 @@ public sealed class InventoryManager : MonoBehaviour
 
         chestInventoryMono = chestMono;
     }
-    void ClearChestInventory()
+    void ClearChestInventory(InventoryMono chestMono)
     {
+        if (chestMono == null) Log.Error("InventoryManager -> Chest null");
+        
         chestInventoryMono = null;
     }
 

@@ -1,28 +1,103 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Chest : InventoryMono, IInteractable
 {
-    //미리 들어있는 상자 내용물
-    [SerializeField] ItemData[] chestitems;
+    [Header("Chest Identification")]
+    [SerializeField] string instanceId; // 고유 식별자 (수동 or 자동)
+
+    [Header("Initial Items (for editor setup)")]
+    [SerializeField] StoredItem[] chestitems;
+    public string InstanceId => instanceId;
     public static event Action<Chest> OnChestOpened;
+    public static event Action<Chest> OnChestClosed;
+
+    PlayerController owner;
+    bool isOpen = false;
 
     [SerializeField] Sprite chestSprite;
 
+    #region 초기화
+#if UNITY_EDITOR
+    static HashSet<string> usedIds = new HashSet<string>();
+#endif
+    void Awake()
+    {
+        // ID가 비어 있으면 자동 생성
+        if (string.IsNullOrWhiteSpace(instanceId))
+        {
+#if UNITY_EDITOR
+            Log.Warn($"Chest '{name}' 이름 지정 하셈");
+#endif
+        }
+
+#if UNITY_EDITOR
+        // 중복 감지 (정적 HashSet으로 한 번만)
+        if (!usedIds.Add(instanceId))
+        {
+            Debug.LogWarning($"[Chest] Duplicate instanceId detected: {instanceId} ({name})");
+        }
+#endif
+    }
+    #endregion
 
     void Start()
     {
-        foreach (ItemData item in chestitems)
+        // 초기 아이템 추가
+        if (chestitems != null)
         {
-            TryAddItem(item);
+            foreach (var item in chestitems)
+            {
+                if (item.itemData == null)
+                {
+                    Log.Error($"{InstanceId} Chest에 아이템 지정하기");
+                    break;
+                }
+                TryAddItem(item.itemData, item.count);
+            }
         }
     }
+
     public void Interact(PlayerController pc)
     {
-        //PanelManager가 받음
-        //InventoryManager도 받음
+        if (isOpen == false)
+        {
+            OpenChest(pc);
+        }
+        else
+        {
+            CloseChest(pc);
+        }
+    }
+
+    void OpenChest(PlayerController pc)
+    {
+        isOpen = true;
+        owner = pc;
+
+        pc.gate.PushInteract();
         OnChestOpened?.Invoke(this);
     }
+    void CloseChest(PlayerController pc)
+    {
+        isOpen = false;
+
+        var targetPc = pc != null ? pc : owner;
+        if (targetPc != null)
+        {
+            targetPc.gate.PopInteract();
+        }
+        owner = null;
+
+        OnChestClosed?.Invoke(this);
+    }
+    
+    public void ForceCloseFromUI()
+    {
+        CloseChest(owner);
+    }
+
 
     public bool IsAvailable() => true;
     public void OnFocus() { }

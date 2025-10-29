@@ -57,6 +57,7 @@ public class InventoryCore : IItemSource, IItemSink
     // 스택형 전용 (ItemData + count)
     public bool TryAddItem(ItemData data, int amount = 1)
     {
+        if (amount == 0) amount = 1;
         if (data == null || amount <= 0) return false;
 
         int remaining = amount;

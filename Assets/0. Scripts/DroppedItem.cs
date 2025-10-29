@@ -30,30 +30,24 @@ public class DroppedItem : MonoBehaviour, IInteractable
 
     void Awake()
     {
-        // 1) 씬에 미리 놓은 드랍(에디터 세팅용)
-        if (item == null)
-        {
-            if (initialData != null)
-            {
-                item = new StoredItem(initialData, Mathf.Max(initialCount, 1));
-                item.enhancement = initialEnhancement;
-            }
-            else
-            {
-                // 이 DroppedItem이 월드인벤에서 런타임으로 Bind될 예정이라면
-                // initialData 없어도 정상.
-                // 단, 여기서 item == null 상태로 남는 건 허용.
-            }
-        }
-
-        // 2) 실제 모델 프리팹 적용
-        ApplyVisualModel();
-
-        // 3) 발광 준비
         mpb = new MaterialPropertyBlock();
         RefreshRendererArray();
         EnableEmissionKeywordOnAll();
         Shining(false);
+
+        // 1) 에디터에서 씬에 직접 깔아둔 드랍만 초기화
+        //    (= 프리팹이 아니라, 장면에 존재하는 상태로 시작하는 경우)
+        if (item == null && initialData != null)
+        {
+            item = new StoredItem(
+                initialData,
+                Mathf.Max(initialCount, 1)
+            );
+            item.enhancement = initialEnhancement;
+
+            // 이제 이 아이템의 비주얼 반영
+            ApplyVisualModel();
+        }
     }
 
     // 월드 인벤토리가 런타임에 생성한 직후 호출하는 초기화 루틴

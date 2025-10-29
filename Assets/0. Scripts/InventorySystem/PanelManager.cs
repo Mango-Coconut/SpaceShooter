@@ -10,6 +10,7 @@ public class PanelManager : MonoBehaviour
     [SerializeField] Interactor interactor;
     [SerializeField] InventoryUI inventoryUI;
     [SerializeField] ChestUI chestUI; //public class ChestUI : InventoryUI { ... }
+    Chest curChest;
     [SerializeField] EquipSlotPanel equipSlotPanel;
     [SerializeField] TooltipUI tooltipUI;
     [SerializeField] DragSlot dragSlot;
@@ -37,7 +38,8 @@ public class PanelManager : MonoBehaviour
             InputManager.Instance.OnEsc += InventoryUIHandleEsc;
         }
         //Chest 이벤트()
-        Chest.OnChestOpened += ChestUIToggle;
+        Chest.OnChestOpened += HandleChestOpened;
+        Chest.OnChestClosed += HandleChestClosed;
 
         //InventoryUI 이벤트
         SubscribeInventoryUI(inventoryUI);
@@ -55,7 +57,8 @@ public class PanelManager : MonoBehaviour
             InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
             InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
         }
-        Chest.OnChestOpened -= ChestUIToggle;
+        Chest.OnChestOpened -= HandleChestOpened;
+        Chest.OnChestClosed -= HandleChestClosed;
 
         UnsubscribeInventoryUI(inventoryUI);
         UnsubscribeInventoryUI(chestUI);
@@ -85,7 +88,8 @@ public class PanelManager : MonoBehaviour
     //static 이벤트는 destroy에서도 구독 해제
     void OnDestroy()
     {
-        Chest.OnChestOpened -= ChestUIToggle;
+        Chest.OnChestOpened -= HandleChestOpened;
+        Chest.OnChestClosed -= HandleChestClosed;
 
         if (InputManager.Instance != null)
         {
@@ -99,10 +103,10 @@ public class PanelManager : MonoBehaviour
 
     void InventoryUIHandleEsc()
     {
-        if (IsOpen(inventoryUI.gameObject) || IsOpen(chestUI.gameObject))
+        if (IsOpen(inventoryUI.gameObject))
         {
             CloseInventoryUI();
-            CloseChestUI();
+            if(curChest) curChest.ForceCloseFromUI();
         }
         else
         {
@@ -112,11 +116,14 @@ public class PanelManager : MonoBehaviour
 
     void InventoryUIToggle()
     {
-        if (!IsOpen(inventoryUI.gameObject)) OpenInventoryUI();
+        if (!IsOpen(inventoryUI.gameObject))
+        {
+            OpenInventoryUI();
+        }
         else
         {
             CloseInventoryUI();
-            CloseChestUI();
+            if(curChest) curChest.ForceCloseFromUI();
         }
     }
 
@@ -136,34 +143,36 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region Chest UI 열고 닫기
-    void ChestUIToggle(Chest c)
-    {
-        if (!IsOpen(chestUI.gameObject))
-        {
-            OpenInventoryUI();
-            OpenChestUI(c);
-        }
-        else
-        {
-            CloseInventoryUI();
-            CloseChestUI();
-        }
-    }
 
-    void OpenChestUI(Chest c)
+    void HandleChestOpened(Chest c)
     {
+        curChest = c;
+
+        OpenInventoryUI();
+
         chestUI.gameObject.SetActive(true);
         chestUI.SetChest(c);
+
         SubscribeInventoryUI(chestUI);
+
+        iiPanel.gameObject.SetActive(false);
     }
 
-    void CloseChestUI()
+    void HandleChestClosed(Chest c)
     {
+        if (curChest == c) curChest = null;
+
+        if (!IsOpen(chestUI.gameObject)) 
+            return;
+
         chestUI.ClearChest();
-        //상자 닫힐 때 플레이어 행동 가능하게
-        PlayerActionGate.Instance.PopInteract();
         chestUI.gameObject.SetActive(false);
-        OnChestClosed?.Invoke();
+
+        UnsubscribeInventoryUI(chestUI);
+
+        CloseInventoryUI();
+
+        iiPanel.gameObject.SetActive(true);
     }
     #endregion
 
@@ -189,6 +198,7 @@ public class PanelManager : MonoBehaviour
 
         inventoryUI.PointerEnter -= OpenTooltip;
         inventoryUI.PointerExit -= CloseTooltip;
+        inventoryUI.RightClick -= OnRightClick;
         inventoryUI.BeginDrag -= OnBeginDragFromPanel;
         inventoryUI.Dragging -= OnDraggingFromPanel;
         inventoryUI.EndDrag -= OnDroppedFromPanel;

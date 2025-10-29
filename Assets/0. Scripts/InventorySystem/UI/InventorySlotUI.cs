@@ -39,7 +39,12 @@ public class InventorySlotUI : MonoBehaviour
         itemImage.sprite = item.itemData.icon;
         itemImage.enabled = true;
 
-        if (itemAmount == null || item.count == 1) return;
+        if (itemAmount == null) return; //장비창은 항상 1개니까 TMP itemAmount 없음
+        if (item.count == 1)
+        {
+            itemAmount.enabled = false;
+            return;
+        } 
         itemAmount.text = item.count.ToString();
         itemAmount.enabled = true;
     }

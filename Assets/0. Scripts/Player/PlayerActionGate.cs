@@ -1,55 +1,33 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-[System.Flags]
-public enum Block
-{
-    None = 0,
-    Move = 1 << 0,
-    Fire = 1 << 1,
-    Interact = 1 << 2
-}
-
-public class PlayerActionGate
+public class PlayerActionGate : MonoBehaviour
 {
     private readonly int[] _cnt = new int[32];
 
-    public Block Active { get; private set; }
+    public BlockAct Active { get; private set; }
 
-    private static PlayerActionGate instance;
-    public static PlayerActionGate Instance
-    {
-        get
-        {
-            if (instance == null)
-                instance = new PlayerActionGate();
-            return instance;
-        }
-    }
-    
-    public bool Can(Block mask) => (Active & mask) == 0;
+    public bool Can(BlockAct mask) => (Active & mask) == 0;
 
     #region Interaction
-    private static readonly Block interactMask = Block.Move | Block.Fire | Block.Interact;
+    private static readonly BlockAct interactMask = BlockAct.Move | BlockAct.Fire | BlockAct.Interact;
     public void PushInteract() => Push(interactMask);
     public void PopInteract() => Pop(interactMask);
     #endregion
 
-    public void Push(Block mask)
+    public void Push(BlockAct mask)
     {
         int v = (int)mask;
         for (int i = 0; i < 32; i++)
         {
             if ((v & (1 << i)) == 0) continue;
 
-            if (_cnt[i] == 0) Active |= (Block)(1 << i);
+            if (_cnt[i] == 0) Active |= (BlockAct)(1 << i);
             _cnt[i]++;
         }
     }
 
-    public void Pop(Block mask)
+    public void Pop(BlockAct mask)
     {
         int v = (int)mask;
         for (int i = 0; i < 32; i++)
@@ -59,7 +37,7 @@ public class PlayerActionGate
             if (_cnt[i] > 0)
             {
                 _cnt[i]--;
-                if (_cnt[i] == 0) Active &= ~(Block)(1 << i);
+                if (_cnt[i] == 0) Active &= ~(BlockAct)(1 << i);
             }
         }
     }
@@ -67,6 +45,6 @@ public class PlayerActionGate
     public void ClearAll()
     {
         Array.Clear(_cnt, 0, _cnt.Length);
-        Active = Block.None;
+        Active = BlockAct.None;
     }
 }

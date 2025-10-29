@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PickBehaviour : StateMachineBehaviour
 {
+    //Animator - Pickup 노드에 있음
     PlayerController pc;
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -11,8 +12,7 @@ public class PickBehaviour : StateMachineBehaviour
         {
             pc = animator.GetComponent<PlayerController>();
         }
-        //PC에서 Interact시에 직접 처리했음
-        //pc.gate.PushInteract();
+        pc.gate.PushInteract();
     }
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

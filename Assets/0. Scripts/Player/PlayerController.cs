@@ -5,6 +5,8 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
+
+// [RequireComponent(typeof(PlayerActionGate))]
 public class PlayerController : MonoBehaviour
 {
     public PlayerActionGate gate;
@@ -16,7 +18,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float rotateSpeed = 360f;
     [SerializeField] PlayerWeapon playerWeapon;
 
-    
+
     public int isMoving = 0;
 
     readonly int maxHP = 10;
@@ -45,7 +47,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        gate = PlayerActionGate.Instance;
+        gate = GetComponent<PlayerActionGate>();
         inventory = GetComponent<InventoryMono>();
         equipInventory = GetComponent<EquipInventoryMono>();
         interactor = GetComponent<Interactor>();
@@ -62,7 +64,7 @@ public class PlayerController : MonoBehaviour
     void HandleFire()
     {
         if (!playerWeapon.CanFire()) return;
-        if (!gate.Can(Block.Fire)) return;
+        if (!gate.Can(BlockAct.Fire)) return;
         if (Cursor.lockState != CursorLockMode.Locked) return;
         playerWeapon.Fire(isMoving);
         animator.SetTrigger("Fire");
@@ -70,19 +72,14 @@ public class PlayerController : MonoBehaviour
 
     void HandleInteract()
     {
-        if (!gate.Can(Block.Interact)) return;
-        //상호작용 중이면 다른 상호작용 x
-        if (interactor.Interact(this))
-        {
-            gate.PushInteract();
-        }
+        interactor.Interact(this);
     }
 
     //equipInventory.OnChanged += HandleEquipChanged
     void HandleEquipChanged()
     {
         StoredItem item;
-        bool isWeaponEquip = equipInventory.TryGetEquipped(EquipType.Weapon, out item); 
+        bool isWeaponEquip = equipInventory.TryGetEquipped(EquipType.Weapon, out item);
         playerWeapon.Equip(item);
         animator.SetBool("IsEquip", isWeaponEquip);
 
@@ -95,11 +92,11 @@ public class PlayerController : MonoBehaviour
     {
         if (animator) animator.SetTrigger(triggerHash);
     }
-    
-    
+
+
     float deadZone = 0.15f;       // 너무 미세한 입력 무시
     float animDamp = 0.05f;       // 애니메이션 파라미터 감쇠
-    
+
     static readonly int MoveXHash = Animator.StringToHash("MoveX");
     static readonly int MoveYHash = Animator.StringToHash("MoveY");
     void HandleMovement()
@@ -114,7 +111,7 @@ public class PlayerController : MonoBehaviour
         Vector2 mv = InputManager.Instance.Move;
 
         // 3) 이동 불가면 애니 파라미터 0으로 감쇠 후 종료
-        if (!gate.Can(Block.Move))
+        if (!gate.Can(BlockAct.Move))
         {
             animator.SetFloat(MoveXHash, 0f, animDamp, Time.deltaTime);
             animator.SetFloat(MoveYHash, 0f, animDamp, Time.deltaTime);
