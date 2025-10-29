@@ -15,19 +15,13 @@ public class InventoryMono : MonoBehaviour
 
     public event Action OnChanged;
 
-    void Awake()
+    protected virtual void Awake()
     {
         Core = new InventoryCore(capacity);
     }
 
     void OnEnable()
     {
-        // Core가 아직 생성 안된 상태에서 Subscribe()를 부르면 NRE 가능
-        if (Core == null)
-        {
-            Log.Info($"{name}'s  Core null : New InventoryCore");
-            Core = new InventoryCore(capacity);
-        }
         Subscribe();
     }
 

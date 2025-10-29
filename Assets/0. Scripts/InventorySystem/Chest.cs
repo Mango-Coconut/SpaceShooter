@@ -22,8 +22,9 @@ public class Chest : InventoryMono, IInteractable
 #if UNITY_EDITOR
     static HashSet<string> usedIds = new HashSet<string>();
 #endif
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         // ID가 비어 있으면 자동 생성
         if (string.IsNullOrWhiteSpace(instanceId))
         {
@@ -57,6 +58,12 @@ public class Chest : InventoryMono, IInteractable
                 TryAddItem(item.itemData, item.count);
             }
         }
+    }
+
+
+    void OnDisable()
+    {
+        if(isOpen) ForceCloseFromUI();
     }
 
     public void Interact(PlayerController pc)
