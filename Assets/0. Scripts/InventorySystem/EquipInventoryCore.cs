@@ -9,7 +9,7 @@ public class EquipInventoryCore : IItemSink, IItemSource, ISwapSink
     {
         return equipped.TryGetValue(slot, out item);
     }
-    
+
     public event Action OnChanged;
     void RaiseChanged()
     {
@@ -80,4 +80,69 @@ public class EquipInventoryCore : IItemSink, IItemSource, ISwapSink
         return true;
     }
     #endregion
+
+    //세이브
+    public EquipData SaveData()
+    {
+        EquipData data = new EquipData();
+        data.equippedSlots = new List<EquippedSlotData>();
+
+        // Equipped: IReadOnlyDictionary<EquipType, StoredItem> :contentReference[oaicite:8]{index=8}
+        foreach (KeyValuePair<EquipType, StoredItem> kv in this.Equipped)
+        {
+            EquipType slotType = kv.Key;
+            StoredItem item = kv.Value;
+            if (item == null || item.itemData == null)
+            {
+                continue;
+            }
+
+            EquippedSlotData ed = new EquippedSlotData();
+            ed.slot = slotType.ToString();
+            ed.item = item.SaveData(); // ★ 핵심
+            data.equippedSlots.Add(ed);
+        }
+        return data;
+    }
+
+    //로드
+    public void RestoreExact(List<EquippedSlotData> equippedSlots)
+    {
+        // 내부 딕셔너리 초기화(필요 시)
+        // private readonly라도 Clear 호출은 가능하도록 선언되어 있음
+        // 여기서는 안전하게 Clear
+        // (원본 소스에서 equipped 접근 범위에 맞춰 같은 파일 내에서 처리)
+        System.Reflection.FieldInfo fi = typeof(EquipInventoryCore).GetField("equipped", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        Dictionary<EquipType, StoredItem> dict = (Dictionary<EquipType, StoredItem>)fi.GetValue(this);
+        dict.Clear();
+
+        if (equippedSlots != null)
+        {
+            for (int i = 0; i < equippedSlots.Count; i++)
+            {
+                EquippedSlotData es = equippedSlots[i];
+                if (es == null || es.item == null)
+                {
+                    continue;
+                }
+
+                EquipType slotEnum;
+                bool ok = Enum.TryParse<EquipType>(es.slot, out slotEnum);
+                if (!ok)
+                {
+                    continue;
+                }
+
+                StoredItem rebuilt = StoredItem.RestoreFromData(es.item);
+                if (rebuilt == null)
+                {
+                    continue;
+                }
+
+                dict[slotEnum] = rebuilt;
+            }
+        }
+
+        OnChanged?.Invoke();
+    }
 }

@@ -112,4 +112,19 @@ public class Chest : InventoryMono, IInteractable
 
     public Sprite GetIcon() => chestSprite;
     public (string inputKeyText, string behaviorText) GetPrompt() => ("F", "열기");
+
+    public ChestData SaveData()
+    {
+        ChestData data = new ChestData();
+        data.instanceId = this.InstanceId;
+
+        //InventoryCore 재사용
+        InventoryCore core = this.Core;
+        if (core != null)
+        {
+            data.inventory = core.SaveData();
+        }
+
+        return data;
+    }
 }

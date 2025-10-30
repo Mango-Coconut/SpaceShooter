@@ -102,8 +102,47 @@ public class WorldInventoryCore : IItemSource, IItemSink
     public bool TryAddItem_PlayerDrop(StoredItem item, Transform dropper)
     {
         if (!CanAddItem(item)) return false;
-        
+
         OnSpawnRequest_fromPlayer?.Invoke(item, dropper);
         return true;
+    }
+
+    public WorldDropData SaveData()
+    {
+        WorldDropData data = new WorldDropData();
+        data.drops = new List<WorldDropEntry>();
+
+        // 내부 보유 목록: worldItems(List<DroppedItem>) :contentReference[oaicite:12]{index=12}
+        System.Reflection.FieldInfo fi = typeof(WorldInventoryCore).GetField("worldItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        List<DroppedItem> list = (List<DroppedItem>)fi.GetValue(this);
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            DroppedItem di = list[i];
+            if (di == null || di.Item == null || di.Item.itemData == null)
+            {
+                continue;
+            }
+
+            WorldDropEntry entry = new WorldDropEntry();
+            entry.storedItem = di.Item.SaveData();
+
+            Vec3Data pos = new Vec3Data();
+            pos.x = di.transform.position.x;
+            pos.y = di.transform.position.y;
+            pos.z = di.transform.position.z;
+            entry.position = pos;
+
+            Vec3Data rot = new Vec3Data();
+            Vector3 e = di.transform.rotation.eulerAngles;
+            rot.x = e.x;
+            rot.y = e.y;
+            rot.z = e.z;
+            entry.rotationEuler = rot;
+
+            data.drops.Add(entry);
+        }
+
+        return data;
     }
 }

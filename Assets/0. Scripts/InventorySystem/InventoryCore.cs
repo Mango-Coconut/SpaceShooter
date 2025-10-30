@@ -290,25 +290,32 @@ public class InventoryCore : IItemSource, IItemSink
         return c;
     }
 
+    //세이브
     public PlayerInventoryData SaveData()
     {
         PlayerInventoryData data = new PlayerInventoryData();
         data.capacity = this.Capacity;
-
         data.slots = new List<StoredItemData>();
-        for (int i = 0; i < Slots.Count; i++)
+
+        IReadOnlyList<StoredItem> current = this.Slots;     // 슬롯 접근자 사용 :contentReference[oaicite:4]{index=4}
+        for (int i = 0; i < current.Count; i++)
         {
-            StoredItem s = Slots[i];
-            if (s == null || s.itemData == null) continue;
-
-            StoredItemData sd = new StoredItemData();
-            
-            sd.instanceId = s.instanceId;
-            sd.itemDataId = s.itemData.id;
-            sd.count = s.count;
-            data.slots.Add(sd);
+            StoredItem s = current[i];
+            if (s == null || s.itemData == null)
+            {
+                continue;
+            }
+            data.slots.Add(s.SaveData());
         }
-
         return data;
+    }
+
+    //로드
+    public void RestoreExact(int capacityValue, List<StoredItem> restoredSlots)
+    {
+        this.capacity = capacityValue; // 내부 필드
+        this.slots = restoredSlots;    // 그대로 주입
+        // UI/리액션 반영
+        OnChanged?.Invoke();
     }
 }
