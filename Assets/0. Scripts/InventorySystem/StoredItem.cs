@@ -68,13 +68,14 @@ public class StoredItem
     {
         if (d == null)
         {
+            Log.Warn("StoredItem : item null");
             return null;
         }
 
         ItemData refData = ItemDatabase.Get(d.itemDataId);
         if (refData == null)
         {
-            Debug.LogError("StoredItem.RestoreFromData: ItemData not found for id=" + d.itemDataId);
+            Log.Error("StoredItem.RestoreFromData: ItemData not found for id=" + d.itemDataId);
             return null;
         }
 

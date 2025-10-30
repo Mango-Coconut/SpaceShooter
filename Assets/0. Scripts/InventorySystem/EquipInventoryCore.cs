@@ -105,44 +105,39 @@ public class EquipInventoryCore : IItemSink, IItemSource, ISwapSink
         return data;
     }
 
+
+    public void LoadData(EquipData data)
+    {
+        if (data == null)
+        {
+            data.equippedSlots = new List<EquippedSlotData>();
+        }
+        RestoreExact(data.equippedSlots);
+    }
+
     //로드
     public void RestoreExact(List<EquippedSlotData> equippedSlots)
     {
-        // 내부 딕셔너리 초기화(필요 시)
-        // private readonly라도 Clear 호출은 가능하도록 선언되어 있음
-        // 여기서는 안전하게 Clear
-        // (원본 소스에서 equipped 접근 범위에 맞춰 같은 파일 내에서 처리)
-        System.Reflection.FieldInfo fi = typeof(EquipInventoryCore).GetField("equipped", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        Dictionary<EquipType, StoredItem> dict = (Dictionary<EquipType, StoredItem>)fi.GetValue(this);
-        dict.Clear();
+        equipped.Clear(); 
 
         if (equippedSlots != null)
         {
             for (int i = 0; i < equippedSlots.Count; i++)
             {
                 EquippedSlotData es = equippedSlots[i];
-                if (es == null || es.item == null)
-                {
-                    continue;
-                }
+                if (es == null || es.item == null) continue;
 
                 EquipType slotEnum;
                 bool ok = Enum.TryParse<EquipType>(es.slot, out slotEnum);
-                if (!ok)
-                {
-                    continue;
-                }
+                if (!ok) continue;
 
                 StoredItem rebuilt = StoredItem.RestoreFromData(es.item);
-                if (rebuilt == null)
-                {
-                    continue;
-                }
+                if (rebuilt == null) continue;
 
-                dict[slotEnum] = rebuilt;
+                equipped[slotEnum] = rebuilt;
             }
         }
 
-        OnChanged?.Invoke();
+        RaiseChanged();
     }
 }

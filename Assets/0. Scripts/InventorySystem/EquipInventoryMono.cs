@@ -50,9 +50,9 @@ public class EquipInventoryMono : MonoBehaviour
 
     public StoredItem GetEquipped(EquipType slot)
     {
-        if (Core == null) return null;
-
-        Core.TryGetEquipped(slot, out var item);
+        if (Core == null) return null; 
+        StoredItem item;
+        Core.TryGetEquipped(slot, out item);
         return item;
     }
 }

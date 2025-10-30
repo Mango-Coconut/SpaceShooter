@@ -310,12 +310,36 @@ public class InventoryCore : IItemSource, IItemSink
         return data;
     }
 
+    public void LoadData(PlayerInventoryData src)
+    {
+        int cap = 0;
+        List<StoredItem> list = new List<StoredItem>();
+
+        if (src != null)
+        {
+            cap = src.capacity;
+            if (src.slots != null)
+            {
+                for (int i = 0; i < src.slots.Count; i++)
+                {
+                    StoredItemData sd = src.slots[i];
+                    StoredItem s = StoredItem.RestoreFromData(sd);
+                    if (s != null)
+                    {
+                        list.Add(s);
+                    }
+                }
+            }
+        }
+
+        RestoreExact(cap, list); // 내부 교체 + OnChanged 한 번 발행
+    }
+
     //로드
     public void RestoreExact(int capacityValue, List<StoredItem> restoredSlots)
     {
-        this.capacity = capacityValue; // 내부 필드
-        this.slots = restoredSlots;    // 그대로 주입
-        // UI/리액션 반영
-        OnChanged?.Invoke();
+        this.capacity = capacityValue;
+        this.slots = restoredSlots != null ? restoredSlots : new List<StoredItem>();
+        RaiseChanged();
     }
 }

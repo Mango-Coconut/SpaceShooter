@@ -11,6 +11,7 @@ public class WorldInventoryCore : IItemSource, IItemSink
     // Mono에게 실제 씬 조작을 부탁하는 이벤트
     public event Action<StoredItem> OnSpawnRequest;     //기본 인터페이스 함스
     public event Action<StoredItem, Transform> OnSpawnRequest_fromPlayer; // 플레이어가 버림 (→ 새 DroppedItem 필요)
+    public event Action<StoredItem, Transform> OnSpawnRequest_fromLoad; // 플레이어가 버림 (→ 새 DroppedItem 필요)
     public event Action<DroppedItem> OnDespawnRequest;  // 플레이어가 주움 (→ 해당 DroppedItem 파괴)
 
     void RaiseChanged()
@@ -144,5 +145,23 @@ public class WorldInventoryCore : IItemSource, IItemSink
         }
 
         return data;
+    }
+
+    public void LoadData(WorldDropData save)
+    {
+        worldInventory.ClearAllDrops();
+
+        for (int i = 0; i < save.drops.Count; i++)
+        {
+            WorldDropEntry entry = save.drops[i];
+
+            StoredItem s = StoredItem.RestoreFromData(entry.storedItem);
+            if (s == null) continue;
+
+            Vector3 pos = new Vector3(entry.position.x, entry.position.y, entry.position.z);
+            Vector3 eul = new Vector3(entry.rotationEuler.x, entry.rotationEuler.y, entry.rotationEuler.z);
+
+            worldInventory.SpawnItem(s, pos, eul);
+        }
     }
 }
