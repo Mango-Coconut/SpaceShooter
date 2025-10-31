@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WeaponItemData", menuName = "ScriptableObjects/ItemData/WeaponItemData", order = 1)]
+[CreateAssetMenu(fileName = "WeaponItemData", menuName = "ScriptableObjects/ItemDatafolder/WeaponItemData", order = 1)]
 public class WeaponItemData : ItemData
 {
     public GameObject bulletPrefab;

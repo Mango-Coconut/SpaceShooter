@@ -83,7 +83,8 @@ public class Chest : InventoryMono, IInteractable
         isOpen = true;
         owner = pc;
 
-        pc.gate.PushInteract();
+        // 움직임/공격만 막고 Interact(F)는 허용해 토글 가능
+        pc.gate.PushUI();
         OnChestOpened?.Invoke(this);
     }
     void CloseChest(PlayerController pc)
@@ -93,7 +94,7 @@ public class Chest : InventoryMono, IInteractable
         var targetPc = pc != null ? pc : owner;
         if (targetPc != null)
         {
-            targetPc.gate.PopInteract();
+            targetPc.gate.PopUI();
         }
         owner = null;
 

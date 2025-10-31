@@ -7,12 +7,16 @@ public abstract class SlotPanelBase : MonoBehaviour
 {
     protected List<InventorySlotUI> uiSlots = new List<InventorySlotUI>();
     
-    public event Action<InventorySlotUI> PointerEnter;
-    public event Action PointerExit;
-    public event Action<StoredItem, StorageTarget> RightClick;
-    public event Action<StoredItem, StorageTarget, PointerEventData> BeginDrag;
-    public event Action<PointerEventData> Dragging;
-    public event Action<StoredItem, PointerEventData> EndDrag;
+    public virtual bool IsInteractable => isActiveAndEnabled;
+    public IEnumerable<InventorySlotUI> Slots => uiSlots;
+
+
+    public event Action<SlotPanelEventArgs> OnMouseEnter;
+    public event Action<SlotPanelEventArgs> OnMouseExit;
+    public event Action<SlotPanelEventArgs> OnRightClickArgs;
+    public event Action<SlotPanelEventArgs> OnBeginDragArgs;
+    public event Action<SlotPanelEventArgs> OnDraggingArgs;
+    public event Action<SlotPanelEventArgs> OnDroppedArgs;
 
     protected abstract StorageTarget GetSource(); // Inventory or EquipInventory
 
@@ -47,17 +51,32 @@ public abstract class SlotPanelBase : MonoBehaviour
         }
     }
 
-    void OnPointerEnter(InventorySlotUI slotUI) => PointerEnter?.Invoke(slotUI);
-    void OnPointerExit() => PointerExit?.Invoke();
-    public void OnPointerRightClick(StoredItem item) => RightClick?.Invoke(item, GetSource());
+    void OnPointerEnter(InventorySlotUI slotUI)
+    {
+        OnMouseEnter?.Invoke(new SlotPanelEventArgs(slotUI, GetSource(), null, slotUI != null ? slotUI.EnterItem : null));
+    }
+    void OnPointerExit()
+    {
+        OnMouseExit?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, null));
+    }
+    public void OnPointerRightClick(StoredItem item)
+    {
+        OnRightClickArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, item));
+    }
     
     void OnBeginDrag(StoredItem item, PointerEventData e)
     {
-        PointerExit?.Invoke();
-        BeginDrag?.Invoke(item, GetSource(), e);
+        OnMouseExit?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, null));
+        OnBeginDragArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), e, item));
     }
 
-    void OnDragging(PointerEventData e) => Dragging?.Invoke(e);
+    void OnDragging(PointerEventData e)
+    {
+        OnDraggingArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), e, null));
+    }
 
-    void OnEndDrag(StoredItem item, PointerEventData e) => EndDrag?.Invoke(item, e);
+    void OnEndDrag(StoredItem item, PointerEventData e)
+    {
+        OnDroppedArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), e, item));
+    }
 }

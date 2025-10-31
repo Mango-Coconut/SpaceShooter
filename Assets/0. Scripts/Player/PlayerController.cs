@@ -72,6 +72,7 @@ public class PlayerController : MonoBehaviour
 
     void HandleInteract()
     {
+        if (!gate.Can(BlockAct.Interact)) return;
         interactor.Interact(this);
     }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -36,10 +36,6 @@ public class InventoryUI : MonoBehaviour
         slotPanel.SetInventory(chest);
         SubscribeSlotPanel();
     }
-    public void ClearSlotPanel()
-    {
-        
-    }
 
     private void SubscribeSlotPanel()
     {
@@ -53,12 +49,12 @@ public class InventoryUI : MonoBehaviour
 
         for (int i = 0; i < panels.Length; i++)
         {
-            panels[i].PointerEnter += OnPointerEnter;
-            panels[i].PointerExit += OnPointerExit;
-            panels[i].RightClick += OnPointerRightClick;
-            panels[i].BeginDrag += OnBeginDrag;
-            panels[i].Dragging += OnDragging;
-            panels[i].EndDrag += OnEndDrag;
+            panels[i].OnMouseEnter += ForwardMouseEnter;
+            panels[i].OnMouseExit += ForwardMouseExit;
+            panels[i].OnRightClickArgs += ForwardRightClick;
+            panels[i].OnBeginDragArgs += ForwardBeginDrag;
+            panels[i].OnDraggingArgs += ForwardDragging;
+            panels[i].OnDroppedArgs += ForwardDropped;
         }
 
     }
@@ -73,38 +69,28 @@ public class InventoryUI : MonoBehaviour
 
         for (int i = 0; i < panels.Length; i++)
         {
-            panels[i].PointerEnter -= OnPointerEnter;
-            panels[i].PointerExit -= OnPointerExit;
-            panels[i].RightClick -= OnPointerRightClick;
-            panels[i].BeginDrag -= OnBeginDrag;
-            panels[i].Dragging -= OnDragging;
-            panels[i].EndDrag -= OnEndDrag;
+            panels[i].OnMouseEnter -= ForwardMouseEnter;
+            panels[i].OnMouseExit -= ForwardMouseExit;
+            panels[i].OnRightClickArgs -= ForwardRightClick;
+            panels[i].OnBeginDragArgs -= ForwardBeginDrag;
+            panels[i].OnDraggingArgs -= ForwardDragging;
+            panels[i].OnDroppedArgs -= ForwardDropped;
         }
     }
 
 
-    #region  ── 위로 포워딩할 이벤트 (PanelManager에서 구독) ──
-    public event Action<InventorySlotUI> PointerEnter;
-    public event Action PointerExit;
-    public event Action<StoredItem, StorageTarget> RightClick;
-    public event Action<StoredItem, StorageTarget, PointerEventData> BeginDrag;
-    public event Action<PointerEventData> Dragging;
-    public event Action<StoredItem, PointerEventData> EndDrag;
+    public event Action<SlotPanelEventArgs> OnMouseEnter;
+    public event Action<SlotPanelEventArgs> OnMouseExit;
+    public event Action<SlotPanelEventArgs> OnRightClick;
+    public event Action<SlotPanelEventArgs> OnBeginDrag;
+    public event Action<SlotPanelEventArgs> OnDragging;
+    public event Action<SlotPanelEventArgs> OnDropped;
 
-
-
-    void OnPointerEnter(InventorySlotUI slotUI) => PointerEnter?.Invoke(slotUI);
-    void OnPointerExit() => PointerExit?.Invoke();
-    public void OnPointerRightClick(StoredItem item, StorageTarget fromStorage) => RightClick?.Invoke(item, fromStorage);
-    
-    void OnBeginDrag(StoredItem item, StorageTarget source, PointerEventData e)
-    {
-        PointerExit?.Invoke();
-        BeginDrag?.Invoke(item, source, e);
-    }
-
-    void OnDragging(PointerEventData e) => Dragging?.Invoke(e);
-
-    void OnEndDrag(StoredItem item, PointerEventData e) => EndDrag?.Invoke(item, e);
-    #endregion
+    void ForwardMouseEnter(SlotPanelEventArgs args) => OnMouseEnter?.Invoke(args);
+    void ForwardMouseExit(SlotPanelEventArgs args) => OnMouseExit?.Invoke(args);
+    void ForwardRightClick(SlotPanelEventArgs args) => OnRightClick?.Invoke(args);
+    void ForwardBeginDrag(SlotPanelEventArgs args) => OnBeginDrag?.Invoke(args);
+    void ForwardDragging(SlotPanelEventArgs args) => OnDragging?.Invoke(args);
+    void ForwardDropped(SlotPanelEventArgs args) => OnDropped?.Invoke(args);
 }
+
