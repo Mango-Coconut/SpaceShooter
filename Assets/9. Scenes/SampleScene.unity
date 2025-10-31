@@ -7671,6 +7671,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firePos: {fileID: 1081967013}
   fireTimer: 0
+  playerInventory: {fileID: 1089791407}
+  rifleAmmoData: {fileID: 11400000, guid: 746f71862222ff942b4165c1fb733f49, type: 2}
+  shotgunAmmoData: {fileID: 11400000, guid: 43c9bc72fd785d740b9ca7ae6522ff48, type: 2}
 --- !u!1 &1115770590
 GameObject:
   m_ObjectHideFlags: 0

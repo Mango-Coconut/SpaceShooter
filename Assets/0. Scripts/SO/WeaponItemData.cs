@@ -4,6 +4,10 @@ using UnityEngine;
 public class WeaponItemData : ItemData
 {
     public GameObject bulletPrefab;
+
+    public BulletType bulletType = BulletType.None;
+    public int ammoPerShot = 1;
+
     public int PelletCount = 1;
     //연발시 반동 
     public float RecoilPerShot;

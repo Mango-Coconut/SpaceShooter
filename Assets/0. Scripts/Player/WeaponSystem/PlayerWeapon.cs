@@ -85,64 +85,99 @@ public class PlayerWeapon : MonoBehaviour
         currentData = null;
     }
 
-    /// <summary> 이동 여부에 따라 bullet fireSpread 계수 적용
-    /// </summary>
-    /// <param name="moveFactor"></param>
-public void Fire(int moveFactor)
-{
-    if (fireTimer < currentData.fireDelay) return;
+    [SerializeField] InventoryMono playerInventory;
+    [SerializeField] ItemData rifleAmmoData;
+    [SerializeField] ItemData shotgunAmmoData;
 
-    Camera cam = Camera.main;
-    if (cam == null) return;
-
-    // 1) 화면 중앙 조준선에서 Ray (불필요 레이어 제외)
-    Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-
-    Vector3 targetPoint = Physics.Raycast(ray, out RaycastHit hit, 1000f)
-        ? hit.point
-        : ray.GetPoint(1000f);
-
-    // 2) 기준 방향(한 번만 계산)
-    Vector3 baseDir = (targetPoint - firePos.position).normalized;
-
-    // 3) 최종 퍼짐 각도(도 단위) 계산
-    //    SpreadAngle는 SO에서 "기본 퍼짐"으로 관리하고,
-    //    이동/열 등에 따른 보정은 '도' 단위로 더해줌.
-    float baseSpreadDeg = (float)currentData.SpreadAngle;
-    float moveBonusDeg  = (float)(moveFactor * 0.5f);   // 필요에 맞게 계수 조정
-    float heatBonusDeg  = (float)(fireHeat   * 0.3f);   // 필요에 맞게 계수 조정
-    float finalSpreadDeg = baseSpreadDeg + moveBonusDeg + heatBonusDeg;
-
-    // 4) 탄환 스폰 (각 탄환은 독립적으로 퍼짐 적용)
-    for (int i = 0; i < currentData.PelletCount; i++)
+    public void Fire(int moveFactor)
     {
-        // insideUnitCircle: 반지름 1 원 내 임의 벡터 → 최종 도수로 스케일
-        Vector2 r = UnityEngine.Random.insideUnitCircle * finalSpreadDeg;
+        if (fireTimer < currentData.fireDelay) return;
 
-        // 카메라 기준 좌우/상하 회전으로 퍼짐(각도 회전이 벡터 덧셈보다 확실하게 퍼짐이 보임)
-        Quaternion qPitch = Quaternion.AngleAxis(-r.y, cam.transform.right); // 위/아래
-        Quaternion qYaw   = Quaternion.AngleAxis( r.x, cam.transform.up);    // 좌/우
+        if (currentData == null) { return; }                       // [+] 널가드 보강
+        if (fireTimer < currentData.fireDelay) { return; }
 
-        Vector3 shotDir = (qYaw * qPitch) * baseDir;
+        // [+] 탄을 쓰는 무기면, 인벤에서 먼저 원자적 소모 시도
+        if (currentData.bulletType != BulletType.None && currentData.ammoPerShot > 0)
+        {
+            if (!TryConsumeAmmo(currentData.bulletType, currentData.ammoPerShot))
+            {
+                OnDryFire(); // 선택: 빈 방아쇠 클릭음 등
+                return;
+            }
+        }
 
-        GameObject bulletObj = Instantiate(
-            currentData.bulletPrefab,
-            firePos.position,
-            Quaternion.LookRotation(shotDir)
-        );
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        // 1) 화면 중앙 조준선에서 Ray (불필요 레이어 제외)
+        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+        Vector3 targetPoint = Physics.Raycast(ray, out RaycastHit hit, 1000f)
+            ? hit.point
+            : ray.GetPoint(1000f);
+
+        // 2) 기준 방향(한 번만 계산)
+        Vector3 baseDir = (targetPoint - firePos.position).normalized;
+
+        // 3) 최종 퍼짐 각도(도 단위) 계산
+        //    SpreadAngle는 SO에서 "기본 퍼짐"으로 관리하고,
+        //    이동/열 등에 따른 보정은 '도' 단위로 더해줌.
+        float baseSpreadDeg = (float)currentData.SpreadAngle;
+        float moveBonusDeg = (float)(moveFactor * 0.5f);   // 필요에 맞게 계수 조정
+        float heatBonusDeg = (float)(fireHeat * 0.3f);   // 필요에 맞게 계수 조정
+        float finalSpreadDeg = baseSpreadDeg + moveBonusDeg + heatBonusDeg;
+
+        // 4) 탄환 스폰 (각 탄환은 독립적으로 퍼짐 적용)
+        for (int i = 0; i < currentData.PelletCount; i++)
+        {
+            // insideUnitCircle: 반지름 1 원 내 임의 벡터 → 최종 도수로 스케일
+            Vector2 r = UnityEngine.Random.insideUnitCircle * finalSpreadDeg;
+
+            // 카메라 기준 좌우/상하 회전으로 퍼짐(각도 회전이 벡터 덧셈보다 확실하게 퍼짐이 보임)
+            Quaternion qPitch = Quaternion.AngleAxis(-r.y, cam.transform.right); // 위/아래
+            Quaternion qYaw = Quaternion.AngleAxis(r.x, cam.transform.up);    // 좌/우
+
+            Vector3 shotDir = (qYaw * qPitch) * baseDir;
+
+            GameObject bulletObj = Instantiate(
+                currentData.bulletPrefab,
+                firePos.position,
+                Quaternion.LookRotation(shotDir)
+            );
+        }
+
+        // 5) 반동(샷당 1회 적용 권장; 펠릿 수와 무관하게)
+        // 카메라/조준축에 RecoilPerShot(도 단위)만큼 올려주거나, 네가 쓰는 반동 시스템에 던져라.
+        // ApplyRecoil(currentData.RecoilPerShot);
+
+        // 6) 사운드/이펙트/쿨타임
+        fireTimer = 0f;
+        audio.PlayOneShot(currentData.fireSound, 1.0f);
+        StartCoroutine(ShowMuzzleFlash());
+    }
+    void OnDryFire()
+    {
+        // SFX나 UI 알림 등 필요하면 구현
     }
 
-    // 5) 반동(샷당 1회 적용 권장; 펠릿 수와 무관하게)
-    // 카메라/조준축에 RecoilPerShot(도 단위)만큼 올려주거나, 네가 쓰는 반동 시스템에 던져라.
-    // ApplyRecoil(currentData.RecoilPerShot);
+    bool TryConsumeAmmo(BulletType type, int amount)
+    {
+        if (playerInventory == null || playerInventory.Core == null) { return false; }
+        if (amount <= 0) { return true; }
 
-    // 6) 사운드/이펙트/쿨타임
-    fireTimer = 0f;
-    audio.PlayOneShot(currentData.fireSound, 1.0f);
-    StartCoroutine(ShowMuzzleFlash());
-}
+        ItemData ammoData = null;
+        switch (type)
+        {
+            case BulletType.RifleBullet: ammoData = rifleAmmoData; break;
+            case BulletType.ShotgunBullet: ammoData = shotgunAmmoData; break;
+        }
+        if (ammoData == null) { return false; }
 
-
+        // InventoryCore의 CanRemove → TryRemove로 '원자적' 소모
+        InventoryCore core = playerInventory.Core;
+        if (!core.CanRemoveItem(ammoData, amount)) { return false; }
+        return core.TryRemoveItem(ammoData, amount);
+    }
 
 
     void ApplyOffsets(WeaponItemData data)

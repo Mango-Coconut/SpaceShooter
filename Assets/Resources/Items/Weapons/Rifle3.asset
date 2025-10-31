@@ -25,6 +25,8 @@ MonoBehaviour:
   volume: 5
   maxStack: 1
   bulletPrefab: {fileID: 8275824315985315568, guid: 0d20f03ad241b9e4eb09aaf342c32f5b, type: 3}
+  bulletType: 1
+  ammoPerShot: 2
   PelletCount: 2
   RecoilPerShot: 0.1
   SpreadAngle: 2
