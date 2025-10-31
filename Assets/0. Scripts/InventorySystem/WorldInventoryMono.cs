@@ -21,29 +21,30 @@ public class WorldInventoryMono : MonoBehaviour
         // Core -> Mono 이벤트 구독
         Core.OnSpawnRequest += HandleSpawnItem;
         Core.OnSpawnRequest_fromPlayer += HandleSpawnItem;
+        Core.OnSpawnRequest_fromLoad += HandleSpawnItem;
         Core.OnDespawnRequest += HandleDespawnRequest;
     }
 
     void OnDestroy()
     {
-        if (Core != null)
+        if (Core != null)   
         {
             Core.OnSpawnRequest -= HandleSpawnItem;
             Core.OnSpawnRequest_fromPlayer -= HandleSpawnItem;
+            Core.OnSpawnRequest_fromLoad -= HandleSpawnItem;
             Core.OnDespawnRequest -= HandleDespawnRequest;
         }
     }
 
     void Start()
     {
-        // 기존 WorldInventory.Start() 동작 복원:
         DroppedItem[] droppedItems = FindObjectsOfType<DroppedItem>();
         for (int i = 0; i < droppedItems.Length; i++)
         {
             DroppedItem di = droppedItems[i];
             if (di != null && di.Item != null && di.Item.itemData != null)
             {
-                di.SetWorldInventory(this); // 기존 WorldInventory.SetWorldInventory 호출과 동일 의도 
+                di.SetWorldInventory(this); 
                 Core.RegisterExistingDrop(di);
             }
         }
@@ -93,32 +94,19 @@ public class WorldInventoryMono : MonoBehaviour
     }
     #endregion
 
-    //필드 아이템 모두 제거
     public void ClearAllDrops()
     {
-        DroppedItem[] all = FindObjectsOfType<DroppedItem>();
+        // 자신의 관리 하위(트랜스폼 자식)만 정리하여 범위를 좁힘
+        DroppedItem[] all = GetComponentsInChildren<DroppedItem>(true);
         for (int i = 0; i < all.Length; i++)
         {
             DroppedItem di = all[i];
-            if (di == null)
-            {
-                continue;
-            }
+            if (di == null) continue;
             if (Core != null)
             {
                 Core.UnregisterDrop(di); // 코어 목록에서 제거 + OnChanged
             }
             Destroy(di.gameObject);       // 씬에서 제거
         }
-    }
-    // ================= 편의 함수 ================
-
-    // DroppedItem이 자기 자신이 주워졌다고 알리거나 할 때 쓸 수도 있음
-    public void NotifyPickedUp(DroppedItem di)
-    {
-        // 예전 WorldInventory.NotifyPickedUp()은 단순히 리스트에서 제거만 했음. :contentReference[oaicite:15]{index=15}
-        // Core 쪽에서는 TryRemoveItem()이 worldItems.Remove까지 하므로,
-        // DroppedItem 쪽에서 직접 이걸 호출할 필요 없을 수도 있다.
-        Core.UnregisterDrop(di);
     }
 }

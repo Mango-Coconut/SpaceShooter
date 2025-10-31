@@ -5,7 +5,7 @@ public enum LogLevel { None, Error, Warn, Info }
 public static class Log
 {
     static LogLevel currentLevel;
-    public static LogLevel CurrentLevel { get; private set; }
+    public static LogLevel CurrentLevel => currentLevel;
 
     // 정적 생성자: 프로그램 시작 시 한 번만 실행
     static Log()

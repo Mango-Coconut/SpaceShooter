@@ -39,9 +39,14 @@ public class EquipInventoryCore : IItemSink, IItemSource, ISwapSink
 
     public bool CanRemoveItem(StoredItem item)
     {
-        if (item == null) return false;
+        if (item == null || item.itemData == null) return false;
         var slot = item.itemData.equiptype;
-        return equipped.TryGetValue(slot, out var equippedItem) && equippedItem == item;
+        if (!equipped.TryGetValue(slot, out var equippedItem) || equippedItem == null)
+            return false;
+
+        // 참조 동일성 대신 instanceId 기준으로 비교해도 일치로 인정
+        if (equippedItem == item) return true;
+        return !string.IsNullOrEmpty(equippedItem.instanceId) && equippedItem.instanceId == item.instanceId;
     }
 
     public bool TryRemoveItem(StoredItem item)
@@ -110,7 +115,8 @@ public class EquipInventoryCore : IItemSink, IItemSource, ISwapSink
     {
         if (data == null)
         {
-            data.equippedSlots = new List<EquippedSlotData>();
+            RestoreExact(null);
+            return;
         }
         RestoreExact(data.equippedSlots);
     }

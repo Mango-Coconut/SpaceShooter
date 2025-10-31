@@ -11,7 +11,7 @@ public class WorldInventoryCore : IItemSource, IItemSink
     // Mono에게 실제 씬 조작을 부탁하는 이벤트
     public event Action<StoredItem> OnSpawnRequest;     //기본 인터페이스 함스
     public event Action<StoredItem, Transform> OnSpawnRequest_fromPlayer; // 플레이어가 버림 (→ 새 DroppedItem 필요)
-    public event Action<StoredItem, Transform> OnSpawnRequest_fromLoad; // 플레이어가 버림 (→ 새 DroppedItem 필요)
+    public event Action<StoredItem, Vector3, Vector3> OnSpawnRequest_fromLoad; // 저장 데이터 기반 스폰 위치/회전
     public event Action<DroppedItem> OnDespawnRequest;  // 플레이어가 주움 (→ 해당 DroppedItem 파괴)
 
     void RaiseChanged()
@@ -113,13 +113,10 @@ public class WorldInventoryCore : IItemSource, IItemSink
         WorldDropData data = new WorldDropData();
         data.drops = new List<WorldDropEntry>();
 
-        // 내부 보유 목록: worldItems(List<DroppedItem>) :contentReference[oaicite:12]{index=12}
-        System.Reflection.FieldInfo fi = typeof(WorldInventoryCore).GetField("worldItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        List<DroppedItem> list = (List<DroppedItem>)fi.GetValue(this);
-
-        for (int i = 0; i < list.Count; i++)
+        // 내부 보유 목록: worldItems(List<DroppedItem>) 직접 순회
+        for (int i = 0; i < worldItems.Count; i++)
         {
-            DroppedItem di = list[i];
+            DroppedItem di = worldItems[i];
             if (di == null || di.Item == null || di.Item.itemData == null)
             {
                 continue;
@@ -149,11 +146,40 @@ public class WorldInventoryCore : IItemSource, IItemSink
 
     public void LoadData(WorldDropData save)
     {
-        worldInventory.ClearAllDrops();
+        if (save == null)
+        {
+            return;
+        }
 
+        // 기존 월드 드랍 제거 요청 및 목록 정리
+        if (worldItems.Count > 0)
+        {
+            var existing = new List<DroppedItem>(worldItems);
+            for (int i = 0; i < existing.Count; i++)
+            {
+                DroppedItem di = existing[i];
+                if (di != null)
+                {
+                    OnDespawnRequest?.Invoke(di);
+                }
+            }
+            worldItems.Clear();
+            RaiseChanged();
+        }
+
+        if (save.drops == null || save.drops.Count == 0)
+        {
+            return;
+        }
+
+        // 저장 데이터대로 스폰 요청 (Mono가 실제 인게임 오브젝트 생성 처리)
         for (int i = 0; i < save.drops.Count; i++)
         {
             WorldDropEntry entry = save.drops[i];
+            if (entry == null || entry.storedItem == null || entry.position == null || entry.rotationEuler == null)
+            {
+                continue;
+            }
 
             StoredItem s = StoredItem.RestoreFromData(entry.storedItem);
             if (s == null) continue;
@@ -161,7 +187,7 @@ public class WorldInventoryCore : IItemSource, IItemSink
             Vector3 pos = new Vector3(entry.position.x, entry.position.y, entry.position.z);
             Vector3 eul = new Vector3(entry.rotationEuler.x, entry.rotationEuler.y, entry.rotationEuler.z);
 
-            worldInventory.SpawnItem(s, pos, eul);
+            OnSpawnRequest_fromLoad?.Invoke(s, pos, eul);
         }
     }
 }
