@@ -15,7 +15,7 @@ public class PlayerActionGate : MonoBehaviour
     public void PopInteract() => Pop(interactMask);
     #endregion
 
-    #region UIOnly (block move/fire, allow interact)
+    #region UIOnly
     private static readonly BlockAct uiMask = BlockAct.Move | BlockAct.Fire;
     public void PushUI() => Push(uiMask);
     public void PopUI() => Pop(uiMask);

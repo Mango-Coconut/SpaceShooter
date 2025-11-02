@@ -191,7 +191,6 @@ public class DroppedItem : MonoBehaviour, IInteractable
         if (worldInventory == null) return;
         if (item == null || item.itemData == null) return;
 
-        // InventoryManager가 StorageTarget.World에서 Player로의 이동/검증을 담당
         bool picked = InventoryManager.Instance.TryAutoDeliver(item, StorageTarget.World);
 
         if (!picked)
