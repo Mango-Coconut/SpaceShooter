@@ -10,6 +10,7 @@ public class PanelManager : MonoBehaviour
     [SerializeField] Interactor interactor;
     [SerializeField] InventoryUI inventoryUI;
     [SerializeField] ChestUI chestUI;
+    [SerializeField] NpcUI npcUI;
     Chest curChest;
     [SerializeField] EquipSlotPanel equipSlotPanel;
     [SerializeField] TooltipUI tooltipUI;
@@ -19,6 +20,9 @@ public class PanelManager : MonoBehaviour
 
     public event Action<StorageTarget, StorageTarget, StoredItem> OnItemDropped;
     public event Action<StoredItem, StorageTarget> OnItemRightClicked;
+
+    // Chest, Npc 등 전역 이벤트 연결
+    [SerializeField] InteractionHub hub;
 
 
     GraphicRaycaster raycaster;
@@ -36,17 +40,16 @@ public class PanelManager : MonoBehaviour
             InputManager.Instance.OnToggleInventory += InventoryUIToggle;
             InputManager.Instance.OnEsc += InventoryUIHandleEsc;
         }
-        //Chest 이벤트()
-        Chest.OnChestOpened += HandleChestOpened;
-        Chest.OnChestClosed += HandleChestClosed;
 
         //InventoryUI 이벤트
         SubscribeInventoryUI(inventoryUI);
         //ChestUI 이벤트
         SubscribeInventoryUI(chestUI);
-
+        // 전역 이벤트(Chest, Npc)
+        SubscribeHubEvent();
+        
         //InteractPanel 이벤트
-        if (interactor != null) interactor.TargetChanged += HandleIiPanelChange;
+        interactor.TargetChanged += HandleIiPanelChange;
     }
 
     void OnDisable()
@@ -56,13 +59,12 @@ public class PanelManager : MonoBehaviour
             InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
             InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
         }
-        Chest.OnChestOpened -= HandleChestOpened;
-        Chest.OnChestClosed -= HandleChestClosed;
 
         UnsubscribeInventoryUI(inventoryUI);
         UnsubscribeInventoryUI(chestUI);
+        UnSubscribeHubEvent();
 
-        if (interactor != null) interactor.TargetChanged -= HandleIiPanelChange;
+        interactor.TargetChanged -= HandleIiPanelChange;
     }
 
     void Awake()
@@ -130,7 +132,7 @@ public class PanelManager : MonoBehaviour
 
     #region Chest UI 열고 닫기
 
-    void HandleChestOpened(Chest c)
+    void HandleChestOpen(Chest c)
     {
         curChest = c;
 
@@ -144,7 +146,7 @@ public class PanelManager : MonoBehaviour
         iiPanel.gameObject.SetActive(false);
     }
 
-    void HandleChestClosed(Chest c)
+    void HandleChestClose(Chest c)
     {
         if (curChest == c) curChest = null;
 
@@ -188,6 +190,36 @@ public class PanelManager : MonoBehaviour
         inventoryUI.OnDragging -= HandleDraggingFromPanel;
         inventoryUI.OnDropped -= HandleEndDragFromPanel;
     }
+
+    void SubscribeHubEvent()
+    {
+        UnSubscribeHubEvent();
+        if (hub != null && hub.npc != null)
+        {
+            hub.npc.OnEnter += HandleNpcEnter;
+            hub.npc.OnExit += HandleNpcExit;
+        }
+        if (hub != null && hub.chest != null)
+        {
+            hub.chest.OnOpen += HandleChestOpen;
+            hub.chest.OnClose += HandleChestClose;
+        }
+    }
+
+    void UnSubscribeHubEvent()
+    {
+        if (hub != null && hub.npc != null)
+        {
+            hub.npc.OnEnter -= HandleNpcEnter;
+            hub.npc.OnExit  -= HandleNpcExit;
+        }
+        if (hub != null && hub.chest != null)
+        {
+            hub.chest.OnOpen -= HandleChestOpen;
+            hub.chest.OnClose -= HandleChestClose;
+        }
+    }
+    
     #endregion
 
     #region 아이템 툴팁 열고 닫기
@@ -308,7 +340,7 @@ public class PanelManager : MonoBehaviour
     }
 
     #endregion
-    
+
     #region InteractPanel 열고 닫기
     void HandleIiPanelChange(IInteractable interactable)
     {
@@ -318,4 +350,15 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
+    #region NpcUI 열고 닫기
+    void HandleNpcEnter(NpcMono npc)
+    {
+        npcUI.gameObject.SetActive(true);
+    }
+
+    void HandleNpcExit(NpcMono npc)
+    {
+        npcUI.gameObject.SetActive(false);
+    }
+    #endregion
 }

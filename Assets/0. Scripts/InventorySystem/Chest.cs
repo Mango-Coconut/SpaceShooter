@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Chest : InventoryMono, IInteractable
 {
+    [SerializeField] InteractionHub hub;
+
     [Header("Chest Identification")]
     [SerializeField] string instanceId; // 고유 식별자
 
@@ -83,9 +85,11 @@ public class Chest : InventoryMono, IInteractable
         isOpen = true;
         owner = pc;
 
-        // 움직임/공격만 막고 Interact(F)는 허용해 토글 가능
         pc.gate.PushUI();
-        OnChestOpened?.Invoke(this);
+        if (hub != null && hub.chest != null)
+        {
+            hub.chest.RaiseOpen(this);
+        }
     }
     void CloseChest(PlayerController pc)
     {
@@ -98,7 +102,10 @@ public class Chest : InventoryMono, IInteractable
         }
         owner = null;
 
-        OnChestClosed?.Invoke(this);
+        if (hub != null && hub.chest != null)
+        {
+            hub.chest.RaiseClose(this);
+        }
     }
     
     public void ForceCloseFromUI()
