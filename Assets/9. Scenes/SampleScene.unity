@@ -4263,6 +4263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   capacity: 5
+  hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
   instanceId: TestChest2
   chestitems:
   - instanceId: 
@@ -13409,6 +13410,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   capacity: 5
+  hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
   instanceId: TestChest1
   chestitems:
   - instanceId: 
