@@ -73,5 +73,5 @@ crashlytics-build.properties
 
 
 # --- keep StylizedCharacter assets ---
-!/[Aa]ssets/StylizedCharacter/
-!/[Aa]ssets/StylizedCharacter/**
+/[Aa]ssets/StylizedCharacter/
+/[Aa]ssets/StylizedCharacter/**
