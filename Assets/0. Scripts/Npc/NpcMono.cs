@@ -7,9 +7,6 @@ public class NpcMono : MonoBehaviour, IInteractable
     [SerializeField] InteractionHub hub;
 
     [SerializeField] NpcDefinition definition;
-    [SerializeField] NpcUI npcUI;
-    [SerializeField] PanelManager panelManager;     // 없으면 null 가드
-    [SerializeField] PlayerActionGate gate;
     [SerializeField] Sprite icon;
 
     public NpcCore Core { get; private set; }

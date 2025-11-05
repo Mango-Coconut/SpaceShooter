@@ -12,6 +12,7 @@ public class PanelManager : MonoBehaviour
     [SerializeField] ChestUI chestUI;
     [SerializeField] NpcUI npcUI;
     Chest curChest;
+    NpcMono curNpc;
     [SerializeField] EquipSlotPanel equipSlotPanel;
     [SerializeField] TooltipUI tooltipUI;
     [SerializeField] DragSlot dragSlot;
@@ -37,8 +38,8 @@ public class PanelManager : MonoBehaviour
         //Inventory 이벤트
         if (InputManager.Instance != null)
         {
-            InputManager.Instance.OnToggleInventory += InventoryUIToggle;
-            InputManager.Instance.OnEsc += InventoryUIHandleEsc;
+            InputManager.Instance.OnToggleInventory += HandleInventoryUIToggle;
+            InputManager.Instance.OnEsc += HandleUIClose;
         }
 
         //InventoryUI 이벤트
@@ -51,13 +52,12 @@ public class PanelManager : MonoBehaviour
         //InteractPanel 이벤트
         interactor.TargetChanged += HandleIiPanelChange;
     }
-
     void OnDisable()
     {
         if (InputManager.Instance != null)
         {
-            InputManager.Instance.OnToggleInventory -= InventoryUIToggle;
-            InputManager.Instance.OnEsc -= InventoryUIHandleEsc;
+            InputManager.Instance.OnToggleInventory -= HandleInventoryUIToggle;
+            InputManager.Instance.OnEsc -= HandleUIClose;
         }
 
         UnsubscribeInventoryUI(inventoryUI);
@@ -89,20 +89,12 @@ public class PanelManager : MonoBehaviour
 
     #region Inventory UI 열고 닫기
 
-    void InventoryUIHandleEsc()
+    void HandleUIClose()
     {
-        if (IsOpen(inventoryUI.gameObject))
-        {
-            CloseInventoryUI();
-            curChest?.ForceCloseFromUI();
-        }
-        else
-        {
-            CursorController.Apply(!CursorController.LookEnabled);
-        }
+        
     }
 
-    void InventoryUIToggle()
+    void HandleInventoryUIToggle()
     {
         if (!IsOpen(inventoryUI.gameObject))
         {
@@ -134,13 +126,15 @@ public class PanelManager : MonoBehaviour
 
     void HandleChestOpen(Chest c)
     {
+        if (curChest != null && curChest != c)
+        {
+            HandleChestClose(curChest);
+        }
         curChest = c;
-
-        OpenInventoryUI();
-
-        chestUI.gameObject.SetActive(true);
         chestUI.SetChest(c);
 
+        PushUI(inventoryUI.gameObject, CloseInventoryUI, "Inventory");
+        PushUI(chestUI.gameObject, CloseChestUI, "Chest");
         SubscribeInventoryUI(chestUI);
 
         iiPanel.gameObject.SetActive(false);
@@ -153,14 +147,14 @@ public class PanelManager : MonoBehaviour
         if (!IsOpen(chestUI.gameObject))
             return;
 
-        chestUI.ClearChest();
-        chestUI.gameObject.SetActive(false);
-
         UnsubscribeInventoryUI(chestUI);
-
-        CloseInventoryUI();
+        chestUI.ClearChest();
 
         iiPanel.gameObject.SetActive(true);
+    }
+    void CloseChestUI()
+    {
+        HandleChestClose(curChest);
     }
     #endregion
 
@@ -353,7 +347,15 @@ public class PanelManager : MonoBehaviour
     #region NpcUI 열고 닫기
     void HandleNpcEnter(NpcMono npc)
     {
-        npcUI.gameObject.SetActive(true);
+        if (curNpc != null && curNpc != npc)
+        {
+            HandleNpcExit(curNpc);
+        }
+        curNpc = npc;
+
+        PushUI(npcUI.gameObject, CloseNpcFromTop, "NPC");
+        npcUI.Bind(npc.Core);
+        BindNpcCore(npc.Core, true);
     }
 
     void HandleNpcExit(NpcMono npc)

@@ -18,143 +18,74 @@ public class NpcUI : MonoBehaviour
     [SerializeField] Button nextButton;
     [SerializeField] Button closeButton;
 
-    NpcMono owner;
+    NpcCore core;
 
-    public void Bind(NpcMono mono)
+    public void Bind(NpcCore npc)
     {
-        owner = mono;
+        core = npc;
 
-        // 메뉴 버튼
-        if (talkButton != null)
-        {
-            talkButton.onClick.RemoveAllListeners();
-            talkButton.onClick.AddListener(OnClickTalk);
-        }
-        if (shopButton != null)
-        {
-            shopButton.onClick.RemoveAllListeners();
-            shopButton.onClick.AddListener(OnClickShop);
-        }
-        if (leaveButton != null)
-        {
-            leaveButton.onClick.RemoveAllListeners();
-            leaveButton.onClick.AddListener(OnClickLeave);
-        }
+        talkButton.onClick.RemoveAllListeners();
+        talkButton.onClick.AddListener(OnClickTalk);
+        shopButton.onClick.RemoveAllListeners();
+        shopButton.onClick.AddListener(OnClickShop);
+        leaveButton.onClick.RemoveAllListeners();
+        leaveButton.onClick.AddListener(OnClickLeave);
 
-        // 대화 버튼
-        if (nextButton != null)
-        {
-            nextButton.onClick.RemoveAllListeners();
-            nextButton.onClick.AddListener(OnClickNext);
-        }
-        if (closeButton != null)
-        {
-            closeButton.onClick.RemoveAllListeners();
-            closeButton.onClick.AddListener(OnClickClose);
-        }
+        nextButton.onClick.RemoveAllListeners();
+        nextButton.onClick.AddListener(OnClickNext);
+        closeButton.onClick.RemoveAllListeners();
+        closeButton.onClick.AddListener(OnClickClose);
+
+        OpenMenu();
     }
 
     public void Unbind()
     {
-        owner = null;
-    }
-
-    public void OpenMenu()
-    {
-        if (menuRoot != null) { menuRoot.setActiveTrue(); }
-        if (dialogueRoot != null) { dialogueRoot.setActiveFalse(); }
+        core = null;
+        menuRoot.SetActive(false);
+        dialogueRoot.SetActive(false);
     }
 
     public void ShowMenu(List<string> options)
     {
-        // 옵션은 "대화하기", ["상점"], "떠나기" 순서로 온다.
-        if (menuRoot != null) { menuRoot.setActiveTrue(); }
-        if (dialogueRoot != null) { dialogueRoot.setActiveFalse(); }
+        menuRoot.SetActive(true);
+        dialogueRoot.SetActive(false);
 
-        if (talkButton != null)
-        {
-            TextMeshProUGUI label = talkButton.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null) { label.text = options.Count > 0 ? options[0] : "대화하기"; }
-            talkButton.gameObject.setActiveTrue();
-        }
+        SetLabel(talkButton, options[0]);
 
-        if (shopButton != null)
-        {
-            bool hasShop = options.Count == 3; // 가운데가 상점
-            shopButton.gameObject.SetActive(hasShop);
-            if (hasShop)
-            {
-                TextMeshProUGUI label = shopButton.GetComponentInChildren<TextMeshProUGUI>();
-                if (label != null) { label.text = options[1]; }
-            }
-        }
+        bool hasShop = options.Count == 3;
+        shopButton.gameObject.SetActive(hasShop);
+        if (hasShop) SetLabel(shopButton, options[1]);
 
-        if (leaveButton != null)
-        {
-            TextMeshProUGUI label = leaveButton.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null)
-            {
-                string text = options.Count == 3 ? options[2] : options[1];
-                label.text = text;
-            }
-            leaveButton.gameObject.setActiveTrue();
-        }
+        string leaveText = hasShop ? options[2] : options[1];
+        SetLabel(leaveButton, leaveText);
     }
 
     public void ShowLine(string text, bool hasNext)
     {
-        if (menuRoot != null) { menuRoot.setActiveFalse(); }
-        if (dialogueRoot != null) { dialogueRoot.setActiveTrue(); }
+        menuRoot.SetActive(false);
+        dialogueRoot.SetActive(true);
 
-        if (dialogueText != null) { dialogueText.text = text != null ? text : string.Empty; }
-
-        if (nextButton != null) { nextButton.gameObject.SetActive(hasNext); }
-        if (closeButton != null) { closeButton.gameObject.SetActive(!hasNext); }
+        dialogueText.text = text != null ? text : string.Empty;
+        nextButton.gameObject.SetActive(hasNext);
+        closeButton.gameObject.SetActive(!hasNext);
     }
 
-    public void CloseAll()
+    public void OpenMenu()
     {
-        if (menuRoot != null) { menuRoot.setActiveFalse(); }
-        if (dialogueRoot != null) { dialogueRoot.setActiveFalse(); }
+        menuRoot.SetActive(true);
+        dialogueRoot.SetActive(false);
     }
 
-    // ===== Button Handlers =====
-    void OnClickTalk()
-    {
-        if (owner != null) { owner.Core.ChooseMenu(NpcMenuOption.Talk); }
-    }
+    void OnClickTalk() { if (core != null) core.ChooseMenu(NpcMenuOption.Talk); }
+    void OnClickShop() { if (core != null) core.ChooseMenu(NpcMenuOption.Shop); }
+    void OnClickLeave() { if (core != null) core.ChooseMenu(NpcMenuOption.Leave); }
+    void OnClickNext() { if (core != null) core.NextLine(); }
+    void OnClickClose() { if (core != null) core.NextLine(); }
 
-    void OnClickShop()
+    void SetLabel(Button btn, string text)
     {
-        if (owner != null) { owner.Core.ChooseMenu(NpcMenuOption.Shop); }
-    }
-
-    void OnClickLeave()
-    {
-        if (owner != null) { owner.Core.ChooseMenu(NpcMenuOption.Leave); }
-    }
-
-    void OnClickNext()
-    {
-        if (owner != null) { owner.Core.NextLine(); }
-    }
-
-    void OnClickClose()
-    {
-        // 마지막 줄에서 닫기 → 메뉴로 복귀(코어가 알아서 처리함)
-        if (owner != null) { owner.Core.NextLine(); }
-    }
-}
-
-// 편의 확장 (네임 충돌 없게 internal static)
-static class GameObjectExtensions_Min
-{
-    public static void setActiveTrue(this GameObject go)
-    {
-        if (go != null) { go.SetActive(true); }
-    }
-    public static void setActiveFalse(this GameObject go)
-    {
-        if (go != null) { go.SetActive(false); }
+        TextMeshProUGUI tmp = btn.GetComponentInChildren<TextMeshProUGUI>();
+        if (tmp != null) tmp.text = text;
     }
 }
