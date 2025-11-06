@@ -2920,6 +2920,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 512514266}
+  - component: {fileID: 512514269}
   - component: {fileID: 512514268}
   - component: {fileID: 512514267}
   m_Layer: 5
@@ -2928,7 +2929,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &512514266
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2987,6 +2988,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 512514265}
   m_CullTransparentMesh: 1
+--- !u!114 &512514269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512514265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14e7c15aab9213c47a8aaf7921a18a3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  menuRoot: {fileID: 0}
+  talkButton: {fileID: 0}
+  shopButton: {fileID: 0}
+  leaveButton: {fileID: 0}
+  dialogueRoot: {fileID: 0}
+  dialogueText: {fileID: 0}
+  nextButton: {fileID: 0}
+  closeButton: {fileID: 0}
 --- !u!1 &520996727
 GameObject:
   m_ObjectHideFlags: 0
@@ -9374,6 +9395,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1544342951}
   - component: {fileID: 1544342952}
+  - component: {fileID: 1544342953}
+  - component: {fileID: 1544342957}
+  - component: {fileID: 1544342955}
   - component: {fileID: 1544342950}
   - component: {fileID: 1544342949}
   - component: {fileID: 1544342948}
@@ -9483,16 +9507,53 @@ MonoBehaviour:
   m_GameObject: {fileID: 1544342947}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6830ed4bfc893147b4728d6d2739de6, type: 3}
+  m_Script: {fileID: 11500000, guid: 82e8e527274cec34d9f2da8dbe936e7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   interactor: {fileID: 1089791405}
   inventoryUI: {fileID: 221234653}
   chestUI: {fileID: 1915702324}
-  equipSlotPanel: {fileID: 840540032}
+  npcUI: {fileID: 512514269}
+  hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
+--- !u!114 &1544342953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544342947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc1800a9e4d0cad4591145207a7d2195, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   tooltipUI: {fileID: 1591596281}
+--- !u!114 &1544342955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544342947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21cae2be21eb9c4469cd0193582ae71f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionPanel: {fileID: 1675221653}
+--- !u!114 &1544342957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544342947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2004511958655584d96ac46711ba5b2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   dragSlot: {fileID: 292378808458136392}
-  iiPanel: {fileID: 1675221653}
 --- !u!4 &1550936119 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6057398078812707135, guid: ea02b1fe8758e4b4cb657aac92385c2f, type: 3}
@@ -9658,9 +9719,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1591596278}
+  - component: {fileID: 1591596281}
   - component: {fileID: 1591596280}
   - component: {fileID: 1591596279}
-  - component: {fileID: 1591596281}
   m_Layer: 5
   m_Name: ToolipUI
   m_TagString: Untagged
@@ -10884,9 +10945,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hub: {fileID: 0}
   definition: {fileID: 0}
-  npcUI: {fileID: 0}
-  panelManager: {fileID: 0}
-  gate: {fileID: 0}
   icon: {fileID: 0}
 --- !u!4 &1860269619
 Transform:

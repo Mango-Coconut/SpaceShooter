@@ -8,12 +8,10 @@ public class InteractionPanel : MonoBehaviour
 
     [SerializeField] TMP_Text inputKeyText;
     [SerializeField] Image itemIcon;
-    [SerializeField] TMP_Text behaviorText;
+    [SerializeField] TMP_Text behaviorText;    
 
-    public void OnTargetChange(IInteractable target)
+    public void Set(IInteractable target)
     {
-        if (target == null) return;
-
         var (key, text) = target.GetPrompt();
         var spr = target.GetIcon();
 

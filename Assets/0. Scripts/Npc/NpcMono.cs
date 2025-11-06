@@ -77,7 +77,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     public void Enter()
     {
         isEnter = true;
-        if (gate != null) { gate.PushInteract(); }
+        if (user.gate != null) { user.gate.PushInteract(); }
 
         if (hub != null && hub.npc != null)
         {
@@ -96,27 +96,27 @@ public class NpcMono : MonoBehaviour, IInteractable
             hub.npc.RaiseExit(this);
         }
 
-        if (gate != null) { gate.PopInteract(); }
+        if (user.gate != null) { user.gate.PopInteract(); }
         user = null;
     }
 
     // ===== Core → UI 연결 =====
     void HandleShowMenu(System.Collections.Generic.List<string> options)
     {
-        if (npcUI != null) { npcUI.ShowMenu(options); }
+        //if (npcUI != null) { npcUI.ShowMenu(options); }
     }
 
     void HandleShowLine(string text, bool hasNext)
     {
-        if (npcUI != null) { npcUI.ShowLine(text, hasNext); }
+       //if (npcUI != null) { npcUI.ShowLine(text, hasNext); }
     }
 
     void HandleRequestOpenShop()
     {
-        if (panelManager != null)
-        {
+        //if (panelManager != null)
+        //{
             //panelManager.OpenShop();     // 네 PanelManager에 있는 간단 OpenShop() 사용
-        }
+        //}
     }
 
     void HandleEnd()

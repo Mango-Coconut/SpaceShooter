@@ -28,12 +28,12 @@ public abstract class SlotPanelBase : MonoBehaviour
         foreach (InventorySlotUI slot in uiSlots)
         {
             if (slot == null || slot.handler == null) continue;
-            slot.handler.PointerEnter += OnPointerEnter;
-            slot.handler.PointerExit += OnPointerExit;
-            slot.handler.RightClick += OnPointerRightClick;
-            slot.handler.BeginDrag += OnBeginDrag;
-            slot.handler.Dragging += OnDragging;
-            slot.handler.EndDrag += OnEndDrag;
+            slot.handler.PointerEnter += ForwardMouseEnter;
+            slot.handler.PointerExit += ForwardMouseExit;
+            slot.handler.RightClick += ForwardRightClick;
+            slot.handler.BeginDrag += ForwardBeginDrag;
+            slot.handler.Dragging += ForwardDragging;
+            slot.handler.EndDrag += ForwardDropped;
         }
     }
 
@@ -42,40 +42,40 @@ public abstract class SlotPanelBase : MonoBehaviour
         foreach (InventorySlotUI slot in uiSlots)
         {
             if (slot == null || slot.handler == null) continue;
-            slot.handler.PointerEnter -= OnPointerEnter;
-            slot.handler.PointerExit -= OnPointerExit;
-            slot.handler.RightClick -= OnPointerRightClick;
-            slot.handler.BeginDrag -= OnBeginDrag;
-            slot.handler.Dragging -= OnDragging;
-            slot.handler.EndDrag -= OnEndDrag;
+            slot.handler.PointerEnter -= ForwardMouseEnter;
+            slot.handler.PointerExit -= ForwardMouseExit;
+            slot.handler.RightClick -= ForwardRightClick;
+            slot.handler.BeginDrag -= ForwardBeginDrag;
+            slot.handler.Dragging -= ForwardDragging;
+            slot.handler.EndDrag -= ForwardDropped;
         }
     }
 
-    void OnPointerEnter(InventorySlotUI slotUI)
+    void ForwardMouseEnter(InventorySlotUI slotUI)
     {
         OnMouseEnter?.Invoke(new SlotPanelEventArgs(slotUI, GetSource(), null, slotUI != null ? slotUI.EnterItem : null));
     }
-    void OnPointerExit()
+    void ForwardMouseExit()
     {
         OnMouseExit?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, null));
     }
-    public void OnPointerRightClick(StoredItem item)
+    public void ForwardRightClick(StoredItem item)
     {
         OnRightClickArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, item));
     }
     
-    void OnBeginDrag(StoredItem item, PointerEventData e)
+    void ForwardBeginDrag(StoredItem item, PointerEventData e)
     {
         OnMouseExit?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, null));
         OnBeginDragArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), e, item));
     }
 
-    void OnDragging(PointerEventData e)
+    void ForwardDragging(PointerEventData e)
     {
         OnDraggingArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), e, null));
     }
 
-    void OnEndDrag(StoredItem item, PointerEventData e)
+    void ForwardDropped(StoredItem item, PointerEventData e)
     {
         OnDroppedArgs?.Invoke(new SlotPanelEventArgs(null, GetSource(), e, item));
     }

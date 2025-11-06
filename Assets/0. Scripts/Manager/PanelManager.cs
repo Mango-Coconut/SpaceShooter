@@ -11,20 +11,25 @@ public class PanelManager : MonoBehaviour
     [SerializeField] InventoryUI inventoryUI;
     [SerializeField] ChestUI chestUI;
     [SerializeField] NpcUI npcUI;
-    Chest curChest;
-    NpcMono curNpc;
-    [SerializeField] EquipSlotPanel equipSlotPanel;
-    [SerializeField] TooltipUI tooltipUI;
-    [SerializeField] DragSlot dragSlot;
-    [SerializeField] InteractionPanel iiPanel;
     #endregion
 
+    #region 유틸 패널 컨트롤러
+    TooltipUIController tooltipUIController;
+    InteractUIController interactUIController;
+    DragSlotUIController dragSlotUIController;
+    #endregion
+
+
+    //이벤트들
     public event Action<StorageTarget, StorageTarget, StoredItem> OnItemDropped;
     public event Action<StoredItem, StorageTarget> OnItemRightClicked;
 
     // Chest, Npc 등 전역 이벤트 연결
     [SerializeField] InteractionHub hub;
 
+    // 런타임에 활성화되어 저장해야 할 객체들
+    Chest curChest;
+    NpcMono curNpc;
 
     GraphicRaycaster raycaster;
 
@@ -33,6 +38,14 @@ public class PanelManager : MonoBehaviour
         return gameObject != null && gameObject.activeSelf;
     }
 
+    void Awake()
+    {
+        tooltipUIController = GetComponent<TooltipUIController>();
+        interactUIController = GetComponent<InteractUIController>();
+        dragSlotUIController = GetComponent<DragSlotUIController>();
+        raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
+        //fromStorage = inventoryUI.SlotPanel.Inventory.Core;
+    }
     void OnEnable()
     {
         //Inventory 이벤트
@@ -48,9 +61,9 @@ public class PanelManager : MonoBehaviour
         SubscribeInventoryUI(chestUI);
         // 전역 이벤트(Chest, Npc)
         SubscribeHubEvent();
-        
+
         //InteractPanel 이벤트
-        interactor.TargetChanged += HandleIiPanelChange;
+        interactor.OnInteractorChange += HandleInteractorChange;
     }
     void OnDisable()
     {
@@ -64,99 +77,8 @@ public class PanelManager : MonoBehaviour
         UnsubscribeInventoryUI(chestUI);
         UnSubscribeHubEvent();
 
-        interactor.TargetChanged -= HandleIiPanelChange;
+        interactor.OnInteractorChange -= HandleInteractorChange;
     }
-
-    void Awake()
-    {
-        raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
-        //fromStorage = inventoryUI.SlotPanel.Inventory.Core;
-        inventoryUI.gameObject.SetActive(true);
-        iiPanel.gameObject.SetActive(true);
-        chestUI.gameObject.SetActive(true);
-        tooltipUI.gameObject.SetActive(true);
-        dragSlot.gameObject.SetActive(true);
-    }
-    void Start()
-    {
-        inventoryUI.gameObject.SetActive(false);
-        iiPanel.gameObject.SetActive(false);
-        chestUI.gameObject.SetActive(false);
-        tooltipUI.gameObject.SetActive(false);
-        dragSlot.gameObject.SetActive(false);
-    }
-
-
-    #region Inventory UI 열고 닫기
-
-    void HandleUIClose()
-    {
-        
-    }
-
-    void HandleInventoryUIToggle()
-    {
-        if (!IsOpen(inventoryUI.gameObject))
-        {
-            OpenInventoryUI();
-        }
-        else
-        {
-            CloseInventoryUI();
-            curChest?.ForceCloseFromUI();
-        }
-    }
-
-    void OpenInventoryUI()
-    {
-        inventoryUI.gameObject.SetActive(true);
-        CursorController.Apply(false);
-    }
-
-    void CloseInventoryUI()
-    {
-        inventoryUI.gameObject.SetActive(false);
-        CloseTooltip();
-        CursorController.Apply(true);
-    }
-
-    #endregion
-
-    #region Chest UI 열고 닫기
-
-    void HandleChestOpen(Chest c)
-    {
-        if (curChest != null && curChest != c)
-        {
-            HandleChestClose(curChest);
-        }
-        curChest = c;
-        chestUI.SetChest(c);
-
-        PushUI(inventoryUI.gameObject, CloseInventoryUI, "Inventory");
-        PushUI(chestUI.gameObject, CloseChestUI, "Chest");
-        SubscribeInventoryUI(chestUI);
-
-        iiPanel.gameObject.SetActive(false);
-    }
-
-    void HandleChestClose(Chest c)
-    {
-        if (curChest == c) curChest = null;
-
-        if (!IsOpen(chestUI.gameObject))
-            return;
-
-        UnsubscribeInventoryUI(chestUI);
-        chestUI.ClearChest();
-
-        iiPanel.gameObject.SetActive(true);
-    }
-    void CloseChestUI()
-    {
-        HandleChestClose(curChest);
-    }
-    #endregion
 
     #region 이벤트 구독 (InventoryUI, ChestUI)
     void SubscribeInventoryUI(InventoryUI inventoryUI)
@@ -165,8 +87,8 @@ public class PanelManager : MonoBehaviour
 
         UnsubscribeInventoryUI(inventoryUI);
 
-        inventoryUI.OnMouseEnter += HandlePointerEnter;
-        inventoryUI.OnMouseExit += HandlePointerExit;
+        inventoryUI.OnMouseEnter += HandleTooltipShow;
+        inventoryUI.OnMouseExit += HandleTooltipHide;
         inventoryUI.OnRightClick += HandleRightClick;
         inventoryUI.OnBeginDrag += HandleBeginDragFromPanel;
         inventoryUI.OnDragging += HandleDraggingFromPanel;
@@ -177,8 +99,8 @@ public class PanelManager : MonoBehaviour
     {
         if (inventoryUI == null) { return; }
 
-        inventoryUI.OnMouseEnter -= HandlePointerEnter;
-        inventoryUI.OnMouseExit -= HandlePointerExit;
+        inventoryUI.OnMouseEnter -= HandleTooltipShow;
+        inventoryUI.OnMouseExit -= HandleTooltipHide;
         inventoryUI.OnRightClick -= HandleRightClick;
         inventoryUI.OnBeginDrag -= HandleBeginDragFromPanel;
         inventoryUI.OnDragging -= HandleDraggingFromPanel;
@@ -205,7 +127,7 @@ public class PanelManager : MonoBehaviour
         if (hub != null && hub.npc != null)
         {
             hub.npc.OnEnter -= HandleNpcEnter;
-            hub.npc.OnExit  -= HandleNpcExit;
+            hub.npc.OnExit -= HandleNpcExit;
         }
         if (hub != null && hub.chest != null)
         {
@@ -213,100 +135,129 @@ public class PanelManager : MonoBehaviour
             hub.chest.OnClose -= HandleChestClose;
         }
     }
-    
+
     #endregion
 
+    #region Inventory UI 열고 닫기
+
+    void HandleUIClose()
+    {
+        CursorController.Apply(true);
+    }
+
+    void HandleInventoryUIToggle()
+    {
+        if (!IsOpen(inventoryUI.gameObject))
+        {
+            inventoryUI.gameObject.SetActive(true);
+        }
+        else
+        {
+            inventoryUI.gameObject.SetActive(false);
+            curChest?.ForceCloseFromUI();
+        }
+    }
+
+    #endregion
+
+    #region Chest UI 열고 닫기
+    void HandleChestOpen(Chest c)
+    {
+        if (curChest != null && curChest != c)
+        {
+            HandleChestClose(curChest);
+        }
+
+        //chest 설정
+        curChest = c;
+        chestUI.SetChest(c);
+
+        //ui 열기(인벤토리, 상자 모두)
+        inventoryUI.gameObject.SetActive(true);
+        chestUI.gameObject.SetActive(true);
+
+        //유틸 ui 닫기
+        interactUIController.Hide();
+    }
+
+    void HandleChestClose(Chest c)
+    {
+        if (!IsOpen(chestUI.gameObject)) return;
+
+        //chest 비우기
+        if (curChest == c) curChest = null;
+        chestUI.ClearChest();
+
+        //ui 닫기
+        chestUI.gameObject.SetActive(false);
+        inventoryUI.gameObject.SetActive(false);
+        
+        //유틸 ui 다시 활성화
+        interactUIController.Show();
+    }
+    #endregion
+
+
+
     #region 아이템 툴팁 열고 닫기
-    void HandlePointerEnter(SlotPanelEventArgs e)
+    void HandleTooltipShow(SlotPanelEventArgs args)
     {
-        InventorySlotUI slotUI = e.Slot;
-        if (slotUI == null || slotUI.EnterItem == null) { return; }
-
-        RectTransform slotRect = slotUI.Rect;
-
-        Vector3[] corners = new Vector3[4];
-        slotRect.GetWorldCorners(corners);
-        Vector3 worldTopRight = corners[2];
-
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, worldTopRight);
-
-        RectTransform ttRect = (RectTransform)tooltipUI.transform;
-        ttRect.position = screen;
-
-        tooltipUI.Set(slotUI.EnterItem);
-        tooltipUI.gameObject.SetActive(true);
+        tooltipUIController.Show(args);
     }
 
-
-    void HandlePointerExit(SlotPanelEventArgs e)
+    void HandleTooltipHide(SlotPanelEventArgs args)
     {
-        CloseTooltip();
-    }
-
-    void CloseTooltip()
-    {
-        tooltipUI.gameObject.SetActive(false);
+        tooltipUIController.Hide();
     }
     #endregion
 
     #region 아이템 슬롯 드래그 하기 & 아이템 옮기기(인벤토리↔상자)
-    StorageTarget fromStorage;
-    StorageTarget toStorage;
-    void HandleBeginDragFromPanel(SlotPanelEventArgs e)
+    void HandleBeginDragFromPanel(SlotPanelEventArgs args)
     {
-        StoredItem item = e.Item;
+        StoredItem item = args.Item;
         if (item == null) { return; }
 
-        fromStorage = e.Source;  // 드래그 시작 지점(인벤/상자/장비)
-        CloseTooltip();
 
-        dragSlot.gameObject.SetActive(true);
-        dragSlot.Bind(item);
+        tooltipUIController.Hide();
 
-        // e.Pointer 사용 가능 (필요하면)
+        dragSlotUIController.Show(args.Item);
     }
 
-    // [~] OnDraggingFromPanel(PointerEventData) → HandleDraggingFromPanel(SlotPanelEventArgs)
-    void HandleDraggingFromPanel(SlotPanelEventArgs e)
+    void HandleDraggingFromPanel(SlotPanelEventArgs args)
     {
-        if (e.Pointer != null)
-        {
-            dragSlot.transform.position = e.Pointer.position;
-        }
+        dragSlotUIController.Move(args);
     }
 
-    // [~] OnDroppedFromPanel(StoredItem, PointerEventData) → HandleEndDragFromPanel(SlotPanelEventArgs)
-    void HandleEndDragFromPanel(SlotPanelEventArgs e)
+    void HandleEndDragFromPanel(SlotPanelEventArgs args)
     {
-        StoredItem item = e.Item;
-        if (item == null || item.itemData == null) { return; }
+        StoredItem item = args.Item;
+        if (item == null || item.itemData == null) return;
+        if (args.Pointer == null) return;
 
-        toStorage = StorageTarget.None;
+        StorageTarget fromStorage = args.Source;  // 드래그 시작 지점(인벤/상자/장비)
+        StorageTarget toStorage = StorageTarget.None; // 드래그 끝 지점(인벤/상자/장비)
 
         // 마우스가 놓인 UI 판정
-        if (e.Pointer != null)
-        {
-            List<RaycastResult> results = new List<RaycastResult>();
-            raycaster.Raycast(e.Pointer, results);
+        List<RaycastResult> results = new List<RaycastResult>();
+        raycaster.Raycast(args.Pointer, results);
 
-            for (int i = 0; i < results.Count; i++)
+        for (int i = 0; i < results.Count; i++)
+        {
+            GameObject go = results[i].gameObject;
+            if (go.CompareTag("InventoryUI"))
             {
-                GameObject go = results[i].gameObject;
-                if (go.CompareTag("InventoryUI"))
-                {
-                    toStorage = StorageTarget.Player;
-                    break;
-                }
-                if (go.CompareTag("ChestUI"))
-                {
-                    toStorage = StorageTarget.Chest;
-                    break;
-                }
-                if (go.CompareTag("EquipUI"))
-                {
-                    toStorage = StorageTarget.Equip;
-                    break;
-                }
+                toStorage = StorageTarget.Player;
+                break;
+            }
+            if (go.CompareTag("ChestUI"))
+            {
+                toStorage = StorageTarget.Chest;
+                break;
+            }
+            if (go.CompareTag("EquipUI"))
+            {
+                toStorage = StorageTarget.Equip;
+                break;
             }
         }
 
@@ -317,30 +268,37 @@ public class PanelManager : MonoBehaviour
 
         OnItemDropped?.Invoke(fromStorage, toStorage, item);
 
-        dragSlot.gameObject.SetActive(false);
+        dragSlotUIController.Hide();
     }
-    void HandleRightClick(SlotPanelEventArgs e)
+    void HandleRightClick(SlotPanelEventArgs args)
     {
-        StoredItem item = e.Item;
-        StorageTarget from = e.Source;
+        if (args.Item == null || args.Item.itemData == null) { return; }
 
-        if (item == null || item.itemData == null) { return; }
-
-        Log.Info($"PanelManager -> RightClick, {item.itemData.name}");
-        CloseTooltip();
-
+        Log.Info($"{args.Source}에서 {args.Item.itemData.name}을 우클릭");
+        tooltipUIController.Hide();
         // 외부 이벤트는 기존 시그니처 유지
-        OnItemRightClicked?.Invoke(item, from);
+        OnItemRightClicked?.Invoke(args.Item, args.Source);
     }
-
     #endregion
 
     #region InteractPanel 열고 닫기
-    void HandleIiPanelChange(IInteractable interactable)
+    void HandleInteractorChange(IInteractable interactable)
     {
-        bool show = interactable != null;
-        iiPanel.gameObject.SetActive(show);
-        if (show) { iiPanel.OnTargetChange(interactable); }
+        if (interactable != null)
+        {
+            //꺼져 있으면 우선 키기
+            if (!interactUIController.IsOpen)
+            {
+                interactUIController.Show();
+            }
+            //리프레시
+            interactUIController.Refresh(interactable);
+        }
+        else
+        {
+            //널이면 닫기
+            interactUIController.Hide();
+        }
     }
     #endregion
 
@@ -353,9 +311,9 @@ public class PanelManager : MonoBehaviour
         }
         curNpc = npc;
 
-        PushUI(npcUI.gameObject, CloseNpcFromTop, "NPC");
-        npcUI.Bind(npc.Core);
-        BindNpcCore(npc.Core, true);
+        //PushUI(npcUI.gameObject, CloseNpcFromTop, "NPC");
+        //npcUI.Bind(npc.Core);
+        //BindNpcCore(npc.Core, true);
     }
 
     void HandleNpcExit(NpcMono npc)

@@ -15,7 +15,7 @@ public class Interactor : MonoBehaviour
 
     float timer = 0;
 
-    public event Action<IInteractable> TargetChanged;
+    public event Action<IInteractable> OnInteractorChange;
 
     void Update()
     {
@@ -65,7 +65,7 @@ public class Interactor : MonoBehaviour
             current?.OnUnfocus();
             current = best;
             current?.OnFocus();
-            TargetChanged?.Invoke(current);
+            OnInteractorChange?.Invoke(current);
         }
     }
 
