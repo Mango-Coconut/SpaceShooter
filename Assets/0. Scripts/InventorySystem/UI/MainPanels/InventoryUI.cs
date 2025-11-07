@@ -39,12 +39,6 @@ public class InventoryUI : MonoBehaviour
 
     private void SubscribeSlotPanel()
     {
-        if (panels == null)
-        {
-            NullChecker.NullCheck(this, nameof(panels));
-            return;
-        }
-
         UnsubscribeSlotPanel();
 
         for (int i = 0; i < panels.Length; i++)

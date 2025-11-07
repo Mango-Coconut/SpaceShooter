@@ -48,12 +48,13 @@ public class PanelManager : MonoBehaviour
     }
     void OnEnable()
     {
-        //Inventory 이벤트
-        if (InputManager.Instance != null)
-        {
-            InputManager.Instance.OnToggleInventory += HandleInventoryUIToggle;
-            InputManager.Instance.OnEsc += HandleUIClose;
-        }
+        //입력 이벤트(I, Esc)
+        InputManager.Instance.OnToggleInventory += HandleInventoryUIToggle;
+        InputManager.Instance.OnEsc += HandleEscUIClose;
+
+        //주요 UI 열리고 닫히는거 인식
+        UIPresence.OnStateChanged += HandleMouseLock;
+        RecountAndApply();
 
         //InventoryUI 이벤트
         SubscribeInventoryUI(inventoryUI);
@@ -67,11 +68,10 @@ public class PanelManager : MonoBehaviour
     }
     void OnDisable()
     {
-        if (InputManager.Instance != null)
-        {
-            InputManager.Instance.OnToggleInventory -= HandleInventoryUIToggle;
-            InputManager.Instance.OnEsc -= HandleUIClose;
-        }
+        InputManager.Instance.OnToggleInventory -= HandleInventoryUIToggle;
+        InputManager.Instance.OnEsc -= HandleEscUIClose;
+
+        UIPresence.OnStateChanged -= HandleMouseLock;
 
         UnsubscribeInventoryUI(inventoryUI);
         UnsubscribeInventoryUI(chestUI);
@@ -139,25 +139,26 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region Inventory UI 열고 닫기
-
-    void HandleUIClose()
-    {
-        CursorController.Apply(true);
-    }
-
     void HandleInventoryUIToggle()
     {
         if (!IsOpen(inventoryUI.gameObject))
         {
-            inventoryUI.gameObject.SetActive(true);
+            InventoryUIOpen();
         }
         else
         {
-            inventoryUI.gameObject.SetActive(false);
-            curChest?.ForceCloseFromUI();
+            InventoryUIClose();
         }
     }
-
+    void InventoryUIOpen()
+    {
+        inventoryUI.gameObject.SetActive(true);
+    }
+    void InventoryUIClose()
+    {
+        curChest?.ForceCloseFromUI();
+        inventoryUI.gameObject.SetActive(false);
+    }
     #endregion
 
     #region Chest UI 열고 닫기
@@ -167,14 +168,13 @@ public class PanelManager : MonoBehaviour
         {
             HandleChestClose(curChest);
         }
-
-        //chest 설정
-        curChest = c;
-        chestUI.SetChest(c);
-
         //ui 열기(인벤토리, 상자 모두)
         inventoryUI.gameObject.SetActive(true);
         chestUI.gameObject.SetActive(true);
+        
+        //chest 설정
+        curChest = c;
+        chestUI.SetChest(c);
 
         //유틸 ui 닫기
         interactUIController.Hide();
@@ -191,7 +191,7 @@ public class PanelManager : MonoBehaviour
         //ui 닫기
         chestUI.gameObject.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
-        
+
         //유틸 ui 다시 활성화
         interactUIController.Show();
     }
@@ -217,9 +217,7 @@ public class PanelManager : MonoBehaviour
         StoredItem item = args.Item;
         if (item == null) { return; }
 
-
         tooltipUIController.Hide();
-
         dragSlotUIController.Show(args.Item);
     }
 
@@ -267,7 +265,6 @@ public class PanelManager : MonoBehaviour
         }
 
         OnItemDropped?.Invoke(fromStorage, toStorage, item);
-
         dragSlotUIController.Hide();
     }
     void HandleRightClick(SlotPanelEventArgs args)
@@ -315,10 +312,61 @@ public class PanelManager : MonoBehaviour
         //npcUI.Bind(npc.Core);
         //BindNpcCore(npc.Core, true);
     }
-
+    void NpcUIOpen()
+    {
+        
+    }
     void HandleNpcExit(NpcMono npc)
     {
+        NpcUIClose();
+    }
+    void NpcUIClose()
+    {
         npcUI.gameObject.SetActive(false);
+    }
+    #endregion
+
+    #region CursorController 관련
+    int enabledUICount = 0;
+
+    // ESC 눌렀을 때
+    void HandleEscUIClose()
+    {
+        // UI가 열려 있으면 닫고 마우스 Free
+        if (enabledUICount > 0)
+        {
+            InventoryUIClose();
+            NpcUIClose();
+            enabledUICount = 0;
+            CursorController.Apply(true);
+        }
+        // UI가 없으면 마우스 Free, Lock 토글
+        else
+        {
+            CursorController.Apply(!CursorController.LookEnabled);
+        }
+    }
+
+    // UIPresence가 붙은 UI의 이벤트를 감지
+    void HandleMouseLock(int i)
+    {
+        // 열리면 +1, 닫히면 -1
+        enabledUICount += i;
+        if (enabledUICount < 0) enabledUICount = 0; // 안전장치
+
+        CursorController.Apply(enabledUICount == 0);
+    }
+    // Awake에서 초기화
+    void RecountAndApply()
+    {
+        enabledUICount = 0;
+        UIPresence[] presences = FindObjectsOfType<UIPresence>(true); // 비활성 포함
+        for (int i = 0; i < presences.Length; i++)
+        {
+            if (presences[i].gameObject.activeInHierarchy)
+                enabledUICount++;
+        }
+        CursorController.Apply(enabledUICount == 0); // 모두 꺼지면 true
     }
     #endregion
 }
