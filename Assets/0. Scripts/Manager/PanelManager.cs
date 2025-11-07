@@ -31,8 +31,6 @@ public class PanelManager : MonoBehaviour
     Chest curChest;
     NpcMono curNpc;
 
-    GraphicRaycaster raycaster;
-
     public bool IsOpen(GameObject gameObject)
     {
         return gameObject != null && gameObject.activeSelf;
@@ -171,7 +169,7 @@ public class PanelManager : MonoBehaviour
         //ui 열기(인벤토리, 상자 모두)
         inventoryUI.gameObject.SetActive(true);
         chestUI.gameObject.SetActive(true);
-        
+
         //chest 설정
         curChest = c;
         chestUI.SetChest(c);
@@ -197,7 +195,31 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
+    #region NpcUI 열고 닫기
+    void HandleNpcEnter(NpcMono npc)
+    {
+        if (curNpc != null && curNpc != npc) HandleNpcExit(npc);
 
+        npcUI.gameObject.SetActive(true);
+
+        curNpc = npc;
+        npcUI.Bind(npc.npcCore.dialogueCore);
+
+        interactUIController.Hide();
+    }
+
+    void HandleNpcExit(NpcMono npc)
+    {
+        if (!IsOpen(npcUI.gameObject)) return;
+
+        if (curNpc == npc) curNpc = null;
+        //npcUI.Clear();
+
+        npcUI.gameObject.SetActive(false);
+
+        interactUIController.Show();
+    }
+    #endregion
 
     #region 아이템 툴팁 열고 닫기
     void HandleTooltipShow(SlotPanelEventArgs args)
@@ -211,7 +233,7 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region 아이템 슬롯 드래그 하기 & 아이템 옮기기(인벤토리↔상자)
+    #region 아이템 옮기기(드래그, 우클릭)
     void HandleBeginDragFromPanel(SlotPanelEventArgs args)
     {
         StoredItem item = args.Item;
@@ -228,45 +250,16 @@ public class PanelManager : MonoBehaviour
 
     void HandleEndDragFromPanel(SlotPanelEventArgs args)
     {
-        StoredItem item = args.Item;
-        if (item == null || item.itemData == null) return;
+        if (args.Item == null || args.Item.itemData == null) return;
         if (args.Pointer == null) return;
 
-        StorageTarget fromStorage = args.Source;  // 드래그 시작 지점(인벤/상자/장비)
-        StorageTarget toStorage = StorageTarget.None; // 드래그 끝 지점(인벤/상자/장비)
+        StorageTarget fromStorage = args.Source;
+        StorageTarget toStorage = ToStorageTarget(args.Pointer);
 
-        // 마우스가 놓인 UI 판정
-        List<RaycastResult> results = new List<RaycastResult>();
-        raycaster.Raycast(args.Pointer, results);
-
-        for (int i = 0; i < results.Count; i++)
-        {
-            GameObject go = results[i].gameObject;
-            if (go.CompareTag("InventoryUI"))
-            {
-                toStorage = StorageTarget.Player;
-                break;
-            }
-            if (go.CompareTag("ChestUI"))
-            {
-                toStorage = StorageTarget.Chest;
-                break;
-            }
-            if (go.CompareTag("EquipUI"))
-            {
-                toStorage = StorageTarget.Equip;
-                break;
-            }
-        }
-
-        if (toStorage == StorageTarget.None)
-        {
-            toStorage = StorageTarget.World;
-        }
-
-        OnItemDropped?.Invoke(fromStorage, toStorage, item);
+        OnItemDropped?.Invoke(fromStorage, toStorage, args.Item);
         dragSlotUIController.Hide();
     }
+
     void HandleRightClick(SlotPanelEventArgs args)
     {
         if (args.Item == null || args.Item.itemData == null) { return; }
@@ -299,36 +292,8 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region NpcUI 열고 닫기
-    void HandleNpcEnter(NpcMono npc)
-    {
-        if (curNpc != null && curNpc != npc)
-        {
-            HandleNpcExit(curNpc);
-        }
-        curNpc = npc;
-
-        //PushUI(npcUI.gameObject, CloseNpcFromTop, "NPC");
-        //npcUI.Bind(npc.Core);
-        //BindNpcCore(npc.Core, true);
-    }
-    void NpcUIOpen()
-    {
-        
-    }
-    void HandleNpcExit(NpcMono npc)
-    {
-        NpcUIClose();
-    }
-    void NpcUIClose()
-    {
-        npcUI.gameObject.SetActive(false);
-    }
-    #endregion
-
     #region CursorController 관련
     int enabledUICount = 0;
-
     // ESC 눌렀을 때
     void HandleEscUIClose()
     {
@@ -336,7 +301,7 @@ public class PanelManager : MonoBehaviour
         if (enabledUICount > 0)
         {
             InventoryUIClose();
-            NpcUIClose();
+            if (curNpc != null) HandleNpcExit(curNpc);
             enabledUICount = 0;
             CursorController.Apply(true);
         }
@@ -356,7 +321,10 @@ public class PanelManager : MonoBehaviour
 
         CursorController.Apply(enabledUICount == 0);
     }
-    // Awake에서 초기화
+    #endregion
+
+    #region 기타 자체 유틸 함수
+    // UI 켜져있는 갯수를 Awake에서 초기화
     void RecountAndApply()
     {
         enabledUICount = 0;
@@ -367,6 +335,25 @@ public class PanelManager : MonoBehaviour
                 enabledUICount++;
         }
         CursorController.Apply(enabledUICount == 0); // 모두 꺼지면 true
+    }
+
+    GraphicRaycaster raycaster;
+    // EndDrag에서 Storage 판정
+    StorageTarget ToStorageTarget(PointerEventData pointer)
+    {
+        List<RaycastResult> results = new List<RaycastResult>();
+        raycaster.Raycast(pointer, results);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            GameObject go = results[i].gameObject;
+
+            if (go.CompareTag("InventoryUI")) return StorageTarget.Player;
+            if (go.CompareTag("ChestUI")) return StorageTarget.Chest;
+            if (go.CompareTag("EquipUI")) return StorageTarget.Equip;
+        }
+
+        return StorageTarget.World;
     }
     #endregion
 }

@@ -6,86 +6,85 @@ using UnityEngine.UI;
 
 public class NpcUI : MonoBehaviour
 {
-    [Header("Menu")]
-    [SerializeField] GameObject menuRoot;
-    [SerializeField] Button talkButton;
-    [SerializeField] Button shopButton;   // hasShop=false면 숨김
-    [SerializeField] Button leaveButton;
-
-    [Header("Dialogue")]
-    [SerializeField] GameObject dialogueRoot;
+    [SerializeField] ChoicesPanel choicesPanel;
     [SerializeField] TMP_Text dialogueText;
-    [SerializeField] Button nextButton;
-    [SerializeField] Button closeButton;
 
-    NpcCore core;
+    DialogueCore boundDialogue;
 
-    public void Bind(NpcCore npc)
+    void Awake()
     {
-        core = npc;
+        //DialogueCore의 
+    }
 
-        talkButton.onClick.RemoveAllListeners();
-        talkButton.onClick.AddListener(OnClickTalk);
-        shopButton.onClick.RemoveAllListeners();
-        shopButton.onClick.AddListener(OnClickShop);
-        leaveButton.onClick.RemoveAllListeners();
-        leaveButton.onClick.AddListener(OnClickLeave);
+    public void Bind(DialogueCore dialogue)
+    {
+        Unbind();
 
-        nextButton.onClick.RemoveAllListeners();
-        nextButton.onClick.AddListener(OnClickNext);
-        closeButton.onClick.RemoveAllListeners();
-        closeButton.onClick.AddListener(OnClickClose);
+        boundDialogue = dialogue;
+        if (boundDialogue == null)
+        {
+            return;
+        }
 
-        OpenMenu();
+        boundDialogue.OnNodeChanged += HandleNodeChanged;
+
+        // 현재 노드 바로 반영하고 싶으면:
+        // HandleNodeChanged(boundDialogue.CurrentNode); 이런 식으로 프로퍼티 하나 두면 됨.
     }
 
     public void Unbind()
     {
-        core = null;
-        menuRoot.SetActive(false);
-        dialogueRoot.SetActive(false);
+        if (boundDialogue != null)
+        {
+            boundDialogue.OnNodeChanged -= HandleNodeChanged;
+            boundDialogue = null;
+        }
     }
 
-    public void ShowMenu(List<string> options)
+    void HandleNodeChanged(DialogueNode node)
     {
-        menuRoot.SetActive(true);
-        dialogueRoot.SetActive(false);
+        if (node == null)
+        {
+            Close();
+            return;
+        }
 
-        SetLabel(talkButton, options[0]);
+        dialogueText.text = node.text;
 
-        bool hasShop = options.Count == 3;
-        shopButton.gameObject.SetActive(hasShop);
-        if (hasShop) SetLabel(shopButton, options[1]);
-
-        string leaveText = hasShop ? options[2] : options[1];
-        SetLabel(leaveButton, leaveText);
+        if (node.HasChoices)
+        {
+            choicesPanel.gameObject.SetActive(true);
+            choicesPanel.Set(node.choices, OnClickChoice);
+        }
+        else
+        {
+            choicesPanel.gameObject.SetActive(false);
+        }
     }
 
-    public void ShowLine(string text, bool hasNext)
+    void OnClickChoice(int index)
     {
-        menuRoot.SetActive(false);
-        dialogueRoot.SetActive(true);
+        if (boundDialogue == null)
+        {
+            return;
+        }
 
-        dialogueText.text = text != null ? text : string.Empty;
-        nextButton.gameObject.SetActive(hasNext);
-        closeButton.gameObject.SetActive(!hasNext);
+        boundDialogue.SelectChoice(index);
     }
 
-    public void OpenMenu()
+    public void OnClickNext()
     {
-        menuRoot.SetActive(true);
-        dialogueRoot.SetActive(false);
+        if (boundDialogue == null)
+        {
+            return;
+        }
+
+        boundDialogue.Next();
     }
 
-    void OnClickTalk() { if (core != null) core.ChooseMenu(NpcMenuOption.Talk); }
-    void OnClickShop() { if (core != null) core.ChooseMenu(NpcMenuOption.Shop); }
-    void OnClickLeave() { if (core != null) core.ChooseMenu(NpcMenuOption.Leave); }
-    void OnClickNext() { if (core != null) core.NextLine(); }
-    void OnClickClose() { if (core != null) core.NextLine(); }
-
-    void SetLabel(Button btn, string text)
+    void Close()
     {
-        TextMeshProUGUI tmp = btn.GetComponentInChildren<TextMeshProUGUI>();
-        if (tmp != null) tmp.text = text;
+        choicesPanel.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 }

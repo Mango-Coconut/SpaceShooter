@@ -116,7 +116,7 @@ public class Chest : InventoryMono, IInteractable
 
     public bool IsAvailable() => true;
     public void OnFocus() { }
-    public void OnUnfocus() { }
+    public void OnUnfocus() {CloseChest(owner); }
 
     public Sprite GetIcon() => chestSprite;
     public (string inputKeyText, string behaviorText) GetPrompt() => ("F", "열기");
