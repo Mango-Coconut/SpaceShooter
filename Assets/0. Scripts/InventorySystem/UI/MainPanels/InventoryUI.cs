@@ -13,6 +13,8 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] EquipSlotPanel equipSlotPanel;
     public EquipSlotPanel EquipSlotPanel => equipSlotPanel;
 
+    [SerializeField] CoinPanel coinPanel;
+
     //구독 편하게 하기 용
     SlotPanelBase[] panels;
 
@@ -50,7 +52,8 @@ public class InventoryUI : MonoBehaviour
             panels[i].OnDraggingArgs += ForwardDragging;
             panels[i].OnDroppedArgs += ForwardDropped;
         }
-
+        
+        slotPanel.OnChangedCoin += RefreshCoinPanel;
     }
 
     private void UnsubscribeSlotPanel()
@@ -70,9 +73,16 @@ public class InventoryUI : MonoBehaviour
             panels[i].OnDraggingArgs -= ForwardDragging;
             panels[i].OnDroppedArgs -= ForwardDropped;
         }
+        slotPanel.OnChangedCoin -= RefreshCoinPanel;
     }
 
 
+    void RefreshCoinPanel(int coin)
+    {
+        coinPanel.SetCoin(coin);
+    }
+
+    // 슬롯 이벤트 포워딩
     public event Action<SlotPanelEventArgs> OnMouseEnter;
     public event Action<SlotPanelEventArgs> OnMouseExit;
     public event Action<SlotPanelEventArgs> OnRightClick;

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Chest : InventoryMono, IInteractable
 {
+    // Interact시 발송할 이벤트
     [SerializeField] InteractionHub hub;
 
     [Header("Chest Identification")]
@@ -12,8 +13,6 @@ public class Chest : InventoryMono, IInteractable
     [Header("Initial Items (for editor setup)")]
     [SerializeField] StoredItem[] chestitems;
     public string InstanceId => instanceId;
-    public static event Action<Chest> OnChestOpened;
-    public static event Action<Chest> OnChestClosed;
 
     PlayerController owner;
     bool isOpen = false;
@@ -57,7 +56,7 @@ public class Chest : InventoryMono, IInteractable
                     Log.Error($"{InstanceId} Chest에 아이템 지정하기");
                     break;
                 }
-                TryAddItem(item.itemData, item.count);
+                TryAddItem(item);
             }
         }
     }

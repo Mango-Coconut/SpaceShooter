@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 730438daa48e06e428b81b5c41ebb2aa, type: 3}
+  m_Name: SilverCoin
+  m_EditorClassIdentifier: 
+  id: 10001
+  itemName: "\uC2E4\uBC84"
+  icon: {fileID: 21300000, guid: b5aebbae01b14c344b7559d302b607b3, type: 3}
+  description: 
+  modelPrefab: {fileID: 2394176299899883877, guid: 4f706a7b0e8eb744e8691866be3ac7a1, type: 3}
+  type: 4
+  equiptype: 0
+  rarity: 1
+  price: 100
+  weight: 1
+  volume: 1
+  maxStack: 9999

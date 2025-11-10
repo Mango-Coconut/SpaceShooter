@@ -1,9 +1,11 @@
 using System;
+using System.Runtime.InteropServices;
 using Palmmedia.ReportGenerator.Core.Reporting.Builders;
 using UnityEngine;
 
 public class NpcMono : MonoBehaviour, IInteractable
 {
+    // Interact시 발송할 이벤트
     [SerializeField] InteractionHub hub;
 
     [SerializeField] Sprite icon;
@@ -15,15 +17,9 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     PlayerController user;
 
-    // PanelManager가 받아서 NpcUI 띄우기
-    public event Action<NpcMono> OnNpcEnter;
-    public event Action<NpcMono> OnNpcExit;
-
-
-
     void Awake()
     {
-        npcCore = new NpcCore(gameObject.name, dialogueAsset);
+        npcCore = new NpcCore(gameObject.name);
 
         // 자식의 Animator 찾아오기
         int childCount = transform.childCount;
@@ -48,7 +44,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     bool isEnter = false;
     public void Interact(PlayerController pc)
     {
-        //추후 네트워크 환경 등에서 추가
+        //추후 네트워크 환경 등에서 널가드 추가
         // if (pc == null) Log.Error("NpcMono : PlayerController is null");
         if (isEnter == false)
         {
@@ -68,6 +64,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         if (hub != null && hub.npc != null)
         {
             hub.npc.RaiseEnter(this);
+            npcCore.Initialize(dialogueAsset);
         }
 
     }
@@ -92,7 +89,7 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     public void OnFocus()
     {
-        animator.SetTrigger("Scanned");
+        //animator.SetTrigger("Scanned");
     }
 
     public void OnUnfocus()

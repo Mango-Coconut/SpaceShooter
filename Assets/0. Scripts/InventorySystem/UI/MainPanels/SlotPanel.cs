@@ -9,7 +9,7 @@ public class SlotPanel : SlotPanelBase
     public InventoryMono Inventory => inventory;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] StorageTarget myStorageType;
-    
+
 
     void OnEnable()
     {
@@ -23,7 +23,7 @@ public class SlotPanel : SlotPanelBase
         UnsubscribeInventory();
         UnSubscribeSlotUI();
     }
- 
+
     #region 인벤토리 세팅 관련
 
     // 새로운 인벤토리 세팅
@@ -119,13 +119,21 @@ public class SlotPanel : SlotPanelBase
         }
 
         UnsubscribeInventory();
-        inventory.OnChanged += Refresh; 
+        inventory.Core.OnItemChanged += Refresh;
+        inventory.Core.OnCoinChanged += ForwardChangedCoin;
     }
 
     void UnsubscribeInventory()
     {
         if (inventory == null) return;
-        inventory.OnChanged -= Refresh;
+        inventory.Core.OnItemChanged -= Refresh;
+        inventory.Core.OnCoinChanged += ForwardChangedCoin;
+    }
+
+    public event Action<int> OnChangedCoin;
+    void ForwardChangedCoin(int coin)
+    {
+        OnChangedCoin?.Invoke(coin);
     }
 
     protected override StorageTarget GetSource()

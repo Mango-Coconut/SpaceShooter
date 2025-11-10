@@ -85,7 +85,6 @@ public class DroppedItem : MonoBehaviour, IInteractable
             GameObject modelInstance = Instantiate(item.itemData.modelPrefab, modelRoot);
             modelInstance.transform.localPosition = Vector3.zero;
             modelInstance.transform.localRotation = Quaternion.identity;
-            modelInstance.transform.localScale = Vector3.one;
         }
         else
         {

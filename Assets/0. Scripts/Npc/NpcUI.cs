@@ -8,6 +8,7 @@ public class NpcUI : MonoBehaviour
 {
     [SerializeField] ChoicesPanel choicesPanel;
     [SerializeField] TMP_Text dialogueText;
+    [SerializeField] Button nextButton;
 
     DialogueCore boundDialogue;
 
@@ -53,33 +54,31 @@ public class NpcUI : MonoBehaviour
 
         if (node.HasChoices)
         {
+            nextButton.gameObject.SetActive(false);
             choicesPanel.gameObject.SetActive(true);
             choicesPanel.Set(node.choices, OnClickChoice);
         }
         else
         {
+            nextButton.gameObject.SetActive(true);
             choicesPanel.gameObject.SetActive(false);
         }
     }
 
     void OnClickChoice(int index)
     {
-        if (boundDialogue == null)
+        if (boundDialogue != null)
         {
-            return;
+            boundDialogue.SelectChoice(index);
         }
-
-        boundDialogue.SelectChoice(index);
     }
 
     public void OnClickNext()
     {
-        if (boundDialogue == null)
+        if (boundDialogue != null)
         {
-            return;
+            boundDialogue.Next();
         }
-
-        boundDialogue.Next();
     }
 
     void Close()
