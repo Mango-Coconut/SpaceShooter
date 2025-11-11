@@ -17,6 +17,7 @@ public class InventoryMono : MonoBehaviour
     {
         Core = new InventoryCore(capacity);
     }
+    
     public bool TryAddItem(StoredItem item) => Core.TryAddItem(item);
     public bool TryRemoveItem(StoredItem item) => Core.TryRemoveItem(item);
 }

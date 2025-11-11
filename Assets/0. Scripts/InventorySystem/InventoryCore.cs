@@ -19,9 +19,9 @@ public class InventoryCore : IItemSource, IItemSink
         this.capacity = capacity;
     }
 
-    // SlotPanel -> InventoryUI -> PanelManager -> InventoryManager.Deliver...
+    // 이벤트 체인 : SlotPanel.Refresh()
     public event Action OnItemChanged;
-    // SlotPanel -> InventoryUI.coinPanel.Set(...)
+    // 이벤트 체인 : SlotPanel -> InventoryUI.coinPanel.Set(...)
     public event Action<int> OnCoinChanged;
 
     void RaiseItemChanged() => OnItemChanged?.Invoke();

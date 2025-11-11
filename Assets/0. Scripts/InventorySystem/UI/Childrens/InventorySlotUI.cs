@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(InventorySlotUIHandler))]
+
 public class InventorySlotUI : MonoBehaviour
 {
     [HideInInspector] public InventorySlotUIHandler handler;
