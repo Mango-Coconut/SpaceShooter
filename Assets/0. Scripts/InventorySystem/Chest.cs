@@ -53,7 +53,7 @@ public class Chest : InventoryMono, IInteractable
             {
                 if (item.itemData == null)
                 {
-                    Log.Error($"{InstanceId} Chest에 아이템 지정하기");
+                    Log.Error($"{InstanceId} Chest에 아이템 지정하기 실패");
                     break;
                 }
                 TryAddItem(item);

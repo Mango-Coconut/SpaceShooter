@@ -11,7 +11,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     [SerializeField] Sprite icon;
     [SerializeField] DialogueAsset dialogueAsset;
 
-    public NpcCore npcCore { get; private set; }
+    public NpcCore Core { get; private set; }
 
     Animator animator;
 
@@ -19,7 +19,7 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     void Awake()
     {
-        npcCore = new NpcCore(gameObject.name);
+        Core = new NpcCore(gameObject.name);
 
         // 자식의 Animator 찾아오기
         int childCount = transform.childCount;
@@ -41,6 +41,40 @@ public class NpcMono : MonoBehaviour, IInteractable
         }
     }
     
+    #region 이벤트
+    void OnEnable()
+    {
+        Core.dialogueCore.OnCommand -= HandleCommand;
+        Core.dialogueCore.OnEnded -= HandleDialogueEnded;
+        Core.dialogueCore.OnCommand += HandleCommand;
+        Core.dialogueCore.OnEnded += HandleDialogueEnded;
+    }
+
+    void OnDisable()
+    {
+        Core.dialogueCore.OnCommand -= HandleCommand;
+        Core.dialogueCore.OnEnded -= HandleDialogueEnded;
+    }
+
+
+
+    void HandleDialogueEnded()
+    {
+        Exit();
+    }
+    void HandleCommand(DialogueCommand command)
+    {
+        switch (command)
+        {
+            case DialogueCommand.None:
+                break;
+                
+            case DialogueCommand.OpenShop:
+                break;
+        }
+    }
+    
+    #endregion
     bool isEnter = false;
     public void Interact(PlayerController pc)
     {
@@ -48,43 +82,48 @@ public class NpcMono : MonoBehaviour, IInteractable
         // if (pc == null) Log.Error("NpcMono : PlayerController is null");
         if (isEnter == false)
         {
-            user = pc;
-            Enter();
+            Enter(pc);
         }
         else
         {
             Exit();
         }
     }
-    public void Enter()
+    public void Enter(PlayerController pc)
     {
+        if (isEnter == true) return;
+        if (pc == null || pc.gate == null) return;
+        if (hub == null || hub.npc == null) return;
+
         isEnter = true;
-        if (user.gate != null) { user.gate.PushUI(); }
 
-        if (hub != null && hub.npc != null)
-        {
-            hub.npc.RaiseEnter(this);
-            npcCore.Initialize(dialogueAsset);
-        }
+        user = pc;
+        user.gate.PushUI();
 
+        hub.npc.RaiseEnter(this);
+        Core.Initialize(dialogueAsset);
+
+        Log.Info($"enter");
     }
-
     public void Exit()
     {
+        if (isEnter == false) return;
+        if (user == null || user.gate == null) return;
+        if (hub == null || hub.npc == null) return;
+
         isEnter = false;
 
-        if (hub != null && hub.npc != null)
-        {
-            hub.npc.RaiseExit(this);
-        }
-
-        if (user.gate != null) { user.gate.PopUI(); }
+        user.gate.PopUI();
         user = null;
+
+        hub.npc.RaiseExit(this);
+        
+        Log.Info($"exit");
     }
 
     public bool IsAvailable()
     {
-        return npcCore.CanTalk;
+        return Core.CanTalk;
     }
 
     public void OnFocus()

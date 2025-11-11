@@ -200,10 +200,10 @@ public class PanelManager : MonoBehaviour
     {
         if (curNpc != null && curNpc != npc) HandleNpcExit(npc);
 
-        npcUI.gameObject.SetActive(true);
-
         curNpc = npc;
-        npcUI.Bind(npc.npcCore.dialogueCore);
+
+        npcUI.gameObject.SetActive(true);
+        npcUI.Bind(npc.Core.dialogueCore);
 
         interactUIController.Hide();
     }
@@ -213,8 +213,8 @@ public class PanelManager : MonoBehaviour
         if (!IsOpen(npcUI.gameObject)) return;
 
         if (curNpc == npc) curNpc = null;
-        //npcUI.Clear();
-
+        
+        npcUI.Unbind();
         npcUI.gameObject.SetActive(false);
 
         interactUIController.Show();

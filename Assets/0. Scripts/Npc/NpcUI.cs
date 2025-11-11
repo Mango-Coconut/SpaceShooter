@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -19,27 +20,19 @@ public class NpcUI : MonoBehaviour
 
     public void Bind(DialogueCore dialogue)
     {
+        if (dialogue == null) return;
         Unbind();
 
         boundDialogue = dialogue;
-        if (boundDialogue == null)
-        {
-            return;
-        }
-
         boundDialogue.OnNodeChanged += HandleNodeChanged;
-
-        // 현재 노드 바로 반영하고 싶으면:
-        // HandleNodeChanged(boundDialogue.CurrentNode); 이런 식으로 프로퍼티 하나 두면 됨.
     }
 
     public void Unbind()
     {
-        if (boundDialogue != null)
-        {
-            boundDialogue.OnNodeChanged -= HandleNodeChanged;
-            boundDialogue = null;
-        }
+        if (boundDialogue == null) return;
+
+        boundDialogue.OnNodeChanged -= HandleNodeChanged;
+        boundDialogue = null;
     }
 
     void HandleNodeChanged(DialogueNode node)
@@ -84,6 +77,7 @@ public class NpcUI : MonoBehaviour
     void Close()
     {
         choicesPanel.gameObject.SetActive(false);
+        Unbind();
         gameObject.SetActive(false);
     }
 }

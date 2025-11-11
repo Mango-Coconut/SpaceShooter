@@ -32,7 +32,7 @@ MonoBehaviour:
     choices: []
   - nodeId: 2
     text: "\uD544\uC694\uD55C \uAC70 \uC788\uC5B4?"
-    isEnd: 1
+    isEnd: 0
     nextNodeId: 
     choices:
     - text: "\uC0C1\uC810"

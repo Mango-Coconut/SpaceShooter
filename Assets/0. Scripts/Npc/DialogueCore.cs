@@ -10,6 +10,7 @@ public class DialogueCore
 
     public event Action<DialogueNode> OnNodeChanged;
     public event Action<DialogueCommand> OnCommand;
+    public event Action OnEnded;
 
     public void Start(DialogueAsset dialogueAsset)
     {
@@ -38,6 +39,7 @@ public class DialogueCore
         {
             current = null;
             RaiseNodeChanged();
+            RaiseEnded();
             return;
         }
 
@@ -57,10 +59,11 @@ public class DialogueCore
 
     void RaiseNodeChanged()
     {
-        if (OnNodeChanged != null)
-        {
-            OnNodeChanged.Invoke(current);
-        }
+        OnNodeChanged?.Invoke(current);
+    }
+    void RaiseEnded()
+    {
+        OnEnded?.Invoke();
     }
 
     public void Next() // 선택지 없는 노드에서 “다음”
@@ -103,7 +106,7 @@ public class DialogueCore
         }
 
         // 다음 노드로 이동
-        if (current.isEnd)
+        if (string.IsNullOrEmpty(choice.nextNodeId))
         {
             Goto(null);
         }
