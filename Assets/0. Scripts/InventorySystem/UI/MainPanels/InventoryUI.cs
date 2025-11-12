@@ -45,12 +45,12 @@ public class InventoryUI : MonoBehaviour
 
         for (int i = 0; i < panels.Length; i++)
         {
-            panels[i].OnMouseEnter += ForwardMouseEnter;
-            panels[i].OnMouseExit += ForwardMouseExit;
-            panels[i].OnRightClickArgs += ForwardRightClick;
-            panels[i].OnBeginDragArgs += ForwardBeginDrag;
-            panels[i].OnDraggingArgs += ForwardDragging;
-            panels[i].OnDroppedArgs += ForwardDropped;
+            panels[i].MouseEntered += ForwardMouseEnter;
+            panels[i].MouseExited += ForwardMouseExit;
+            panels[i].RightClicked += ForwardRightClick;
+            panels[i].DragBegan += ForwardBeginDrag;
+            panels[i].Dragging += ForwardDragging;
+            panels[i].DragEnded += ForwardDropped;
         }
         
         slotPanel.OnChangedCoin += RefreshCoinPanel;
@@ -66,12 +66,12 @@ public class InventoryUI : MonoBehaviour
 
         for (int i = 0; i < panels.Length; i++)
         {
-            panels[i].OnMouseEnter -= ForwardMouseEnter;
-            panels[i].OnMouseExit -= ForwardMouseExit;
-            panels[i].OnRightClickArgs -= ForwardRightClick;
-            panels[i].OnBeginDragArgs -= ForwardBeginDrag;
-            panels[i].OnDraggingArgs -= ForwardDragging;
-            panels[i].OnDroppedArgs -= ForwardDropped;
+            panels[i].MouseEntered -= ForwardMouseEnter;
+            panels[i].MouseExited -= ForwardMouseExit;
+            panels[i].RightClicked -= ForwardRightClick;
+            panels[i].DragBegan -= ForwardBeginDrag;
+            panels[i].Dragging -= ForwardDragging;
+            panels[i].DragEnded -= ForwardDropped;
         }
         slotPanel.OnChangedCoin -= RefreshCoinPanel;
     }

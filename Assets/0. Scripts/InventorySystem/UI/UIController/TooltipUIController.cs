@@ -18,7 +18,7 @@ public class TooltipUIController : MonoBehaviour
 
     public void Show(SlotPanelEventArgs args)
     {
-        RectTransform slotRect = args.Slot.Rect;
+        RectTransform slotRect = args.Rect;
 
         Vector3[] corners = new Vector3[4];
         slotRect.GetWorldCorners(corners);
