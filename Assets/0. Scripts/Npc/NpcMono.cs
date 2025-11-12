@@ -7,9 +7,11 @@ public class NpcMono : MonoBehaviour, IInteractable
 {
     // Interact시 발송할 이벤트
     [SerializeField] InteractionHub hub;
-
     [SerializeField] Sprite icon;
     [SerializeField] DialogueAsset dialogueAsset;
+
+    ShopInventory shopInventory;
+    public ShopInventory ShopInventory => shopInventory;
 
     public NpcCore Core { get; private set; }
 
@@ -20,6 +22,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     void Awake()
     {
         Core = new NpcCore(gameObject.name);
+        shopInventory = GetComponent<ShopInventory>();
 
         // 자식의 Animator 찾아오기
         int childCount = transform.childCount;
@@ -40,8 +43,9 @@ public class NpcMono : MonoBehaviour, IInteractable
             Log.Warn($"{name}: Animator not found among direct children.");
         }
     }
-    
+
     #region 이벤트
+    public event Action OpenShop;
     void OnEnable()
     {
         Core.dialogueCore.OnCommand -= HandleCommand;
@@ -68,12 +72,13 @@ public class NpcMono : MonoBehaviour, IInteractable
         {
             case DialogueCommand.None:
                 break;
-                
+
             case DialogueCommand.OpenShop:
+                OpenShop?.Invoke();
                 break;
         }
     }
-    
+
     #endregion
     bool isEnter = false;
     public void Interact(PlayerController pc)
@@ -117,7 +122,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         user = null;
 
         hub.npc.RaiseExit(this);
-        
+
         Log.Info($"exit");
     }
 

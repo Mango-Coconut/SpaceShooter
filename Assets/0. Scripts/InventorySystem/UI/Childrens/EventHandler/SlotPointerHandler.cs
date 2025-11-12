@@ -3,7 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InventorySlotUIHandler : MonoBehaviour,
+public class SlotPointerHandler : MonoBehaviour,
 IPointerEnterHandler,
 IPointerExitHandler
 {

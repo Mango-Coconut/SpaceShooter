@@ -9,6 +9,7 @@ public class DialogueCore
     DialogueNode current;
 
     public event Action<DialogueNode> OnNodeChanged;
+    //if Shop -> NpcMono -> PanelManager
     public event Action<DialogueCommand> OnCommand;
     public event Action OnEnded;
 

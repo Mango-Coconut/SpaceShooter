@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SlotRClickHandler : MonoBehaviour,
+public class SlotClickHandler : MonoBehaviour,
 IPointerClickHandler
 {
     public Func<StoredItem> GetItem;
-    
+
     public event Action<StoredItem> LeftClicked;
     public event Action<StoredItem> RightClicked;
     // Start is called before the first frame update

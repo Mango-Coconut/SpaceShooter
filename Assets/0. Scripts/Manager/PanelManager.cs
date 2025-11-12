@@ -11,6 +11,7 @@ public class PanelManager : MonoBehaviour
     [SerializeField] InventoryUI inventoryUI;
     [SerializeField] ChestUI chestUI;
     [SerializeField] NpcUI npcUI;
+    [SerializeField] ShopUI shopUI;
     #endregion
 
     #region 유틸 패널 컨트롤러
@@ -136,7 +137,7 @@ public class PanelManager : MonoBehaviour
 
     #endregion
 
-    #region Inventory UI 열고 닫기
+    #region InventoryUI 열닫
     void HandleInventoryUIToggle()
     {
         if (!IsOpen(inventoryUI.gameObject))
@@ -159,7 +160,7 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region Chest UI 열고 닫기
+    #region ChestUI 열닫
     void HandleChestOpen(Chest c)
     {
         if (curChest != null && curChest != c)
@@ -195,12 +196,13 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region NpcUI 열고 닫기
+    #region NpcUI 열닫
     void HandleNpcEnter(NpcMono npc)
     {
         if (curNpc != null && curNpc != npc) HandleNpcExit(npc);
 
         curNpc = npc;
+        curNpc.OpenShop += HandleShopOpen;
 
         npcUI.gameObject.SetActive(true);
         npcUI.Bind(npc.Core.dialogueCore);
@@ -212,8 +214,9 @@ public class PanelManager : MonoBehaviour
     {
         if (!IsOpen(npcUI.gameObject)) return;
 
+        curNpc.OpenShop -= HandleShopOpen;
         if (curNpc == npc) curNpc = null;
-        
+
         npcUI.Unbind();
         npcUI.gameObject.SetActive(false);
 
@@ -221,7 +224,21 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region 아이템 툴팁 열고 닫기
+    #region ShopUI 열닫
+    void HandleShopOpen()
+    {
+        if (curNpc.ShopInventory.Slots == null) return;
+        shopUI.gameObject.SetActive(true);
+        shopUI.Bind(curNpc.ShopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
+    }
+    void ShopClose()
+    {
+        if (!IsOpen(shopUI.gameObject)) return;
+        shopUI.gameObject.SetActive(false);
+    }
+    #endregion
+
+    #region 툴팁 열닫
     void HandleTooltipShow(SlotPanelEventArgs args)
     {
         tooltipUIController.Show(args);
@@ -233,7 +250,7 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region 아이템 옮기기(드래그, 우클릭)
+    #region 아이템 옮기기
     void HandleBeginDragFromPanel(SlotPanelEventArgs args)
     {
         StoredItem item = args.Item;
@@ -271,7 +288,7 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region InteractPanel 열고 닫기
+    #region InteractPanel 열닫
     void HandleInteractorChange(IInteractable interactable)
     {
         if (interactable != null)
@@ -292,7 +309,7 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region CursorController 관련
+    #region CursorController
     int enabledUICount = 0;
     // ESC 눌렀을 때
     void HandleEscUIClose()
@@ -323,7 +340,7 @@ public class PanelManager : MonoBehaviour
     }
     #endregion
 
-    #region 기타 자체 유틸 함수
+    #region 기타 유틸 함수
     // UI 켜져있는 갯수를 Awake에서 초기화
     void RecountAndApply()
     {
@@ -350,6 +367,7 @@ public class PanelManager : MonoBehaviour
 
             if (go.CompareTag("InventoryUI")) return StorageTarget.Player;
             if (go.CompareTag("ChestUI")) return StorageTarget.Chest;
+            if (go.CompareTag("ShopUI")) return StorageTarget.Shop;
             if (go.CompareTag("EquipUI")) return StorageTarget.Equip;
         }
 

@@ -14,9 +14,9 @@ public class EquipSlotPanel : SlotPanelBase
         ChestArmor = 2
     }
     [Tooltip("0: Weapon, 1: Helmet, 2: ChestArmor")]
-    InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon];
-    InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet];
-    InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor];
+    InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon] as InventorySlotUI;
+    InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet] as InventorySlotUI;
+    InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor] as InventorySlotUI;
     void Awake()
     {
         uiSlots.Clear();

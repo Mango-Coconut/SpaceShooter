@@ -53,14 +53,14 @@ public class SlotPanel : SlotPanelBase
         // 부족하면 생성
         for (int i = uiSlots.Count; i < targetCount; i++)
         {
-            InventorySlotUI slot = Instantiate(slotPrefab, transform).GetComponent<InventorySlotUI>();
+            ISlotUI slot = Instantiate(slotPrefab, transform).GetComponent<ISlotUI>();
             uiSlots.Add(slot);
         }
         // 넘치면 제거
         for (int i = uiSlots.Count - 1; i >= targetCount; i--)
         {
-            InventorySlotUI slot = uiSlots[i];
-            if (slot != null) Destroy(slot.gameObject);
+            ISlotUI slot = uiSlots[i];
+            if (slot != null) Destroy(slot.GO);
             uiSlots.RemoveAt(i);
         }
 
