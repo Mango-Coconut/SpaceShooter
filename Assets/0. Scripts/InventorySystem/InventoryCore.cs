@@ -27,6 +27,14 @@ public class InventoryCore : IItemSource, IItemSink
     void RaiseItemChanged() => OnItemChanged?.Invoke();
     void RaiseCoinChanged(int myCoin) => OnCoinChanged?.Invoke(myCoin);
 
+    //돈 바꾸기
+    public void ModifyCoin(int delta)
+    {
+        myCoin += delta;
+        if (myCoin < 0) myCoin = 0;
+        RaiseCoinChanged(myCoin);
+    }
+
     // 메인 진입점
     public bool TryAddItem(StoredItem incoming)
     {
@@ -37,7 +45,7 @@ public class InventoryCore : IItemSource, IItemSink
 
         if (data.type == ItemType.Coin)
         {
-            myCoin += incoming.count * data.price;
+            ModifyCoin(incoming.count * data.price);
             RaiseCoinChanged(myCoin);
             return true;
         }
@@ -232,6 +240,50 @@ public class InventoryCore : IItemSource, IItemSink
         int space = GetStackableSpace(data)
                     + GetFreeSlotCount() * data.maxStack;
         return space >= amount;
+    }
+
+    //여러 아이템 한번에 더할 수 있는가?
+    public bool CanAddItemsBatch(IReadOnlyDictionary<ItemData, int> cart, out int additionalSlotsNeeded)
+    {
+        additionalSlotsNeeded = 0;
+        if (cart == null || cart.Count == 0) return true;
+
+        // 현재 빈 슬롯
+        int free = GetFreeSlotCount();
+
+        // 아이템별 기존 스택의 남은 수용량을 “한 번만” 읽어와 재사용
+        // (여러 아이템이 같은 빈 슬롯을 놓고 경쟁하지 않게 한 번에 계산)
+        int slotsNeededTotal = 0;
+
+        foreach (KeyValuePair<ItemData, int> kv in cart)
+        {
+            ItemData data = kv.Key;
+            int qty = kv.Value;
+            if (data == null || qty <= 0) continue;
+
+            bool isStackable = data.maxStack > 1; // 또는 data.IsStackable
+
+            if (!isStackable)
+            {
+                // 유니크: 아이템 하나당 슬롯 1개
+                slotsNeededTotal += qty;
+                continue;
+            }
+
+            // 스택형: 기존 부분 스택 여유 먼저 채우고, 남은 수량만 새 슬롯 필요
+            int room = GetStackableSpace(data);
+            int remain = qty > room ? (qty - room) : 0;
+            if (remain > 0)
+            {
+                int stacks = (remain + data.maxStack - 1) / data.maxStack; // ceil
+                slotsNeededTotal += stacks;
+            }
+        }
+
+        if (slotsNeededTotal <= free) return true;
+
+        additionalSlotsNeeded = (slotsNeededTotal - free);
+        return false;
     }
 
     // ======================= CanRemove =======================

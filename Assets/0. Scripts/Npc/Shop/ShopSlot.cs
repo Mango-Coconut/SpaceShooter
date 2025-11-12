@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -19,17 +20,20 @@ public class ShopSlot : MonoBehaviour, ISlotUI
     // [SerializeField] TMP_Text sliderMinCountText; 는 항상 0
 
     [SerializeField] TMP_Text totalCoin;
-    [SerializeField] Button buyButton;
     #endregion
 
+    #region ISlotUI
     public SlotPointerHandler PointerHandler { get; private set; }
     public SlotClickHandler ClickHandler => null; // 상점은 안 씀
     public SlotDragHandler DragHandler => null; // 상점은 안 씀
     public RectTransform Rect { get; private set; }
     public GameObject GO => gameObject;
+    #endregion
 
+    CanvasGroup canvasGroup;
     StoredItem enterItem;
-    int playerCoin;
+
+    public event Action<StoredItem> OnCartedItem;
 
     void Awake()
     {
@@ -38,14 +42,14 @@ public class ShopSlot : MonoBehaviour, ISlotUI
         PointerHandler.GetItem = () => enterItem;
         PointerHandler.GetRect = () => Rect;
         Rect = GetComponent<RectTransform>();
+        canvasGroup = GetComponent<CanvasGroup>();
     }
 
-    public void Bind(StoredItem item, int? playerCoin = null)
+    public void Bind(StoredItem item)
     {
         if (item == null || item.itemData == null) { Clear(); return; }
 
         enterItem = item;
-        this.playerCoin = playerCoin ?? this.playerCoin;
 
         slider.value = 0;
         totalCoin.text = "0";
@@ -60,29 +64,37 @@ public class ShopSlot : MonoBehaviour, ISlotUI
     public void Clear()
     {
         enterItem = null;
+        Invisible();
     }
 
     public void Refresh()
     {
         if (enterItem == null || enterItem.itemData == null) return;
 
-        // slider Handle을 따라다니는 숫자
-        // if (slider.value == 0 || slider.value == enterItem.count)
-        // {
-        //     sliderHandleCountText.enabled = false;
-        // }
-        // else
-        // {
-        //     sliderHandleCountText.enabled =       true;
-        //     sliderHandleCountText.text = slider.value.ToString();
-        // }
-        sliderHandleCountText.text = slider.value.ToString();
-
+        sliderHandleCountText.SetText($"{slider.value}");
         int totalValue = (int)(enterItem.itemData.price * slider.value);
-        totalCoin.text = totalValue.ToString();
+        totalCoin.SetText($"{totalValue}");
 
-        // 구매 가능 여부
-        bool canBuy = (enterItem.count > 0) && (playerCoin >= totalValue);
-        buyButton.interactable = canBuy;
+        if (enterItem.IsUniqueInstance())
+        {
+            OnCartedItem?.Invoke(enterItem);
+        }
+        else
+        {
+            OnCartedItem?.Invoke(new StoredItem(enterItem.itemData, (int)slider.value));
+        }
+    }
+
+    public void Invisible()
+    {
+        canvasGroup.alpha = 0f;           
+        canvasGroup.interactable = false; 
+        canvasGroup.blocksRaycasts = false;
+    }
+    public void Visible()
+    {
+        canvasGroup.alpha = 1f; 
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true; 
     }
 }

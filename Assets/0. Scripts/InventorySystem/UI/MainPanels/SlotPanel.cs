@@ -88,18 +88,17 @@ public class SlotPanel : SlotPanelBase
         }
 
         int uiIndex = 0;
-        foreach (StoredItem si in inventory.Slots)
+        foreach (StoredItem item in inventory.Slots)
         {
-            if (categoryFilter == ItemType.All || categoryFilter == si.itemData.type)
+            if (categoryFilter == ItemType.All || categoryFilter == item.itemData.type)
             {
                 if (uiIndex < uiSlots.Count)
                 {
-                    uiSlots[uiIndex].Bind(si);
+                    uiSlots[uiIndex].Bind(item);
                 }
                 uiIndex++;
             }
         }
-
         // 남은 슬롯은 Clear
         for (int i = uiIndex; i < uiSlots.Count; i++)
         {
@@ -127,7 +126,7 @@ public class SlotPanel : SlotPanelBase
     {
         if (inventory == null) return;
         inventory.Core.OnItemChanged -= Refresh;
-        inventory.Core.OnCoinChanged += ForwardChangedCoin;
+        inventory.Core.OnCoinChanged -= ForwardChangedCoin;
     }
 
     public event Action<int> OnChangedCoin;

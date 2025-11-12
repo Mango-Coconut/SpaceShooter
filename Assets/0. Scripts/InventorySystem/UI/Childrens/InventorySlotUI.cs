@@ -7,17 +7,23 @@ using UnityEngine.UI;
 [RequireComponent(typeof(SlotDragHandler))]
 public class InventorySlotUI : MonoBehaviour, ISlotUI
 {    
+    #region UI Child Components
     [SerializeField] Image itemImage;
     [SerializeField] TMP_Text itemAmount;
+    #endregion 
 
+
+    #region ISlotUI
     public SlotPointerHandler PointerHandler { get; private set; }
     public SlotClickHandler ClickHandler { get; private set; }
     public SlotDragHandler DragHandler { get; private set; }
     public RectTransform Rect { get; private set; }
     public GameObject GO => gameObject;
+    #endregion
 
     StoredItem enterItem;
     public StoredItem EnterItem => enterItem;
+    CanvasGroup canvasGroup;
 
 
     void Awake()
@@ -44,7 +50,7 @@ public class InventorySlotUI : MonoBehaviour, ISlotUI
             DragHandler.SetGhostInvisible = Invisible;
             DragHandler.SetGhostVisible = Visible;
         }
-
+        canvasGroup = GetComponent<CanvasGroup>();
         Clear();
     }
 
@@ -61,6 +67,7 @@ public class InventorySlotUI : MonoBehaviour, ISlotUI
             Clear();
             return;
         }
+        Visible();
 
         itemImage.enabled = true;
         itemImage.sprite = item.itemData.icon;
@@ -79,14 +86,15 @@ public class InventorySlotUI : MonoBehaviour, ISlotUI
     }
     public void Invisible()
     {
-        if (itemImage != null) itemImage.enabled = false;
-        if (itemAmount != null) itemAmount.enabled = false;
+        canvasGroup.alpha = 0f;           
+        canvasGroup.interactable = false; 
+        canvasGroup.blocksRaycasts = false;
     }
     public void Visible()
     {
-        if (enterItem == null) return;
-        if (itemImage != null) itemImage.enabled = true;
-        if (itemAmount != null && enterItem.count > 1) itemAmount.enabled = true;
+        canvasGroup.alpha = 1f; 
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true; 
     }
 
     public void Bind(StoredItem item, int? playerCoin = null)

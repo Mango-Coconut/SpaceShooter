@@ -25,7 +25,7 @@ public abstract class SlotPanelBase : MonoBehaviour
     {
         UnSubscribeSlotUI();
 
-        foreach (InventorySlotUI slot in uiSlots)
+        foreach (ISlotUI slot in uiSlots)
         {
             if (slot == null) continue;
 
@@ -55,7 +55,7 @@ public abstract class SlotPanelBase : MonoBehaviour
 
     protected virtual void UnSubscribeSlotUI()
     {
-        foreach (InventorySlotUI slot in uiSlots)
+        foreach (ISlotUI slot in uiSlots)
         {
             if (slot == null) continue;
 

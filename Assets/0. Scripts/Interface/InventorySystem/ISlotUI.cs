@@ -14,7 +14,7 @@ public interface ISlotUI
     GameObject GO { get; }   // ← 추가
 
     // 공통 바인딩: 코인은 상점 슬롯만 사용, 인벤토리는 무시
-    void Bind(StoredItem item, int? playerCoin = null);
+    void Bind(StoredItem item);
 
     public void Clear();
 }
