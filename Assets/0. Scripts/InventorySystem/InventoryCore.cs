@@ -363,7 +363,6 @@ public class InventoryCore : IItemSource, IItemSink
             }
             data.slots.Add(s.SaveData());
         }
-        Log.Info($"{data.coin}");
         return data;
     }
 

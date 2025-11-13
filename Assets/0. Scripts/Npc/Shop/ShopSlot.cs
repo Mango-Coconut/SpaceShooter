@@ -58,9 +58,6 @@ public class ShopSlot : MonoBehaviour, ISlotUI
 
         enterItem = item;
 
-        slider.value = 0;
-        totalCoin.text = "0";
-
         itemImage.sprite = enterItem.itemData.icon;
         itemImageCount.text = enterItem.count.ToString();
         slider.maxValue = enterItem.count;
