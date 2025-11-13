@@ -9,4 +9,5 @@ public class SaveData
     public EquipData equipped;
     public WorldDropData world;
     public List<ChestData> chests;
+    public List<NpcData> npcs;
 }

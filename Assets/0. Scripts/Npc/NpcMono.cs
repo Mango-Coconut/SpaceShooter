@@ -5,19 +5,23 @@ using UnityEngine;
 
 public class NpcMono : MonoBehaviour, IInteractable
 {
-    // Interact시 발송할 이벤트
-    [SerializeField] InteractionHub hub;
+    [Header("Chest Identification")]
+    [SerializeField] string instanceId; // 고유 식별자
+    public string InstanceId => instanceId;
+
+    public NpcCore Core { get; private set; }
+    
     [SerializeField] Sprite icon;
     [SerializeField] DialogueAsset dialogueAsset;
 
     ShopInventory shopInventory;
     public ShopInventory ShopInventory => shopInventory;
-
-    public NpcCore Core { get; private set; }
-
+    
     Animator animator;
-
     PlayerController user;
+    
+    // Interact시 발송할 이벤트
+    [SerializeField] InteractionHub hub;
 
     void Awake()
     {
@@ -140,14 +144,23 @@ public class NpcMono : MonoBehaviour, IInteractable
     {
         Exit();
     }
+    
+    public Sprite GetIcon() => icon;
 
-    public (string inputKeyText, string behaviorText) GetPrompt()
+    public (string inputKeyText, string behaviorText) GetPrompt() => ("F", "대화하기");
+
+    public NpcData SaveData()
     {
-        return ("F", "대화하기");
+        NpcData data = new NpcData();
+        data.instanceId = this.instanceId;
+        //InventoryCore 재사용
+        InventoryCore core = shopInventory.Core;
+        if (core != null)
+        {
+            data.inventory = core.SaveData();
+        }
+
+        return data;
     }
 
-    public Sprite GetIcon()
-    {
-        return icon;
-    }
 }

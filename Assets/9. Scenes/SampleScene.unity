@@ -13004,9 +13004,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 331e31f88e4c00b41926124a527f3dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
+  instanceId: SampleScene_NPC2
   icon: {fileID: 21300000, guid: 7db1923eb587c3345bdbe7f985d43b60, type: 3}
   dialogueAsset: {fileID: 11400000, guid: 10505caa6d0fcf044a92ef7ba4909be6, type: 2}
+  hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
 --- !u!4 &1369810369
 Transform:
   m_ObjectHideFlags: 0

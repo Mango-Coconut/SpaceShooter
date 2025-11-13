@@ -25,12 +25,7 @@ public class InventoryCore : IItemSource, IItemSink
     public event Action<int> OnCoinChanged;
 
     void RaiseItemChanged() => OnItemChanged?.Invoke();
-    void RaiseCoinChanged(int myCoin)
-    {
-        Log.Info($"[ModifyCoin Caller] playerInventory.Core = {GetHashCode()}");
-        Log.Info($"[InventoryCore] RaiseCoinChanged {myCoin}, has subscriber? {OnCoinChanged != null}");
-        OnCoinChanged?.Invoke(myCoin);
-    }
+    void RaiseCoinChanged(int myCoin) => OnCoinChanged?.Invoke(myCoin);
 
     //돈 바꾸기
     public void ModifyCoin(int delta)
@@ -354,6 +349,7 @@ public class InventoryCore : IItemSource, IItemSink
     public PlayerInventoryData SaveData()
     {
         PlayerInventoryData data = new PlayerInventoryData();
+        data.coin = this.myCoin;
         data.capacity = this.Capacity;
         data.slots = new List<StoredItemData>();
 
@@ -367,6 +363,7 @@ public class InventoryCore : IItemSource, IItemSink
             }
             data.slots.Add(s.SaveData());
         }
+        Log.Info($"{data.coin}");
         return data;
     }
 
@@ -385,14 +382,17 @@ public class InventoryCore : IItemSource, IItemSink
             }
         }
 
-        RestoreExact(cap, list);
+        RestoreExact(src.coin, cap, list);
     }
 
-    //로드
-    public void RestoreExact(int capacityValue, List<StoredItem> restoredSlots)
+    //로드 적용
+    public void RestoreExact(int coin, int capacityValue, List<StoredItem> restoredSlots)
     {
+        
+        this.myCoin = coin;
         this.capacity = capacityValue;
         this.slots = restoredSlots != null ? restoredSlots : new List<StoredItem>();
         RaiseItemChanged();
+        RaiseCoinChanged(myCoin);
     }
 }

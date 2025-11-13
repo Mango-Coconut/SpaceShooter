@@ -41,14 +41,23 @@ public class SaveManager : MonoBehaviour
             save.world = worldInventory.Core.SaveData();
 
             // 4) 상자
-            Chest[] allChests = FindObjectsOfType<Chest>();
+            Chest[] allChests = FindObjectsByType<Chest>(FindObjectsSortMode.InstanceID);
             save.chests = new List<ChestData>();
             for (int i = 0; i < allChests.Length; i++)
             {
                 Chest chest = allChests[i];
                 if (chest == null) continue;
-                // 상자 저장
                 save.chests.Add(chest.SaveData());
+            }
+
+            // 5) NPC
+            NpcMono[] allNpcs = FindObjectsByType<NpcMono>(FindObjectsSortMode.InstanceID);
+            save.npcs = new List<NpcData>();
+            for (int i = 0; i < allNpcs.Length; i++)
+            {
+                NpcMono npc = allNpcs[i];
+                if (npc == null) continue;
+                save.npcs.Add(npc.SaveData());
             }
 
             // 직렬화 후 임시 파일을 이용해 원자적으로 저장
@@ -140,6 +149,9 @@ public class SaveManager : MonoBehaviour
 
             // 4) 상자
             LoadChests(save);
+
+            // 5) NPC
+            LoadNpcs(save);
         }
         catch (Exception ex)
         {
@@ -192,6 +204,60 @@ public class SaveManager : MonoBehaviour
             if (cd.inventory == null) { continue; }
 
             target.Core.LoadData(cd.inventory);
+        }
+    }
+
+    void LoadNpcs(SaveData save)
+    {
+        if (save == null || save.npcs == null || save.npcs.Count == 0)
+        {
+            return;
+        }
+
+        NpcMono[] sceneNpcs = FindObjectsByType<NpcMono>(FindObjectsSortMode.InstanceID);
+        if (sceneNpcs == null || sceneNpcs.Length == 0)
+        {
+            Debug.LogWarning("LoadNpcs: no NpcMono in scene");
+            return;
+        }
+
+        // 1) 씬에 있는 NPC들을 InstanceId 기준으로 딕셔너리화
+        Dictionary<string, NpcMono> byId = new Dictionary<string, NpcMono>();
+        for (int i = 0; i < sceneNpcs.Length; i++)
+        {
+            NpcMono npc = sceneNpcs[i];
+            if (npc == null) { continue; }
+
+            if (string.IsNullOrWhiteSpace(npc.InstanceId))
+            {
+                Debug.LogWarning("Npc without InstanceId: " + npc.name);
+                continue;
+            }
+
+            if (!byId.ContainsKey(npc.InstanceId))
+            {
+                byId.Add(npc.InstanceId, npc);
+            }
+        }
+
+        // 2) 세이브 데이터에 있는 NPC 정보를 씬 NPC에 적용
+        for (int i = 0; i < save.npcs.Count; i++)
+        {
+            NpcData nd = save.npcs[i];
+            if (nd == null || string.IsNullOrWhiteSpace(nd.instanceId))
+            {
+                continue;
+            }
+
+            NpcMono target;
+            if (!byId.TryGetValue(nd.instanceId, out target))
+            {
+                Debug.LogWarning("Saved npc not found in scene: " + nd.instanceId);
+                continue;
+            }
+
+            // 여기서 NpcMono 안에 만들어 둔 LoadData(NpcData data) 호출
+            target.ShopInventory.Core.LoadData(nd.inventory);
         }
     }
 }

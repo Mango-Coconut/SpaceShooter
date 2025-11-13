@@ -9,10 +9,10 @@ public class Chest : InventoryMono, IInteractable
 
     [Header("Chest Identification")]
     [SerializeField] string instanceId; // 고유 식별자
+    public string InstanceId => instanceId;
 
     [Header("Initial Items (for editor setup)")]
     [SerializeField] StoredItem[] chestitems;
-    public string InstanceId => instanceId;
 
     PlayerController owner;
     bool isOpen = false;
