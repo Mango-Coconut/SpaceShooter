@@ -13,12 +13,22 @@ public class SlotPanel : SlotPanelBase
 
     void OnEnable()
     {
+        OnPanelEnabled();
+    }
+
+    void OnDisable()
+    {
+        OnPanelDisabled();
+    }
+    protected virtual void OnPanelEnabled()
+    {
         if (inventory == null) return;
+
         SetInventory(inventory);
         SubscribeInventory();
     }
 
-    void OnDisable()
+    protected virtual void OnPanelDisabled()
     {
         UnsubscribeInventory();
         UnSubscribeSlotUI();
@@ -79,7 +89,7 @@ public class SlotPanel : SlotPanelBase
         Refresh();
     }
 
-    public void Refresh()
+    public virtual void Refresh()
     {
         if (inventory == null)
         {
@@ -119,21 +129,14 @@ public class SlotPanel : SlotPanelBase
 
         UnsubscribeInventory();
         inventory.Core.OnItemChanged += Refresh;
-        inventory.Core.OnCoinChanged += ForwardChangedCoin;
     }
 
     void UnsubscribeInventory()
     {
         if (inventory == null) return;
         inventory.Core.OnItemChanged -= Refresh;
-        inventory.Core.OnCoinChanged -= ForwardChangedCoin;
     }
 
-    public event Action<int> OnChangedCoin;
-    void ForwardChangedCoin(int coin)
-    {
-        OnChangedCoin?.Invoke(coin);
-    }
 
     protected override StorageTarget GetSource()
     {

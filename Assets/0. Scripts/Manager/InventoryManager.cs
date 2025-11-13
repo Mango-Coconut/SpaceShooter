@@ -16,6 +16,9 @@ public sealed class InventoryManager : MonoBehaviour
     InventoryMono chestInventoryMono;
     public InventoryMono ChestInventoryMono => chestInventoryMono;
 
+    InventoryMono shopInventoryMono;
+    public InventoryMono ShopInventoryMono => shopInventoryMono;
+
     PanelManager panel;
 
     #region Singleton
@@ -95,10 +98,18 @@ public sealed class InventoryManager : MonoBehaviour
             panel.OnItemRightClicked += HandleRightClick;
         }
 
-        if (hub != null && hub.chest != null)
+        if (hub != null)
         {
-            hub.chest.OnOpen += HandleSetChestInventory;
-            hub.chest.OnClose += HandleClearChestInventory;
+            if (hub.chest != null)
+            {
+                hub.chest.OnOpen += HandleSetChestInventory;
+                hub.chest.OnClose += HandleClearChestInventory;
+            }
+            if (hub.npc != null)
+            {
+                hub.npc.OnEnter += HandleSetNpcInventory;
+                hub.npc.OnExit += HandleClearNpcInventory;
+            }
         }
     }
 
@@ -117,7 +128,7 @@ public sealed class InventoryManager : MonoBehaviour
         }
     }
 
-    #region Chest
+    #region Chest inventory set
 
     void HandleSetChestInventory(InventoryMono chestMono)
     {
@@ -126,7 +137,6 @@ public sealed class InventoryManager : MonoBehaviour
             Log.Error("InventoryManager -> Chest is null on open.");
             return;
         }
-
         chestInventoryMono = chestMono;
     }
 
@@ -137,10 +147,34 @@ public sealed class InventoryManager : MonoBehaviour
             Log.Error("InventoryManager -> Chest is null on close.");
             return;
         }
-
         if (ReferenceEquals(chestInventoryMono, chestMono))
         {
             chestInventoryMono = null;
+        }
+    }
+    #endregion
+
+    #region Npc inventory set
+    void HandleSetNpcInventory(NpcMono npc)
+    {
+        if(npc == null || npc.ShopInventory == null)
+        {
+            Log.Error($"NPC is null on Open");
+            return;
+        }
+        shopInventoryMono = npc.ShopInventory;
+    }
+
+    void HandleClearNpcInventory(NpcMono npc)
+    {
+        if (npc == null || npc.ShopInventory == null)
+        {
+            Log.Error($"NPC is null on close");
+            return;
+        }
+        if (ReferenceEquals(shopInventoryMono, npc.ShopInventory))
+        {
+            shopInventoryMono = null;
         }
     }
     #endregion
@@ -336,6 +370,20 @@ public sealed class InventoryManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    public bool TryBuyItem(StoredItem item, int amount)
+    {
+        StoredItem transfer;
+        if (item.IsUniqueInstance())
+        {
+            transfer = item;
+        }
+        else
+        {
+            transfer = new StoredItem(item.itemData, amount);
+        }
+        return TryDeliverBasic(shopInventoryMono.Core, playerInventoryMono.Core, transfer);
     }
 
     public bool TryDeliverBasic(IItemSource from, IItemSink to, StoredItem item)

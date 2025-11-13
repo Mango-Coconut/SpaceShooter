@@ -25,7 +25,12 @@ public class InventoryCore : IItemSource, IItemSink
     public event Action<int> OnCoinChanged;
 
     void RaiseItemChanged() => OnItemChanged?.Invoke();
-    void RaiseCoinChanged(int myCoin) => OnCoinChanged?.Invoke(myCoin);
+    void RaiseCoinChanged(int myCoin)
+    {
+        Log.Info($"[ModifyCoin Caller] playerInventory.Core = {GetHashCode()}");
+        Log.Info($"[InventoryCore] RaiseCoinChanged {myCoin}, has subscriber? {OnCoinChanged != null}");
+        OnCoinChanged?.Invoke(myCoin);
+    }
 
     //돈 바꾸기
     public void ModifyCoin(int delta)
@@ -46,7 +51,6 @@ public class InventoryCore : IItemSource, IItemSink
         if (data.type == ItemType.Coin)
         {
             ModifyCoin(incoming.count * data.price);
-            RaiseCoinChanged(myCoin);
             return true;
         }
 

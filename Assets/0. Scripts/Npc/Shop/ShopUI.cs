@@ -1,33 +1,56 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using TMPro;
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ShopUI : MonoBehaviour
 {
-    SlotPanel shopSlotPanel;
-    CoinPanel coinPanel;
+    [SerializeField] ShopSlotPanel shopSlotPanel;
 
-    [SerializeField] TMP_Text totalCoinText;
-    [SerializeField] Button buyButton;
+    public event Action<SlotPanelEventArgs> MouseEntered;
+    public event Action<SlotPanelEventArgs> MouseExited;
 
-
-    void Awake()
+    public void SetSlotPanel(NpcMono npc)
     {
-        shopSlotPanel = GetComponentInChildren<SlotPanel>();
-        coinPanel = GetComponentInChildren<CoinPanel>();
+        shopSlotPanel.SetInventory(npc.ShopInventory);
+        SubscribeShopSlotPanel();
+    }
+
+    void OnDisable() 
+    {
+        UnSubscribeShopSlotPanel();
+    }
+
+    void SubscribeShopSlotPanel()
+    {
+        UnSubscribeShopSlotPanel();
+        shopSlotPanel.MouseEntered += ForwardMouseEnter;
+        shopSlotPanel.MouseExited += ForwardMouseExit;
+    }
+
+    void UnSubscribeShopSlotPanel()
+    {
+        shopSlotPanel.MouseEntered -= ForwardMouseEnter;
+        shopSlotPanel.MouseExited -= ForwardMouseExit;
+    }
+
+    void ForwardMouseEnter(SlotPanelEventArgs e)
+    {
+        MouseEntered?.Invoke(e);
+    }
+
+    void ForwardMouseExit(SlotPanelEventArgs e)
+    {
+        MouseExited?.Invoke(e);
     }
 
     public void Bind(ShopInventory inventory, int playerCoin)
     {
+        shopSlotPanel.SetCoin(playerCoin);
         shopSlotPanel.SetInventory(inventory);
-        coinPanel.SetCoin(inventory.Core.MyCoin);
     }
-    
-    public void Close()
+
+    public void Clear()
     {
-        
+
     }
 }

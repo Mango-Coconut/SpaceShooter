@@ -5,7 +5,7 @@ public class EquipSlotPanel : SlotPanelBase
     [SerializeField] EquipInventoryMono equipInventory;
     public EquipInventoryMono EquipInventory => equipInventory;
 
-    [SerializeField] private InventorySlotUI[] fixedSlots;
+    [SerializeField] private InventorySlot[] fixedSlots;
 
     private enum EquipIndex
     {
@@ -14,12 +14,11 @@ public class EquipSlotPanel : SlotPanelBase
         ChestArmor = 2
     }
     [Tooltip("0: Weapon, 1: Helmet, 2: ChestArmor")]
-    InventorySlotUI weaponSlot => uiSlots[(int)EquipIndex.Weapon] as InventorySlotUI;
-    InventorySlotUI helmetSlot => uiSlots[(int)EquipIndex.Helmet] as InventorySlotUI;
-    InventorySlotUI chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor] as InventorySlotUI;
+    InventorySlot weaponSlot => uiSlots[(int)EquipIndex.Weapon] as InventorySlot;
+    InventorySlot helmetSlot => uiSlots[(int)EquipIndex.Helmet] as InventorySlot;
+    InventorySlot chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor] as InventorySlot;
     void Awake()
     {
-        uiSlots.Clear();
         uiSlots.AddRange(fixedSlots); // 수동 슬롯 연결
     }
     void OnEnable()

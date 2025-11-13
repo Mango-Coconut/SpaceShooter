@@ -98,7 +98,7 @@ public abstract class SlotPanelBase : MonoBehaviour
 
     void ForwardDragging(PointerEventData e)
     {
-        Dragging?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, null));
+        Dragging?.Invoke(new SlotPanelEventArgs(null, GetSource(), null, e));
     }
 
     void ForwardDropped(StoredItem item, PointerEventData e)

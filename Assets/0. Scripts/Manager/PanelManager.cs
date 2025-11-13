@@ -59,6 +59,8 @@ public class PanelManager : MonoBehaviour
         SubscribeInventoryUI(inventoryUI);
         //ChestUI 이벤트
         SubscribeInventoryUI(chestUI);
+        //ShopUI 이벤트
+        SubscribeShopUI(shopUI);
         // 전역 이벤트(Chest, Npc)
         SubscribeHubEvent();
 
@@ -74,38 +76,57 @@ public class PanelManager : MonoBehaviour
 
         UnsubscribeInventoryUI(inventoryUI);
         UnsubscribeInventoryUI(chestUI);
+        UnSubscribeShopUI(shopUI);
         UnSubscribeHubEvent();
 
         interactor.OnInteractorChange -= HandleInteractorChange;
     }
 
-    #region 이벤트 구독 (InventoryUI, ChestUI)
+    #region 이벤트 구독
+    //InventoryUI (Player Inventory, Chest Inventory)
     void SubscribeInventoryUI(InventoryUI inventoryUI)
     {
         if (inventoryUI == null) { return; }
 
         UnsubscribeInventoryUI(inventoryUI);
-
-        inventoryUI.OnMouseEnter += HandleTooltipShow;
-        inventoryUI.OnMouseExit += HandleTooltipHide;
-        inventoryUI.OnRightClick += HandleRightClick;
-        inventoryUI.OnBeginDrag += HandleBeginDragFromPanel;
-        inventoryUI.OnDragging += HandleDraggingFromPanel;
-        inventoryUI.OnDropped += HandleEndDragFromPanel;
+        inventoryUI.MouseEntered += HandleTooltipShow;
+        inventoryUI.MouseExited += HandleTooltipHide;
+        inventoryUI.RightClicked += HandleRightClick;
+        inventoryUI.DragBegan += HandleBeginDragFromPanel;
+        inventoryUI.Dragging += HandleDraggingFromPanel;
+        inventoryUI.DragEnded += HandleEndDragFromPanel;
     }
 
     void UnsubscribeInventoryUI(InventoryUI inventoryUI)
     {
         if (inventoryUI == null) { return; }
+        inventoryUI.MouseEntered -= HandleTooltipShow;
+        inventoryUI.MouseExited -= HandleTooltipHide;
+        inventoryUI.RightClicked -= HandleRightClick;
+        inventoryUI.DragBegan -= HandleBeginDragFromPanel;
+        inventoryUI.Dragging -= HandleDraggingFromPanel;
+        inventoryUI.DragEnded -= HandleEndDragFromPanel;
+    }
+    //ShopUI
+    void SubscribeShopUI(ShopUI shopUI)
+    {
+        if (shopUI == null) { return; }
 
-        inventoryUI.OnMouseEnter -= HandleTooltipShow;
-        inventoryUI.OnMouseExit -= HandleTooltipHide;
-        inventoryUI.OnRightClick -= HandleRightClick;
-        inventoryUI.OnBeginDrag -= HandleBeginDragFromPanel;
-        inventoryUI.OnDragging -= HandleDraggingFromPanel;
-        inventoryUI.OnDropped -= HandleEndDragFromPanel;
+        UnSubscribeShopUI(shopUI);
+
+        shopUI.MouseEntered += HandleTooltipShow;
+        shopUI.MouseExited += HandleTooltipHide;
     }
 
+    void UnSubscribeShopUI(ShopUI shopUI)
+    {
+        if (shopUI == null) { return; }
+
+        shopUI.MouseEntered -= HandleTooltipShow;
+        shopUI.MouseExited -= HandleTooltipHide;
+    }
+
+    // Hub Event (Chest, Npc) 전역 이벤트
     void SubscribeHubEvent()
     {
         UnSubscribeHubEvent();
@@ -151,24 +172,30 @@ public class PanelManager : MonoBehaviour
     }
     void InventoryUIOpen()
     {
+        if(IsOpen(inventoryUI.gameObject)) return;
+
         inventoryUI.gameObject.SetActive(true);
     }
     void InventoryUIClose()
     {
-        curChest?.ForceCloseFromUI();
+        if(!IsOpen(inventoryUI.gameObject)) return;
+
         inventoryUI.gameObject.SetActive(false);
+        tooltipUIController.Hide();
+
+        //인벤토리 닫을 때 chest, shop  같이 닫힘
+        ShopClose();
+        curChest?.ForceCloseFromUI();
     }
     #endregion
 
     #region ChestUI 열닫
     void HandleChestOpen(Chest c)
     {
-        if (curChest != null && curChest != c)
-        {
-            HandleChestClose(curChest);
-        }
+        if (curChest != null && curChest != c) HandleChestClose(curChest);
+
         //ui 열기(인벤토리, 상자 모두)
-        inventoryUI.gameObject.SetActive(true);
+        InventoryUIOpen();
         chestUI.gameObject.SetActive(true);
 
         //chest 설정
@@ -189,7 +216,7 @@ public class PanelManager : MonoBehaviour
 
         //ui 닫기
         chestUI.gameObject.SetActive(false);
-        inventoryUI.gameObject.SetActive(false);
+        InventoryUIClose();
 
         //유틸 ui 다시 활성화
         interactUIController.Show();
@@ -214,6 +241,8 @@ public class PanelManager : MonoBehaviour
     {
         if (!IsOpen(npcUI.gameObject)) return;
 
+        ShopClose();
+
         curNpc.OpenShop -= HandleShopOpen;
         if (curNpc == npc) curNpc = null;
 
@@ -227,13 +256,19 @@ public class PanelManager : MonoBehaviour
     #region ShopUI 열닫
     void HandleShopOpen()
     {
-        if (curNpc.ShopInventory.Slots == null) return;
+        if (curNpc.ShopInventory == null) return;
+        if (IsOpen(shopUI.gameObject)) return;
+        shopUI.SetSlotPanel(curNpc);
+        InventoryUIOpen();
+
         shopUI.gameObject.SetActive(true);
         shopUI.Bind(curNpc.ShopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
     }
     void ShopClose()
     {
         if (!IsOpen(shopUI.gameObject)) return;
+
+        InventoryUIClose();
         shopUI.gameObject.SetActive(false);
     }
     #endregion
@@ -317,10 +352,16 @@ public class PanelManager : MonoBehaviour
         // UI가 열려 있으면 닫고 마우스 Free
         if (enabledUICount > 0)
         {
-            InventoryUIClose();
-            if (curNpc != null) HandleNpcExit(curNpc);
-            enabledUICount = 0;
-            CursorController.Apply(true);
+            if (IsOpen(inventoryUI.gameObject))
+            {
+                InventoryUIClose();
+            }
+            else if (curNpc != null)
+            {
+                HandleNpcExit(curNpc);
+            }
+            
+            if(enabledUICount == 0) CursorController.Apply(true);
         }
         // UI가 없으면 마우스 Free, Lock 토글
         else

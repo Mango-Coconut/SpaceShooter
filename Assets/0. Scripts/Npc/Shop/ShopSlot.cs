@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +11,8 @@ using UnityEngine.UI;
 public class ShopSlot : MonoBehaviour, ISlotUI
 {
     #region UI Child Components
+    [SerializeField] CanvasGroup canvasGroup;
+
     //아이템 이미지와 이미지 우측아래 개수
     [SerializeField] Image itemImage;
     [SerializeField] TMP_Text itemImageCount;
@@ -20,6 +24,8 @@ public class ShopSlot : MonoBehaviour, ISlotUI
     // [SerializeField] TMP_Text sliderMinCountText; 는 항상 0
 
     [SerializeField] TMP_Text totalCoin;
+    [SerializeField] Button buyButton;
+    [SerializeField] TMP_Text buyButtonText;
     #endregion
 
     #region ISlotUI
@@ -30,19 +36,20 @@ public class ShopSlot : MonoBehaviour, ISlotUI
     public GameObject GO => gameObject;
     #endregion
 
-    CanvasGroup canvasGroup;
-    StoredItem enterItem;
 
-    public event Action<StoredItem> OnCartedItem;
+    //구매 이벤트
+    public event Action<StoredItem, int> BoughtItem;
+    
+    StoredItem enterItem;
+    int playerCoin;
+
 
     void Awake()
     {
-        Rect = GetComponent<RectTransform>();
         PointerHandler = GetComponent<SlotPointerHandler>();
         PointerHandler.GetItem = () => enterItem;
         PointerHandler.GetRect = () => Rect;
         Rect = GetComponent<RectTransform>();
-        canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void Bind(StoredItem item)
@@ -58,6 +65,12 @@ public class ShopSlot : MonoBehaviour, ISlotUI
         itemImageCount.text = enterItem.count.ToString();
         slider.maxValue = enterItem.count;
         sliderMaxCountText.text = enterItem.count.ToString();
+        Refresh();
+    }
+    
+    public void SetPlayerCoin(int coin)
+    {
+        playerCoin = coin;
     }
 
 
@@ -71,17 +84,28 @@ public class ShopSlot : MonoBehaviour, ISlotUI
     {
         if (enterItem == null || enterItem.itemData == null) return;
 
+        sliderHandleCountText.enabled = true;
         sliderHandleCountText.SetText($"{slider.value}");
+
         int totalValue = (int)(enterItem.itemData.price * slider.value);
         totalCoin.SetText($"{totalValue}");
 
-        if (enterItem.IsUniqueInstance())
+        if(slider.value == 0)
         {
-            OnCartedItem?.Invoke(enterItem);
+            sliderHandleCountText.enabled = false;
+            buyButton.interactable = false;
+            buyButtonText.color = Color.black;
+        }
+        
+        if(playerCoin >= totalValue)
+        {
+            buyButton.interactable = true;
+            buyButtonText.color = Color.white;
         }
         else
         {
-            OnCartedItem?.Invoke(new StoredItem(enterItem.itemData, (int)slider.value));
+            buyButton.interactable = false;
+            buyButtonText.color = Color.red;
         }
     }
 
@@ -96,5 +120,10 @@ public class ShopSlot : MonoBehaviour, ISlotUI
         canvasGroup.alpha = 1f; 
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true; 
+    }
+
+    public void BuyButtonClick()
+    {
+        BoughtItem?.Invoke(enterItem, (int)slider.value);
     }
 }

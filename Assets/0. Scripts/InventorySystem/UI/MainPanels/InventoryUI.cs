@@ -13,8 +13,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] EquipSlotPanel equipSlotPanel;
     public EquipSlotPanel EquipSlotPanel => equipSlotPanel;
 
-    [SerializeField] CoinPanel coinPanel;
-
     //구독 편하게 하기 용
     SlotPanelBase[] panels;
 
@@ -52,8 +50,6 @@ public class InventoryUI : MonoBehaviour
             panels[i].Dragging += ForwardDragging;
             panels[i].DragEnded += ForwardDropped;
         }
-        
-        slotPanel.OnChangedCoin += RefreshCoinPanel;
     }
 
     private void UnsubscribeSlotPanel()
@@ -73,28 +69,21 @@ public class InventoryUI : MonoBehaviour
             panels[i].Dragging -= ForwardDragging;
             panels[i].DragEnded -= ForwardDropped;
         }
-        slotPanel.OnChangedCoin -= RefreshCoinPanel;
-    }
-
-
-    void RefreshCoinPanel(int coin)
-    {
-        coinPanel.SetCoin(coin);
     }
 
     // 슬롯 이벤트 포워딩
-    public event Action<SlotPanelEventArgs> OnMouseEnter;
-    public event Action<SlotPanelEventArgs> OnMouseExit;
-    public event Action<SlotPanelEventArgs> OnRightClick;
-    public event Action<SlotPanelEventArgs> OnBeginDrag;
-    public event Action<SlotPanelEventArgs> OnDragging;
-    public event Action<SlotPanelEventArgs> OnDropped;
+    public event Action<SlotPanelEventArgs> MouseEntered;
+    public event Action<SlotPanelEventArgs> MouseExited;
+    public event Action<SlotPanelEventArgs> RightClicked;
+    public event Action<SlotPanelEventArgs> DragBegan;
+    public event Action<SlotPanelEventArgs> Dragging;
+    public event Action<SlotPanelEventArgs> DragEnded;
 
-    void ForwardMouseEnter(SlotPanelEventArgs args) => OnMouseEnter?.Invoke(args);
-    void ForwardMouseExit(SlotPanelEventArgs args) => OnMouseExit?.Invoke(args);
-    void ForwardRightClick(SlotPanelEventArgs args) => OnRightClick?.Invoke(args);
-    void ForwardBeginDrag(SlotPanelEventArgs args) => OnBeginDrag?.Invoke(args);
-    void ForwardDragging(SlotPanelEventArgs args) => OnDragging?.Invoke(args);
-    void ForwardDropped(SlotPanelEventArgs args) => OnDropped?.Invoke(args);
+    void ForwardMouseEnter(SlotPanelEventArgs args) => MouseEntered?.Invoke(args);
+    void ForwardMouseExit(SlotPanelEventArgs args) => MouseExited?.Invoke(args);
+    void ForwardRightClick(SlotPanelEventArgs args) => RightClicked?.Invoke(args);
+    void ForwardBeginDrag(SlotPanelEventArgs args) => DragBegan?.Invoke(args);
+    void ForwardDragging(SlotPanelEventArgs args) => Dragging?.Invoke(args);
+    void ForwardDropped(SlotPanelEventArgs args) => DragEnded?.Invoke(args);
 }
 
