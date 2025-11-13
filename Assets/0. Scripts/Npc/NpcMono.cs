@@ -56,7 +56,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         Core.dialogueCore.OnEnded -= HandleDialogueEnded;
         Core.dialogueCore.OnCommand += HandleCommand;
         Core.dialogueCore.OnEnded += HandleDialogueEnded;
-    }
+       }
 
     void OnDisable()
     {
@@ -111,8 +111,6 @@ public class NpcMono : MonoBehaviour, IInteractable
 
         hub.npc.RaiseEnter(this);
         Core.Initialize(dialogueAsset);
-
-        Log.Info($"enter");
     }
     public void Exit()
     {
@@ -126,8 +124,6 @@ public class NpcMono : MonoBehaviour, IInteractable
         user = null;
 
         hub.npc.RaiseExit(this);
-
-        Log.Info($"exit");
     }
 
     public bool IsAvailable()

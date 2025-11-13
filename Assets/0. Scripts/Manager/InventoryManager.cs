@@ -157,21 +157,25 @@ public sealed class InventoryManager : MonoBehaviour
     #region Npc inventory set
     void HandleSetNpcInventory(NpcMono npc)
     {
-        if(npc == null || npc.ShopInventory == null)
+        if(npc == null)
         {
             Log.Error($"NPC is null on Open");
             return;
         }
+        if(npc.ShopInventory == null) return;
+        
         shopInventoryMono = npc.ShopInventory;
     }
 
     void HandleClearNpcInventory(NpcMono npc)
     {
-        if (npc == null || npc.ShopInventory == null)
+        if (npc == null)
         {
             Log.Error($"NPC is null on close");
             return;
         }
+        if(npc.ShopInventory == null) return;
+
         if (ReferenceEquals(shopInventoryMono, npc.ShopInventory))
         {
             shopInventoryMono = null;

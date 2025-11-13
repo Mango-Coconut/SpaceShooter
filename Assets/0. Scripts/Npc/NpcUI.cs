@@ -21,13 +21,13 @@ public class NpcUI : MonoBehaviour
     public void Bind(DialogueCore dialogue)
     {
         if (dialogue == null) return;
-        Unbind();
+        UnbindDialogue();
 
         boundDialogue = dialogue;
         boundDialogue.OnNodeChanged += HandleNodeChanged;
     }
 
-    public void Unbind()
+    public void UnbindDialogue()
     {
         if (boundDialogue == null) return;
 
@@ -39,7 +39,7 @@ public class NpcUI : MonoBehaviour
     {
         if (node == null)
         {
-            Close();
+            //ended 에서 처리
             return;
         }
 
@@ -74,10 +74,10 @@ public class NpcUI : MonoBehaviour
         }
     }
 
-    void Close()
+    public void Close()
     {
         choicesPanel.gameObject.SetActive(false);
-        Unbind();
+        UnbindDialogue();
         gameObject.SetActive(false);
     }
 }

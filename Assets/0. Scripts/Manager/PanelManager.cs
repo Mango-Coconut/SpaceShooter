@@ -242,13 +242,11 @@ public class PanelManager : MonoBehaviour
         if (!IsOpen(npcUI.gameObject)) return;
 
         ShopClose();
+        npcUI.Close();
 
         curNpc.OpenShop -= HandleShopOpen;
         if (curNpc == npc) curNpc = null;
-
-        npcUI.Unbind();
-        npcUI.gameObject.SetActive(false);
-
+        
         interactUIController.Show();
     }
     #endregion
