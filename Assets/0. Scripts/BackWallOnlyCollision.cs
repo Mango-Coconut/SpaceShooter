@@ -5,10 +5,10 @@ using Cinemachine;
 public class BackWallOnlyCollision : CinemachineExtension
 {
     [SerializeField] Transform player;        // 플레이어 피벗
-    [SerializeField] float radius = 0.3f;     // 카메라 충돌 반경
+    [SerializeField] float radius = 0.3f;     // 카메라 충돌 반경(카메라를 감싸는 구의 반지름)
     [SerializeField] float recoverSpeed = 10f; // 막힌 후 풀릴 때 따라오는 속도
     [SerializeField] LayerMask wallMask;      // 벽 레이어
-    [SerializeField] float skin = 0.05f;      // 벽에서 살짝 띄우기
+    [SerializeField] float skin = 0.05f;      // 벽에서 살짝 띄우기(추가 여유 거리)
 
     bool wasBlocked = false;
     Vector3 lastSafePos;
@@ -57,8 +57,13 @@ public class BackWallOnlyCollision : CinemachineExtension
 
         if (blocked)
         {
-            // 벽에 막힌 상태 → 벽 바로 앞까지 당기고 거기 기억
-            Vector3 newPos = hit.point - dir * skin;
+            // 구의 "중심"이 이동한 거리: hit.distance
+            // 벽에서 skin 만큼 더 띄워서 배치
+            float backOff = skin;
+            float targetDistance = Mathf.Max(hit.distance - backOff, 0f);
+
+            Vector3 newPos = playerPos + dir * targetDistance;
+
             state.RawPosition = newPos;
             lastSafePos = newPos;
             wasBlocked = true;
