@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [Serializable]
 public class SaveData
 {
-    public int version = 1;
+    public int version = 2;
     public PlayerInventoryData inventory;
     public EquipData equipped;
     public WorldDropData world;

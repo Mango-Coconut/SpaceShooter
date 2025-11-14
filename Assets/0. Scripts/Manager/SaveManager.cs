@@ -255,9 +255,11 @@ public class SaveManager : MonoBehaviour
                 Debug.LogWarning("Saved npc not found in scene: " + nd.instanceId);
                 continue;
             }
-
-            // 여기서 NpcMono 안에 만들어 둔 LoadData(NpcData data) 호출
-            target.ShopInventory.Core.LoadData(nd.inventory);
+            if (target.ShopInventory != null)
+            {
+                // 여기서 NpcMono 안에 만들어 둔 LoadData(NpcData data) 호출
+                target.ShopInventory.Core.LoadData(nd.inventory);
+            }
         }
     }
 }

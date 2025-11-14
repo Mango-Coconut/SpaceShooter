@@ -150,10 +150,9 @@ public class NpcMono : MonoBehaviour, IInteractable
         NpcData data = new NpcData();
         data.instanceId = this.instanceId;
         //InventoryCore 재사용
-        InventoryCore core = shopInventory.Core;
-        if (core != null)
+        if(shopInventory != null && shopInventory.Core != null)
         {
-            data.inventory = core.SaveData();
+            data.inventory = shopInventory.Core.SaveData();
         }
 
         return data;
