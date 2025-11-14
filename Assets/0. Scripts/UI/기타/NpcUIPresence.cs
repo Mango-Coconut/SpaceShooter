@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class UIPresence : MonoBehaviour
+public class NpcUIPresence : MonoBehaviour
 {
     public static event Action<int> OnStateChanged;
     

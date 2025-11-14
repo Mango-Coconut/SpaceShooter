@@ -52,7 +52,7 @@ public class PanelManager : MonoBehaviour
         InputManager.Instance.OnEsc += HandleEscUIClose;
 
         //주요 UI 열리고 닫히는거 인식
-        UIPresence.OnStateChanged += HandleMouseLock;
+        NpcUIPresence.OnStateChanged += HandleMouseLock;
         RecountAndApply();
 
         //InventoryUI 이벤트
@@ -72,7 +72,7 @@ public class PanelManager : MonoBehaviour
         InputManager.Instance.OnToggleInventory -= HandleInventoryUIToggle;
         InputManager.Instance.OnEsc -= HandleEscUIClose;
 
-        UIPresence.OnStateChanged -= HandleMouseLock;
+        NpcUIPresence.OnStateChanged -= HandleMouseLock;
 
         UnsubscribeInventoryUI(inventoryUI);
         UnsubscribeInventoryUI(chestUI);
@@ -384,7 +384,7 @@ public class PanelManager : MonoBehaviour
     void RecountAndApply()
     {
         enabledUICount = 0;
-        UIPresence[] presences = FindObjectsOfType<UIPresence>(true); // 비활성 포함
+        NpcUIPresence[] presences = FindObjectsOfType<NpcUIPresence>(true); // 비활성 포함
         for (int i = 0; i < presences.Length; i++)
         {
             if (presences[i].gameObject.activeInHierarchy)
