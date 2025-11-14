@@ -314,7 +314,6 @@ public class PanelManager : MonoBehaviour
     {
         if (args.Item == null || args.Item.itemData == null) { return; }
 
-        Log.Info($"{args.Source}에서 {args.Item.itemData.name}을 우클릭");
         tooltipUIController.Hide();
         // 외부 이벤트는 기존 시그니처 유지
         OnItemRightClicked?.Invoke(args.Item, args.Source);

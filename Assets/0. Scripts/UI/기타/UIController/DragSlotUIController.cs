@@ -15,7 +15,6 @@ public class DragSlotUIController : MonoBehaviour
     {
         if (args.Pointer != null)
         {
-            Log.Info($"{args.Pointer.position}");
             dragSlot.transform.position = args.Pointer.position;
         }
     }

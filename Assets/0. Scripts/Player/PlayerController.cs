@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour
 
     Interactor interactor;
     [SerializeField] float moveSpeed = 5;
-    [SerializeField] float rotateSpeed = 360f;
     [SerializeField] PlayerWeapon playerWeapon;
 
 
@@ -102,11 +101,11 @@ public class PlayerController : MonoBehaviour
     static readonly int MoveYHash = Animator.StringToHash("MoveY");
     void HandleMovement()
     {
-        Vector2 look = InputManager.Instance.Look;
-        if (look.x != 0f)
-        {
-            transform.Rotate(Vector3.up * look.x * rotateSpeed * Time.deltaTime);
-        }
+        // Vector2 look = InputManager.Instance.Look;
+        // if (look.x != 0f)
+        // {
+        //     transform.Rotate(Vector3.up * look.x * rotateSpeed * Time.deltaTime);
+        // }
 
         // 2) 이동 입력
         Vector2 mv = InputManager.Instance.Move;

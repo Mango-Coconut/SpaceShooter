@@ -46,7 +46,6 @@ public class ResourcesItemProvider : IItemProvider
         }
 
         initialized = true;
-        Debug.Log("ResourcesItemProvider initialized. count=" + map.Count);
     }
 
     public bool TryGet(string id, out ItemData item)

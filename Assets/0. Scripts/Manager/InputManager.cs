@@ -14,7 +14,7 @@ public class InputManager : MonoBehaviour
     public event System.Action OnToggleInventory;
     public event System.Action OnEsc;
 
-    [SerializeField] float mouseSensitivity = 1f;
+    [SerializeField] float mouseSensitivity = 1.5f;
 
     bool LookEnabled => Cursor.lockState == CursorLockMode.Locked;
 

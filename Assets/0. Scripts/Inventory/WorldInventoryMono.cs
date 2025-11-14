@@ -48,8 +48,6 @@ public class WorldInventoryMono : MonoBehaviour
                 Core.RegisterExistingDrop(di);
             }
         }
-
-        Debug.Log($"WorldInventoryMono 초기화: {droppedItems.Length}개 아이템 등록됨");
     }
 
     #region 필드 아이템 생성
