@@ -72,6 +72,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 
-# --- keep StylizedCharacter assets ---
+# --- No keep StylizedCharacter assets ---
 /[Aa]ssets/~ImportedAssets/StylizedCharacter/
 /[Aa]ssets/~ImportedAssets/StylizedCharacter/**
