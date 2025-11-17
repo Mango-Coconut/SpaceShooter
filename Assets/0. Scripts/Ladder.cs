@@ -9,7 +9,7 @@ public class Ladder : MonoBehaviour, IInteractable
 
     public void Interact(PlayerController player)
     {
-        throw new System.NotImplementedException();
+        player.UseLadder();
     }
 
     public bool IsAvailable()

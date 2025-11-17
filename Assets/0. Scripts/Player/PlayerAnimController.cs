@@ -12,9 +12,9 @@ public class PlayerAnimController : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    public void PlayAnimToTrigger(int triggerHash)
+    public void Jump()
     {
-        animator.SetTrigger(triggerHash);
+        animator.SetTrigger("Jump");
     }
 
     public void EquipToggle(bool b)
@@ -24,16 +24,21 @@ public class PlayerAnimController : MonoBehaviour
 
     static readonly int MoveXHash = Animator.StringToHash("MoveX");
     static readonly int MoveYHash = Animator.StringToHash("MoveY");
-    public void MoveAnim(Vector3 mv)
+    public void Move(Vector3 mv)
     {
         animator.SetFloat(MoveXHash, mv.x, animDamp, Time.deltaTime);
         animator.SetFloat(MoveYHash, mv.y, animDamp, Time.deltaTime);
     }
-    
-    public void PlayFire()
+
+    public void Fire()
     {
         animator.SetTrigger("Fire");
     }
     
+
+    public void PlayAnimToTrigger(int triggerHash)
+    {
+        animator.SetTrigger(triggerHash);
+    }
 
 }

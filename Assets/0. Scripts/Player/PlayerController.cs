@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
 
     void OnEnable()
     {
+        InputManager.Instance.OnJump += HandleJump;
         InputManager.Instance.OnFire += HandleFire;
         InputManager.Instance.OnInteract += HandleInteract;
         equipInventory.OnChanged += HandleEquipChanged;
@@ -39,6 +40,7 @@ public class PlayerController : MonoBehaviour
 
     void OnDisable()
     {
+        InputManager.Instance.OnJump -= HandleJump;
         InputManager.Instance.OnFire -= HandleFire;
         InputManager.Instance.OnInteract -= HandleInteract;
         equipInventory.OnChanged -= HandleEquipChanged;
@@ -47,6 +49,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         gate = GetComponent<PlayerActionGate>();
+        playerMove = GetComponent<PlayerMove>();
         inventory = GetComponent<InventoryMono>();
         equipInventory = GetComponent<EquipInventoryMono>();
         interactor = GetComponent<Interactor>();
@@ -56,16 +59,36 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        HandleMoveAnimation();
+        HandleMove();
     }
-    
+    void HandleMove()
+    {
+        Vector3 mv = InputManager.Instance.Move;
+
+        if (!gate.Can(BlockAct.Move))
+        {
+            mv = Vector3.zero;
+            return;
+        }
+
+        playerMove.Move(mv);
+        AnimController.Move(mv);
+
+    }
+    void HandleJump()
+    {
+        if (!gate.Can(BlockAct.Jump)) return;
+        playerMove.Jump();
+        AnimController.Jump();
+    }
+
     void HandleFire()
     {
         if (!playerWeapon.CanFire()) return;
         if (!gate.Can(BlockAct.Fire)) return;
         if (Cursor.lockState != CursorLockMode.Locked) return;
         playerWeapon.Fire(playerMove.isMoving);
-        AnimController.PlayFire();
+        AnimController.Fire();
     }
 
     void HandleInteract()
@@ -97,22 +120,6 @@ public class PlayerController : MonoBehaviour
         AnimController.PlayAnimToTrigger(triggerHash);
     }
 
-
-    void HandleMoveAnimation()
-    {
-        // 1) 이동 입력
-        Vector2 mv = InputManager.Instance.Move;
-
-        // 2) 이동 불가면 애니 파라미터 0으로 감쇠 후 종료
-        if (!gate.Can(BlockAct.Move))
-        {
-            AnimController.MoveAnim(Vector3.zero);
-            return;
-        }
-
-        // 3) 애니메이터 파라미터(감쇠 적용)
-        AnimController.MoveAnim(mv);
-    }
 
     void Die()
     {

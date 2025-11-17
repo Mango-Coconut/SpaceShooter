@@ -9,10 +9,12 @@ public class InputManager : MonoBehaviour
     public Vector2 Move { get; private set; }
     public Vector2 Look { get; private set; }
 
+    public event System.Action OnJump;
     public event System.Action OnFire;
     public event System.Action OnInteract;
     public event System.Action OnToggleInventory;
     public event System.Action OnEsc;
+    
 
     [SerializeField] float mouseSensitivity = 1.5f;
 
@@ -38,6 +40,7 @@ public class InputManager : MonoBehaviour
                            : Vector2.zero;
 
         // 액션 이벤트
+        if (Input.GetKeyDown(KeyCode.Space)) OnJump?.Invoke();
         if (Input.GetMouseButton(0)) OnFire?.Invoke();
         if (Input.GetKeyDown(KeyCode.F)) OnInteract?.Invoke();
         if (Input.GetKeyDown(KeyCode.I)) OnToggleInventory?.Invoke();

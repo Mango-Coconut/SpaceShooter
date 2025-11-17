@@ -11,6 +11,7 @@ public class CoinPanel : MonoBehaviour
 
     void Awake()
     {
+        if(inventory == null || inventory.Core == null) return;
         inventory.Core.OnCoinChanged -= SetCoin;
         inventory.Core.OnCoinChanged += SetCoin;
         SetCoin(inventory.Core.MyCoin);
