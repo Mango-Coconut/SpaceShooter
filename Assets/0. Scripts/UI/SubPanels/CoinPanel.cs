@@ -18,7 +18,9 @@ public class CoinPanel : MonoBehaviour
     }
     void OnDestroy()
     {
+        if(inventory == null || inventory.Core == null) return;
         inventory.Core.OnCoinChanged -= SetCoin;
+        
     }
 
     public void SetCoin(int coin)

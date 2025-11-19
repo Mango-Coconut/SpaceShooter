@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class PlayerWeapon : MonoBehaviour
 {
+    [SerializeField] PlayerController pc;
+    PlayerActionGate gate;
     [SerializeField] Transform firePos;
     Transform currentModel;
     WeaponItemData currentData;
@@ -21,6 +23,11 @@ public class PlayerWeapon : MonoBehaviour
         muzzleFlash = firePos.GetComponentInChildren<MeshRenderer>();
         muzzleFlash.enabled = false;
     }
+    void Start() 
+    {
+        gate = pc.gate;
+    }
+
     void Update()
     {
         fireTimer += Time.deltaTime;
@@ -89,12 +96,10 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] ItemData rifleAmmoData;
     [SerializeField] ItemData shotgunAmmoData;
 
-    public void Fire(int moveFactor)
+    public bool TryFire(bool isMoving)
     {
-        if (fireTimer < currentData.fireDelay) return;
-
-        if (currentData == null) { return; }                       // [+] 널가드 보강
-        if (fireTimer < currentData.fireDelay) { return; }
+        if (!CanFire()) return false;
+        
 
         // [+] 탄을 쓰는 무기면, 인벤에서 먼저 원자적 소모 시도
         if (currentData.bulletType != BulletType.None && currentData.ammoPerShot > 0)
@@ -102,12 +107,12 @@ public class PlayerWeapon : MonoBehaviour
             if (!TryConsumeAmmo(currentData.bulletType, currentData.ammoPerShot))
             {
                 OnDryFire(); // 선택: 빈 방아쇠 클릭음 등
-                return;
+                return false;
             }
         }
 
         Camera cam = Camera.main;
-        if (cam == null) return;
+        if (cam == null) return false;
 
         // 1) 화면 중앙 조준선에서 Ray (불필요 레이어 제외)
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
@@ -123,7 +128,8 @@ public class PlayerWeapon : MonoBehaviour
         //    SpreadAngle는 SO에서 "기본 퍼짐"으로 관리하고,
         //    이동/열 등에 따른 보정은 '도' 단위로 더해줌.
         float baseSpreadDeg = (float)currentData.SpreadAngle;
-        float moveBonusDeg = (float)(moveFactor * 0.5f);   // 필요에 맞게 계수 조정
+        float moveBonusDeg = (float)(0.5f);   // 필요에 맞게 계수 조정
+        if(!isMoving) moveBonusDeg = 0;
         float heatBonusDeg = (float)(fireHeat * 0.3f);   // 필요에 맞게 계수 조정
         float finalSpreadDeg = baseSpreadDeg + moveBonusDeg + heatBonusDeg;
 
@@ -154,7 +160,18 @@ public class PlayerWeapon : MonoBehaviour
         fireTimer = 0f;
         audio.PlayOneShot(currentData.fireSound, 1.0f);
         StartCoroutine(ShowMuzzleFlash());
+        return true;
+    }    
+
+    public bool CanFire()
+    {
+        if (currentData == null || currentModel == null) return false;
+        if (fireTimer < currentData.fireDelay) return false;
+        if (!gate.Can(BlockAct.Fire)) return false;
+        if (Cursor.lockState != CursorLockMode.Locked) return false;
+        return true;
     }
+
     void OnDryFire()
     {
         // SFX나 UI 알림 등 필요하면 구현
@@ -189,12 +206,6 @@ public class PlayerWeapon : MonoBehaviour
         currentModel.localScale = Vector3.one;
     }
 
-    public bool CanFire()
-    {
-        if (currentData == null) return false;
-        if (currentModel == null) return false;
-        return true;
-    }
 
     //장착시 rigidbody, collier 끄기
     void DisablePhysicsAndScripts(Transform root)

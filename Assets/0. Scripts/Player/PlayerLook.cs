@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerLook : MonoBehaviour
 {
+    PlayerController pc;
     [SerializeField] Transform yawPivot;    // 좌우 회전 (Player)
     [SerializeField] Transform pitchPivot;  // 상하 회전 (PivotObject)
 
@@ -10,8 +11,13 @@ public class PlayerLook : MonoBehaviour
 
     float pitch; // 현재 상하 각도 누적
 
+    void Awake() {
+        pc = GetComponent<PlayerController>();
+    }
+
     void Update()
     {
+        if (!pc.gate.Can(BlockAct.Rotate)) return;
         Vector2 look = InputManager.Instance.Look;
         
 

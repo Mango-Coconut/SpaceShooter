@@ -34,7 +34,11 @@ public class PlayerAnimController : MonoBehaviour
     {
         animator.SetTrigger("Fire");
     }
-    
+    public void ClimbStart()
+    {
+        animator.SetTrigger("ClimbStart");
+    }
+
 
     public void PlayAnimToTrigger(int triggerHash)
     {

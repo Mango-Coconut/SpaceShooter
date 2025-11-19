@@ -5,11 +5,30 @@ using UnityEngine;
 public class Ladder : MonoBehaviour, IInteractable
 {
     [SerializeField] Sprite ladderSprite;
+    public Transform startPos;
+    public Transform startCamPos;
+    public Transform endPos;
+    public Transform endCamPos;
+    [SerializeField] LayerMask obstacleMask;
     bool isUsing = false;
+    PlayerController curPc;
 
-    public void Interact(PlayerController player)
+    public void Interact(PlayerController pc)
     {
-        player.UseLadder();
+        if(curPc != null) {
+            Debug.Log("이미 점유 중인 플레이어가 있음. 혹은 끝날때 널처리 안함");
+            return;
+        }
+
+        curPc = pc;
+        if(curPc == null) return;
+
+        if (!pc.gate.Can(BlockAct.Climb)) return;
+
+        if (Physics.CheckSphere(startPos.position, 0.2f, obstacleMask))
+            return;
+
+        pc.StartLadderClimb(this);
     }
 
     public bool IsAvailable()

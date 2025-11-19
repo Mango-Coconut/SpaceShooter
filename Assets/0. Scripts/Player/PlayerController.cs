@@ -5,20 +5,32 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using Cinemachine;
 
 
 public class PlayerController : MonoBehaviour
 {
+    
+    PlayerState state;
     public PlayerActionGate gate;
+
+    // Inventory
     [HideInInspector] public InventoryMono inventory;
     [HideInInspector] public EquipInventoryMono equipInventory;
 
+    
     Interactor interactor;
     
     [SerializeField] PlayerWeapon playerWeapon;
 
-    PlayerAnimController AnimController;
     PlayerMove playerMove;
+
+    PlayerAnimController animController;
+
+    
+    public CinemachineVirtualCamera vcamCutscene;
+    public Transform startCamPos;
+    public Transform endCamPos;
 
     readonly int maxHP = 10;
     int curHP;
@@ -37,7 +49,6 @@ public class PlayerController : MonoBehaviour
         InputManager.Instance.OnInteract += HandleInteract;
         equipInventory.OnChanged += HandleEquipChanged;
     }
-
     void OnDisable()
     {
         InputManager.Instance.OnJump -= HandleJump;
@@ -45,7 +56,6 @@ public class PlayerController : MonoBehaviour
         InputManager.Instance.OnInteract -= HandleInteract;
         equipInventory.OnChanged -= HandleEquipChanged;
     }
-
     void Awake()
     {
         gate = GetComponent<PlayerActionGate>();
@@ -53,43 +63,59 @@ public class PlayerController : MonoBehaviour
         inventory = GetComponent<InventoryMono>();
         equipInventory = GetComponent<EquipInventoryMono>();
         interactor = GetComponent<Interactor>();
-        AnimController = GetComponent<PlayerAnimController>();
+        animController = GetComponent<PlayerAnimController>();
         curHP = maxHP;
     }
 
     void Update()
     {
-        HandleMove();
-    }
-    void HandleMove()
-    {
-        Vector3 mv = InputManager.Instance.Move;
-
-        if (!gate.Can(BlockAct.Move))
+        switch (state)
         {
-            mv = Vector3.zero;
-            return;
+            case PlayerState.Cutscene:
+                break;
+            case PlayerState.Normal:
+                playerMove.TickGround();
+                animController.Move(playerMove.LastMoveInput);
+                break;
+            case PlayerState.Climb:
+                playerMove.TickLadder();
+                animController.Move(playerMove.LastMoveInput);
+                break;
         }
-
-        playerMove.Move(mv);
-        AnimController.Move(mv);
-
     }
+
     void HandleJump()
     {
-        if (!gate.Can(BlockAct.Jump)) return;
-        playerMove.Jump();
-        AnimController.Jump();
+        if (playerMove.TryJump())
+        {
+            animController.Jump();
+        }
     }
+
 
     void HandleFire()
     {
-        if (!playerWeapon.CanFire()) return;
-        if (!gate.Can(BlockAct.Fire)) return;
-        if (Cursor.lockState != CursorLockMode.Locked) return;
-        playerWeapon.Fire(playerMove.isMoving);
-        AnimController.Fire();
+        if (playerWeapon.TryFire(playerMove.isMoving))
+        {
+            animController.Fire();
+        }
     }
+
+    public Ladder curLadder;
+    public void StartLadderClimb(Ladder newLadder)
+    {
+        if(curLadder != null){Debug.Log("이미 타고 있는 Ladder가 있음 혹은 끝날때 널처리 안함"); return;}
+        if(newLadder == null) {Debug.Log("타려는 Ladder가 null임"); return;}
+        curLadder = newLadder;
+
+        playerMove.SnapTo(curLadder.startPos.position, curLadder.startPos.rotation);
+        CamController.Instance.SetCutsceneCam(curLadder.startCamPos);
+
+        gate.PushAll();
+        animController.ClimbStart();
+        state = PlayerState.Climb;
+    }
+
 
     void HandleInteract()
     {
@@ -103,21 +129,17 @@ public class PlayerController : MonoBehaviour
         StoredItem item;
         bool isWeaponEquip = equipInventory.TryGetEquipped(EquipType.Weapon, out item);
         playerWeapon.Equip(item);
-        AnimController.EquipToggle(isWeaponEquip);
+        animController.EquipToggle(isWeaponEquip);
 
         //playerArmor.HelmetEquip(equipInventory.GetEquipped(EquipType.Helmet, out item));
         //playerArmor.ChestArmorEquip(equipInventory.GetEquipped(EquipType.ChestArmor, out item));
     }
 
-    public void UseLadder()
-    {
-        
-    }
 
     // 외부에서 플레이어 Animator 조작
     public void PlayAnimToTrigger(int triggerHash)
     {
-        AnimController.PlayAnimToTrigger(triggerHash);
+        animController.PlayAnimToTrigger(triggerHash);
     }
 
 

@@ -4,65 +4,74 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
+    PlayerController pc;
+    PlayerActionGate gate;
     CharacterController cc;
-    [SerializeField] float moveSpeed = 5;
-    [SerializeField] float jumpPower = 20;
+
+    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float jumpPower = 20f;
+    [SerializeField] float gravity = 9.81f;
+
     float verticalVelocity = 0f;
-    public float gravity = 9.81f;
-    public int isMoving = 0;
-    bool jump;
+    public bool isMoving = false;
+    bool jumpRequested;
 
-    float deadZone = 0.15f;       // 너무 미세한 입력 무시
+    float deadZone = 0.15f;
 
+    Vector3 horizontalDir;
+    Vector2 lastMoveInput;
+
+    public Vector2 LastMoveInput => lastMoveInput;
 
     void Awake()
     {
         cc = GetComponent<CharacterController>();
+        pc = GetComponent<PlayerController>();
+        gate = pc.gate;
     }
 
-    void Update()
-    {
-        HandleMovement();
-    }
 
-    void HandleMovement()
+    // 매 프레임 호출: 이동 + 중력 + 점프 처리
+    public void TickGround()
     {
-        if (state == PlayerMoveState.Climb)
-        {
-            ClimbLadder();
-            return;
-        }
-
-        ApplyJump();    // 점프 입력 처리
-        ApplyGravity(); // 중력 처리
+        Move();
+        ApplyJump();    // 점프 시작 처리
+        ApplyGravity(); // 공중 중력
         MoveFinal();    // cc.Move()
     }
 
-    public void Jump()
+    public void TickLadder()
     {
-        if (state == PlayerMoveState.Jump)
-        {
-            return;
-        }
+        Vector2 mv = InputManager.Instance.Move;
 
-        // 땅에 붙어있을 때만 점프 입력 받기
-        if (!cc.isGrounded)
-        {
-            return;
-        }
+        float upDown = mv.y;
 
-        jump = true;
+        //애니메이션에서 블렌드 트리 이용하기 위해(0이면 idle, 1이면 위아래 상관없이 climbing)
+        lastMoveInput = new Vector2(0, upDown != 0 ? 1f : 0f);
+
+        // 사다리 축 방향으로만 이동
+        Vector3 move = pc.curLadder.transform.up * upDown;
+
+        cc.Move(move * Time.deltaTime);
     }
 
-    Vector3 horizontalDir;
-    public void Move(Vector3 mv)
+    void Move()
     {
+        if(!cc.isGrounded) return;
 
-        // DeadZone 처리 & 정규화
+        Vector2 mv = InputManager.Instance.Move;
+        lastMoveInput = mv;
+
+        // Move가 막혀 있으면 입력 무시
+        if (gate != null && !gate.Can(BlockAct.Move))
+        {
+            mv = Vector2.zero;
+        }
+
         float mag = mv.magnitude;
         if (mag < deadZone)
         {
-            mv = Vector3.zero;
+            mv = Vector2.zero;
             mag = 0f;
         }
         else if (mag > 1f)
@@ -71,7 +80,7 @@ public class PlayerMove : MonoBehaviour
             mag = 1f;
         }
 
-        isMoving = mag > 0f ? 1 : 0;
+        isMoving = mag > 0f ? true : false;
 
         horizontalDir = Vector3.zero;
 
@@ -84,17 +93,35 @@ public class PlayerMove : MonoBehaviour
             horizontalDir = horizontalDir.normalized * moveSpeed;
         }
     }
+    public void SnapTo(Vector3 pos, Quaternion rot)
+    {
+        cc.enabled = false;
+        transform.SetPositionAndRotation(pos, rot);
+        cc.enabled = true;
+    }
+
+    public bool TryJump()
+    {
+        // 게이트에서 Jump 차단 중이면 실패
+        if (gate != null && !gate.Can(BlockAct.Jump)) return false;
+
+        // 공중에서는 점프 요청 무시
+        if (!cc.isGrounded) return false;
+
+        jumpRequested = true;
+        return true;
+    }
 
     void ApplyJump()
     {
         if (!cc.isGrounded) return;
 
-        // 바닥 붙여주기
+        // 바닥에 붙여주기
         verticalVelocity = -1f;
 
-        if (jump)
+        if (jumpRequested)
         {
-            jump = false;
+            jumpRequested = false;
             verticalVelocity = jumpPower;
         }
     }
@@ -116,7 +143,6 @@ public class PlayerMove : MonoBehaviour
 
     void ClimbLadder()
     {
-
+        // 추후 구현
     }
-
 }

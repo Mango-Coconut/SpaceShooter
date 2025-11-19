@@ -9,14 +9,25 @@ public class PlayerActionGate : MonoBehaviour
 
     public bool Can(BlockAct mask) => (Active & mask) == 0;
 
+    #region All
+    private static readonly BlockAct allMask =
+    BlockAct.All;
+    public void PushAll() => Push(allMask);
+    public void PopAll() => Pop(allMask);
+    #endregion
+
+    //필요없어지는거같은데 나중에 폐기 고려
     #region Interaction
-    private static readonly BlockAct interactMask = BlockAct.Move | BlockAct.Jump | BlockAct.Climb | BlockAct.Fire | BlockAct.Interact;
+    private static readonly BlockAct interactMask =
+    BlockAct.Move | BlockAct.Jump | BlockAct.Climb | BlockAct.Fire | BlockAct.Interact;
     public void PushInteract() => Push(interactMask);
     public void PopInteract() => Pop(interactMask);
     #endregion
 
+
     #region UIOnly
-    private static readonly BlockAct uiMask = BlockAct.Fire | BlockAct.Climb ;
+    private static readonly BlockAct uiMask =
+    BlockAct.Fire | BlockAct.Climb;
     public void PushUI() => Push(uiMask);
     public void PopUI() => Pop(uiMask);
     #endregion
