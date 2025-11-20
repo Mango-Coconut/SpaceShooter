@@ -43,6 +43,11 @@ public class PlayerMove : MonoBehaviour
     public void TickLadder()
     {
         Vector2 mv = InputManager.Instance.Move;
+        // Move가 막혀 있으면 입력 무시
+        if (gate != null && !gate.Can(BlockAct.Move))
+        {
+            mv = Vector2.zero;
+        }
 
         float upDown = mv.y;
 
@@ -57,8 +62,6 @@ public class PlayerMove : MonoBehaviour
 
     void Move()
     {
-        if(!cc.isGrounded) return;
-
         Vector2 mv = InputManager.Instance.Move;
         lastMoveInput = mv;
 
@@ -141,8 +144,4 @@ public class PlayerMove : MonoBehaviour
         cc.Move(move * Time.deltaTime);
     }
 
-    void ClimbLadder()
-    {
-        // 추후 구현
-    }
 }

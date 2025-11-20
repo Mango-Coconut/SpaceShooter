@@ -5,7 +5,6 @@ public enum BlockAct
     Move = 1 << 0,
     Rotate = 1 << 1,
     Jump = 1 << 2,
-    Climb = 1 << 3,
     Fire = 1 << 4,
     Interact = 1 << 5,
     All = ~0

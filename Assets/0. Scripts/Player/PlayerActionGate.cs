@@ -16,18 +16,18 @@ public class PlayerActionGate : MonoBehaviour
     public void PopAll() => Pop(allMask);
     #endregion
 
-    //필요없어지는거같은데 나중에 폐기 고려
-    #region Interaction
-    private static readonly BlockAct interactMask =
-    BlockAct.Move | BlockAct.Jump | BlockAct.Climb | BlockAct.Fire | BlockAct.Interact;
-    public void PushInteract() => Push(interactMask);
-    public void PopInteract() => Pop(interactMask);
+    
+    #region Climb
+    private static readonly BlockAct climbMask =
+    BlockAct.Rotate | BlockAct.Fire;
+    public void PushClimb() => Push(climbMask);
+    public void PopClimb() => Pop(climbMask);
     #endregion
 
 
     #region UIOnly
     private static readonly BlockAct uiMask =
-    BlockAct.Fire | BlockAct.Climb;
+    BlockAct.Fire;
     public void PushUI() => Push(uiMask);
     public void PopUI() => Pop(uiMask);
     #endregion

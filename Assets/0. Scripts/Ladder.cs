@@ -7,11 +7,16 @@ public class Ladder : MonoBehaviour, IInteractable
     [SerializeField] Sprite ladderSprite;
     public Transform startPos;
     public Transform startCamPos;
-    public Transform endPos;
-    public Transform endCamPos;
+    public Transform topEndPos;
+    public Transform bottomEndPos;
+    public Transform topEndCamPos;
+    public Transform bottomEndCamPos;
     [SerializeField] LayerMask obstacleMask;
     bool isUsing = false;
     PlayerController curPc;
+
+    [SerializeField] GameObject topcollider;
+    [SerializeField] GameObject bottomcollider;
 
     public void Interact(PlayerController pc)
     {
@@ -21,14 +26,12 @@ public class Ladder : MonoBehaviour, IInteractable
         }
 
         curPc = pc;
-        if(curPc == null) return;
-
-        if (!pc.gate.Can(BlockAct.Climb)) return;
 
         if (Physics.CheckSphere(startPos.position, 0.2f, obstacleMask))
             return;
 
         pc.StartLadderClimb(this);
+        SetActiveChildCollider(true);
     }
 
     public bool IsAvailable()
@@ -49,4 +52,12 @@ public class Ladder : MonoBehaviour, IInteractable
 
     public (string inputKeyText, string behaviorText) GetPrompt() => ("F", "올라타기");
 
+    public void SetActiveChildCollider(bool b){
+        topcollider.SetActive(b);
+        bottomcollider.SetActive(b);
+    }
+    public void Clear(){
+        SetActiveChildCollider(false);
+        curPc = null;
+    }
 }
