@@ -5,7 +5,7 @@ public class PlayerAnimStateRelay : StateMachineBehaviour
     // 각 상태 이름 해시 캐싱
     static readonly int ClimbingStartHash = Animator.StringToHash("Climbing Start");
     static readonly int ClimbingToTopHash   = Animator.StringToHash("Climbing To Top");
-    static readonly int ClimbingDownHash   = Animator.StringToHash("Climbing Down");
+    static readonly int ClimbingToDownHash   = Animator.StringToHash("Climbing Down");
     static readonly int JoyfulJumpHash       = Animator.StringToHash("Joyful Jump");
     static readonly int LandingHash       = Animator.StringToHash("Landing");
 
@@ -29,7 +29,7 @@ public class PlayerAnimStateRelay : StateMachineBehaviour
         else if (id == ClimbingToTopHash) {}
             //pc.OnClimbLoopEnter();
 
-        else if (id == ClimbingDownHash){}
+        else if (id == ClimbingToDownHash){}
             //pc.OnClimbEndEnter();
 
         else if (id == JoyfulJumpHash){}
@@ -51,7 +51,9 @@ public class PlayerAnimStateRelay : StateMachineBehaviour
         else if (id == ClimbingToTopHash)
             pc.OnClimbEndTopExit();
 
-        else if (id == ClimbingDownHash)
+        else if (id == ClimbingToDownHash)
             pc.OnClimbEndBottomExit();
+        else if (id == LandingHash)
+            pc.LandingEnd();
     }
 }

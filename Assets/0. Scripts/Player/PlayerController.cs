@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
     readonly int maxHP = 10;
     int curHP;
 
-
+    [SerializeField] float hardLandingSpeed = 7f; // 값은 나중에 감으로 조절
     public delegate void PlayerDieHandler();
     public static event PlayerDieHandler OnPlayerDie;
 
@@ -69,25 +69,75 @@ public class PlayerController : MonoBehaviour
     static readonly int MoveYHash = Animator.StringToHash("MoveY");
     void Update()
     {
+        Debug.Log(state);
         switch (state)
         {
             case PlayerState.Cutscene:
                 break;
+
             case PlayerState.Normal:
                 playerMove.TickGround();
-                animator.SetFloat(MoveXHash, playerMove.LastMoveInput.x, 0.05f, Time.deltaTime);
-                animator.SetFloat(MoveYHash, playerMove.LastMoveInput.y, 0.05f, Time.deltaTime);
+                UpdateMoveAnim();
+                if (!playerMove.IsGrounded)
+                {
+                    state = PlayerState.Air;
+                }
                 break;
+
             case PlayerState.Climb:
                 playerMove.TickLadder();
-                animator.SetFloat(MoveXHash, playerMove.LastMoveInput.x, 0.05f, Time.deltaTime);
-                animator.SetFloat(MoveYHash, playerMove.LastMoveInput.y, 0.05f, Time.deltaTime);
+                UpdateMoveAnim();
+                break;
+
+            case PlayerState.Air:
+                playerMove.TickAir();
+                if (playerMove.IsGrounded)
+                {
+                    // 땅에 닿았으니 상태는 무조건 Normal로 복구
+                    float fallSpeed = playerMove.VerticalSpeed; // 음수면 아래로 떨어지는 중
+                    state = PlayerState.Normal;
+
+                    // 충분히 빠르게 떨어졌으면 하드 랜딩 처리
+                    if (fallSpeed <= -hardLandingSpeed)
+                    {
+                        gate.PushAll();                          // 애니 동안 입력 막기
+                        animator.SetTrigger("FallingToGround");  // Landing 애니 트리거
+                    }
+                    // 느리게 떨어진 경우는 그냥 아무 애니 없이 Normal 복귀
+                }
                 break;
         }
+
+    }
+    void UpdateMoveAnim()
+    {
+        animator.SetFloat(MoveXHash, playerMove.LastMoveInput.x, 0.05f, Time.deltaTime);
+        animator.SetFloat(MoveYHash, playerMove.LastMoveInput.y, 0.05f, Time.deltaTime);
+    }
+    public void LandingEnd()
+    {
+        gate.PopAll();
+        state = PlayerState.Normal;
+        CamController.Instance.SetCam("Main");
     }
 
     void HandleJump()
     {
+        // 사다리에서 점프
+        if (state == PlayerState.Climb)
+        {
+            if (playerMove.TryLadderJump())
+            {
+                gate.PushAll();
+                state = PlayerState.Air;
+                animator.SetTrigger("Jump");
+                curLadder.Clear();
+                curLadder = null;
+            }
+            return;
+        }
+
+        // 평지/공중 점프
         if (playerMove.TryJump())
         {
             animator.SetTrigger("Jump");
@@ -149,14 +199,14 @@ public class PlayerController : MonoBehaviour
     #region Ladder Methods
     public Ladder curLadder;
     //Ladder에서 다시 호출
-    public void StartLadderClimb(Ladder newLadder)
+    public void StartLadderClimb(Ladder newLadder, Transform startPos, Transform startCamPos)
     {
         if (curLadder != null) { Debug.Log("이미 타고 있는 Ladder가 있음 혹은 끝날때 널처리 안함"); return; }
         if (newLadder == null) { Debug.Log("타려는 Ladder가 null임"); return; }
         curLadder = newLadder;
 
-        playerMove.SnapTo(curLadder.startPos.position, curLadder.startPos.rotation);
-        CamController.Instance.SetCutsceneCam(curLadder.startCamPos);
+        playerMove.SnapTo(startPos.position, startPos.rotation);
+        CamController.Instance.SetCutsceneCam(startCamPos);
 
         gate.PushAll();
         animator.SetTrigger("ClimbStart");
@@ -170,21 +220,23 @@ public class PlayerController : MonoBehaviour
         state = PlayerState.Climb;
         CamController.Instance.SetCam("Main");
     }
-    //사다리 맨위 도착 시작
+    //사다리 맨위 도착 애니메이션 시작
     public void OnClimbEndTopEnter()
     {
+        gate.PopClimb();
         gate.PushAll();
-        CamController.Instance.SetCutsceneCam(curLadder.topEndCamPos);
+        CamController.Instance.SetCutsceneCam(curLadder.topCamPos);
         animator.SetTrigger("ClimbOnTop");
     }
-    //사다리 맨아래 도착 시작
+    //사다리 맨아래 도착 애니메이션 시작
     public void OnClimbEndBottomEnter()
     {
+        gate.PopClimb();
         gate.PushAll();
-        CamController.Instance.SetCutsceneCam(curLadder.startCamPos);
+        CamController.Instance.SetCutsceneCam(curLadder.bottomCamPos);
         animator.SetTrigger("ClimbOnBottom");
     }
-    //사다리 맨위 도착 완료
+    //사다리 맨위 도착 애니메이션 완료
     public void OnClimbEndTopExit()
     {
         playerMove.SnapTo(curLadder.topEndPos.position, curLadder.topEndPos.rotation);
@@ -194,7 +246,7 @@ public class PlayerController : MonoBehaviour
         curLadder.Clear();
         curLadder = null;
     }
-    //사다리 맨아래 도착 완료
+    //사다리 맨아래 도착 애니메이션 완료
     public void OnClimbEndBottomExit()
     {
         playerMove.SnapTo(curLadder.bottomEndPos.position, curLadder.bottomEndPos.rotation);
