@@ -19,7 +19,7 @@ public class PlayerActionGate : MonoBehaviour
     
     #region Climb
     private static readonly BlockAct climbMask =
-    BlockAct.Rotate | BlockAct.Fire;
+    BlockAct.PlayerRotate | BlockAct.Jump | BlockAct.Fire;
     public void PushClimb() => Push(climbMask);
     public void PopClimb() => Pop(climbMask);
     #endregion

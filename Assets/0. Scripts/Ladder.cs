@@ -20,6 +20,11 @@ public class Ladder : MonoBehaviour, IInteractable
     [SerializeField] GameObject topcollider;
     [SerializeField] GameObject bottomcollider;
 
+    void Awake()
+    {
+        Clear();
+    }
+
     public void Interact(PlayerController pc)
     {
         // 이미 누가 사용 중이면 막기

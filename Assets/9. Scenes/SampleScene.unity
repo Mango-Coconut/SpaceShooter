@@ -4454,7 +4454,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 711767862}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 1.33, y: 0.248, z: 0}
+  m_LocalPosition: {x: 1.2, y: 0.45, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12108,8 +12108,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 844058765}
-  m_LocalRotation: {x: 0.0019394896, y: 0.1467362, z: -0.00028770822, w: 0.98917377}
-  m_LocalPosition: {x: 6.8481193, y: 2.4, z: -24.737495}
+  m_LocalRotation: {x: 0.0018467215, y: -0.33599886, z: 0.0006587986, w: 0.9418604}
+  m_LocalPosition: {x: 6.636997, y: 2.4, z: -10.566827}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -12922,8 +12922,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.001960698, y: -0.003921479, z: 0.000007688854, w: 0.99999046}
-  m_LocalPosition: {x: 0.8000001, y: 2.4, z: -1.9999999}
+  m_LocalRotation: {x: 0.001960698, y: -0.003921449, z: 0.000007688883, w: 0.99999046}
+  m_LocalPosition: {x: 0.79999995, y: 2.4, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13503,7 +13503,7 @@ MonoBehaviour:
   equipInventory: {fileID: 0}
   playerWeapon: {fileID: 1091952443}
   vcamCutscene: {fileID: 844058766}
-  hardLandingSpeed: 7
+  hardLandingSpeed: 5
   curLadder: {fileID: 0}
 --- !u!205 &1012882841
 LODGroup:
@@ -14346,8 +14346,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1079786509}
-  m_LocalRotation: {x: -0, y: 0.1506144, z: -0, w: 0.9885926}
-  m_LocalPosition: {x: 6.68, y: 0, z: -22.59}
+  m_LocalRotation: {x: -0, y: -0.33230343, z: -0, w: 0.9431726}
+  m_LocalPosition: {x: 4.76, y: 0, z: -9.51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -14360,7 +14360,7 @@ Transform:
   - {fileID: 1624178715}
   m_Father: {fileID: 0}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 17.325, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -38.817, z: 0}
 --- !u!4 &1079746671
 Transform:
   m_ObjectHideFlags: 0
@@ -15538,9 +15538,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  jumpPower: 10
+  jumpPower: 5
   gravity: 9.81
   ladderJumpHorizontalPower: 5
+  verticalVelocity: 0
   isMoving: 0
 --- !u!1 &1091952440
 GameObject:

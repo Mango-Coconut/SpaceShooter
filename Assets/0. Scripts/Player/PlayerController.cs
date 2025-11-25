@@ -69,14 +69,13 @@ public class PlayerController : MonoBehaviour
     static readonly int MoveYHash = Animator.StringToHash("MoveY");
     void Update()
     {
-        Debug.Log(state);
         switch (state)
         {
             case PlayerState.Cutscene:
                 break;
 
             case PlayerState.Normal:
-                playerMove.TickGround();
+                playerMove.Tick();
                 UpdateMoveAnim();
                 if (!playerMove.IsGrounded)
                 {
@@ -90,7 +89,7 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case PlayerState.Air:
-                playerMove.TickAir();
+                playerMove.Tick();
                 if (playerMove.IsGrounded)
                 {
                     // 땅에 닿았으니 상태는 무조건 Normal로 복구
@@ -123,21 +122,6 @@ public class PlayerController : MonoBehaviour
 
     void HandleJump()
     {
-        // 사다리에서 점프
-        if (state == PlayerState.Climb)
-        {
-            if (playerMove.TryLadderJump())
-            {
-                gate.PushAll();
-                state = PlayerState.Air;
-                animator.SetTrigger("Jump");
-                curLadder.Clear();
-                curLadder = null;
-            }
-            return;
-        }
-
-        // 평지/공중 점프
         if (playerMove.TryJump())
         {
             animator.SetTrigger("Jump");
@@ -254,17 +238,6 @@ public class PlayerController : MonoBehaviour
         state = PlayerState.Normal;
         CamController.Instance.SetCam("Main");
         curLadder.Clear();
-        curLadder = null;
-    }
-    //점프
-    public void OnLadderFallEnter()
-    {
-        gate.PushAll();
-    }
-    public void OnLadderLandExit()
-    {
-        gate.PopAll();
-        state = PlayerState.Normal;
         curLadder = null;
     }
     #endregion

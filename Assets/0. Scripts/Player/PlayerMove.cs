@@ -10,11 +10,10 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] float gravity = 9.81f;
     [SerializeField] float ladderJumpHorizontalPower = 5f;
 
-    float verticalVelocity = 0f;
+    public float verticalVelocity = 0f;
     public bool isMoving = false;
 
     bool jumpRequested;
-    bool ladderJumpRequested;
 
     float deadZone = 0.15f;
 
@@ -30,21 +29,15 @@ public class PlayerMove : MonoBehaviour
         cc = GetComponent<CharacterController>();
         pc = GetComponent<PlayerController>();
         gate = pc.gate;
+        wasGrounded = false;
     }
 
-    // Normal / Air 공통 이동
-    public void TickGround()
+    public void Tick()
     {
-        Move();
-        ApplyJump();     // 점프 요청 처리 + 바닥 붙이기
-        ApplyGravity();  // 공중 중력
-        MoveFinal();     // cc.Move()
-    }
-    public void TickAir()
-    {
-        Move();         // 에어 컨트롤
-        ApplyGravity(); // 중력만
-        MoveFinal();    // 최종 이동
+        if(wasGrounded) Move();
+        ApplyVertical();
+        MoveFinal();
+        wasGrounded = cc.isGrounded;
     }
 
     public void TickLadder()
@@ -106,7 +99,6 @@ public class PlayerMove : MonoBehaviour
         cc.enabled = true;
     }
 
-    // 점프 요청: 여기서는 그냥 "다음 프레임에 점프해줘"만 표시
     public bool TryJump()
     {
         if (gate != null && !gate.Can(BlockAct.Jump)) return false;
@@ -114,48 +106,24 @@ public class PlayerMove : MonoBehaviour
         return true;
     }
 
-    public bool TryLadderJump()
+
+    bool wasGrounded;
+    void ApplyVertical()
     {
-        if (gate != null && !gate.Can(BlockAct.Jump)) return false;
-        if (pc.curLadder == null) return false;
-
-        // 사다리에서 튀어나올 방향: 사다리 반대 + 위
-        Vector3 dir = -pc.curLadder.transform.forward + Vector3.up;
-        dir = dir.normalized;
-
-        // 수평 임펄스 (한번에 튕겨 나가는 느낌)
-        horizontalDir = new Vector3(dir.x, 0f, dir.z) * ladderJumpHorizontalPower;
-
-        // 위로 점프
-        verticalVelocity = jumpPower;
-        return true;
-    }
-
-    void ApplyJump()
-    {
-        if (!cc.isGrounded) return;
-
-        if (jumpRequested)
+        // 이전 프레임 기준으로 점프 처리
+        if (wasGrounded)
         {
-            jumpRequested = false;
-            verticalVelocity = jumpPower;
-
-            // 살짝 띄워서 바닥 판정 벗기기
-            cc.Move(Vector3.up * 0.05f);
-        }
-        else
-        {
-            // 붙이기
-            verticalVelocity = -1f;
-        }
-    }
-
-    void ApplyGravity()
-    {
-        // 아주 살짝 떠 있을 때도 중력 적용되게 약간 관대하게
-        if (cc.isGrounded && verticalVelocity <= 0f)
-        {
-            verticalVelocity = -1f; // 붙이기
+            if (jumpRequested && gate != null && gate.Can(BlockAct.Jump))
+            {
+                jumpRequested = false;
+                verticalVelocity = jumpPower;
+                cc.Move(Vector3.up * 0.05f);
+            }
+            else if (verticalVelocity < 0f)
+            {
+                // 이전 프레임에도 땅이었다면 살짝 붙이기
+                verticalVelocity = -1f;
+            }
         }
         else
         {
@@ -168,6 +136,11 @@ public class PlayerMove : MonoBehaviour
         Vector3 move = horizontalDir;
         move.y = verticalVelocity;
 
-        cc.Move(move * Time.deltaTime);
+        CollisionFlags flags = cc.Move(move * Time.deltaTime);
+
+        if ((flags & CollisionFlags.Below) != 0 && verticalVelocity < 0f)
+        {
+            verticalVelocity = -1f;
+        }
     }
 }
