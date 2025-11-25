@@ -1478,6 +1478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 241772280}
   - component: {fileID: 241772279}
+  - component: {fileID: 241772281}
   - component: {fileID: 241772277}
   m_Layer: 6
   m_Name: Npc1
@@ -1532,6 +1533,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 229.883, z: 0}
+--- !u!114 &241772281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241772276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74438c2d67fa05343879fbf267070ef5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  capacity: 20
 --- !u!1 &246379508
 GameObject:
   m_ObjectHideFlags: 0

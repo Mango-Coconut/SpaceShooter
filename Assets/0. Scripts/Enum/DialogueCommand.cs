@@ -1,5 +1,6 @@
 public enum DialogueCommand
 {
     None,
-    OpenShop
+    OpenShop,
+    GiveItem
 }

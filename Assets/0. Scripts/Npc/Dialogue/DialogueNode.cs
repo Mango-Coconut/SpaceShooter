@@ -9,6 +9,8 @@ public class DialogueNode
     
     [TextArea]
     public string text;                // 대사 본문
+    
+    public DialogueCommand command;    // OpenShop 같은 액션
 
     public bool isEnd;                 // true면 여기서 대화 종료
 

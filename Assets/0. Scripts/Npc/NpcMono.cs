@@ -18,7 +18,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     public ShopInventory ShopInventory => shopInventory;
     
     Animator animator;
-    PlayerController user;
+    PlayerController player;
     
     // Interact시 발송할 이벤트
     [SerializeField] InteractionHub hub;
@@ -80,6 +80,11 @@ public class NpcMono : MonoBehaviour, IInteractable
             case DialogueCommand.OpenShop:
                 OpenShop?.Invoke();
                 break;
+            case DialogueCommand.GiveItem:
+
+        //player.inventory.TryAddItem(new StoredItem());
+    break;
+                
         }
     }
 
@@ -106,8 +111,8 @@ public class NpcMono : MonoBehaviour, IInteractable
 
         isEnter = true;
 
-        user = pc;
-        user.gate.PushUI();
+        player = pc;
+        player.gate.PushUI();
 
         hub.npc.RaiseEnter(this);
         Core.Initialize(dialogueAsset);
@@ -115,13 +120,13 @@ public class NpcMono : MonoBehaviour, IInteractable
     public void Exit()
     {
         if (isEnter == false) return;
-        if (user == null || user.gate == null) return;
+        if (player == null || player.gate == null) return;
         if (hub == null || hub.npc == null) return;
 
         isEnter = false;
 
-        user.gate.PopUI();
-        user = null;
+        player.gate.PopUI();
+        player = null;
 
         hub.npc.RaiseExit(this);
     }

@@ -19,6 +19,7 @@ MonoBehaviour:
       \uB610 \uC2F8\uC6B0\uB77C \uD574\uC11C \uBBF8\uC548\uD558\uC9C0\uB9CC.. \uC77C\uB2E8
       \uBC30\uACE0\uD50C\uD14C\uB2C8 \uBB50\uB77C\uB3C4 \uBA39\uC5B4. \uC55E\uC5D0
       \uBC14\uB098\uB098 \uC788\uC73C\uB2C8\uAE4C."
+    command: 0
     isEnd: 1
     nextNodeId: 
     choices:
@@ -33,17 +34,20 @@ MonoBehaviour:
       \uC788\uC73C\uB2C8\uAE4C \uC5B4\uADF8\uB85C \uC548 \uB04C\uAC8C \uC870\uC2EC\uD558\uACE0,
       2\uCE35\uC73C\uB85C \uC62C\uB77C\uAC00\uBA74 \uBCF4\uAE09 \uC0C1\uC790\uAC00
       \uC788\uC744\uAC70\uC57C."
+    command: 0
     isEnd: 0
     nextNodeId: 2
     choices: []
   - nodeId: 2
     text: "2\uCE35\uC5D0 \uD5EC\uB808\uB098\uB3C4 \uC788\uC73C\uB2C8 \uC0AC\uACE0\uC2F6\uC740\uAC70
       \uC0AC\uB3C4 \uB418\uACE0. \uC870\uC2EC\uD574!"
+    command: 0
     isEnd: 1
     nextNodeId: 
     choices: []
   - nodeId: 3
     text: "\uADF8\uB798.. \uB108 \uC54C\uC544\uC11C \uD574"
+    command: 0
     isEnd: 1
     nextNodeId: 
     choices: []
