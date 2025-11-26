@@ -26,7 +26,7 @@ public class PanelManager : MonoBehaviour
     public event Action<StoredItem, StorageTarget> OnItemRightClicked;
 
     // Chest, Npc 등 전역 이벤트 연결
-    [SerializeField] InteractionHub hub;
+    [SerializeField] GameEventHub hub;
 
     // 런타임에 활성화되어 저장해야 할 객체들
     Chest curChest;

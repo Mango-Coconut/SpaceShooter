@@ -8,7 +8,6 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] float jumpPower = 20f;
     [SerializeField] float gravity = 9.81f;
-    [SerializeField] float ladderJumpHorizontalPower = 5f;
 
     public float verticalVelocity = 0f;
     public bool isMoving = false;

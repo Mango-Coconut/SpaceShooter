@@ -5,7 +5,7 @@ using UnityEngine;
 public class Chest : InventoryMono, IInteractable
 {
     // Interact시 발송할 이벤트
-    [SerializeField] InteractionHub hub;
+    [SerializeField] GameEventHub hub;
 
     [Header("Chest Identification")]
     [SerializeField] string instanceId; // 고유 식별자

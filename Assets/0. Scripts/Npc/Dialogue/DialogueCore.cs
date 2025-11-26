@@ -54,6 +54,10 @@ public class DialogueCore
         {
             current = next;
         }
+        if (current != null)
+        {
+            ExecuteCommand(current.command);
+        }
 
         RaiseNodeChanged();
     }
@@ -101,10 +105,7 @@ public class DialogueCore
         DialogueChoice choice = current.choices[index];
 
         // 커맨드 먼저 쏘고
-        if (choice.command != DialogueCommand.None && OnCommand != null)
-        {
-            OnCommand.Invoke(choice.command);
-        }
+        ExecuteCommand(choice.command);
 
         // 다음 노드로 이동
         if (string.IsNullOrEmpty(choice.nextNodeId))
@@ -115,5 +116,13 @@ public class DialogueCore
         {
             Goto(choice.nextNodeId);
         }
+    }
+
+    void ExecuteCommand(DialogueCommand cmd)
+    {
+        if (cmd == null) return;
+        if (cmd.type == DialogueCommandType.None) return;
+
+        OnCommand?.Invoke(cmd);
     }
 }

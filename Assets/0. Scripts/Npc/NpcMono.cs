@@ -21,7 +21,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     PlayerController player;
     
     // Interact시 발송할 이벤트
-    [SerializeField] InteractionHub hub;
+    [SerializeField] GameEventHub hub;
 
     void Awake()
     {
@@ -72,19 +72,43 @@ public class NpcMono : MonoBehaviour, IInteractable
     }
     void HandleCommand(DialogueCommand command)
     {
-        switch (command)
+        switch (command.type)
         {
-            case DialogueCommand.None:
+            case DialogueCommandType.None:
                 break;
 
-            case DialogueCommand.OpenShop:
+            case DialogueCommandType.OpenShop:
+                if (shopInventory == null)
+                {
+                    Debug.Log("shopInventory null"); return;
+                }
                 OpenShop?.Invoke();
                 break;
-            case DialogueCommand.GiveItem:
+            case DialogueCommandType.StartQuest:
+                if (command.questData == null)
+                {
+                    Debug.Log("DialogueCommand.questdata null"); return;
+                }
+                if (hub == null && hub.quest == null)
+                {
+                    Debug.Log("hub or hub.quest null"); return;
+                }
+                hub.quest.RaiseQuestStartRequested(command.questData, this);
 
-        //player.inventory.TryAddItem(new StoredItem());
-    break;
-                
+                break;
+            case DialogueCommandType.CompleteQuest:
+                if (command.questData == null)
+                {
+                    Debug.Log("DialogueCommand.questdata null"); return;
+                }
+                if (hub == null && hub.quest == null)
+                {
+                    Debug.Log("hub or hub.quest null"); return;
+                }
+                hub.quest.RaiseQuestCompleteRequested(command.questData, this);
+
+                break;
+
         }
     }
 

@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npc: {fileID: 11400000, guid: 7ca6e325ff7d81243913c1c2464de79b, type: 2}
   chest: {fileID: 11400000, guid: 57bb9276cfab10e4fb0cb4c685574ab5, type: 2}
+  quest: {fileID: 11400000, guid: 33a03c24606ad364c884e58dea37707a, type: 2}

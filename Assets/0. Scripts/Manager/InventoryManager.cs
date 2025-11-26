@@ -2,7 +2,7 @@
 
 public sealed class InventoryManager : MonoBehaviour
 {
-    [SerializeField] InteractionHub hub;
+    [SerializeField] GameEventHub hub;
     [SerializeField] PlayerController player;
 
     [SerializeField] InventoryMono playerInventoryMono;
