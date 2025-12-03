@@ -18,6 +18,8 @@ public class ItemData : ScriptableObject
     [Header("속성")]
     public ItemType type;   //장비, 소모품, 재료 등
     public EquipType equiptype = EquipType.None; //장비 세부분류
+    
+    public ItemUseEffect[] useEffects; //소모품 등 사용 효과
 
     public int rarity;      //희귀도 (숫자가 클수록 희귀)
     public int price;       //가격

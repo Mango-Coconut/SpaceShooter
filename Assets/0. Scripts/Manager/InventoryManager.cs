@@ -194,8 +194,27 @@ public sealed class InventoryManager : MonoBehaviour
 
     public void HandleRightClick(StoredItem item, StorageTarget from)
     {
-        TryAutoDeliver(item, from);
+        if (item == null)
+            return;
+
+        ItemDeliverResult result = TryAutoDeliver(item, from);
+
+        // 인벤토리에서 우클릭했고, 옮길 대상이 아예 없을 때 → 아이템 사용 시도
+        if (from == StorageTarget.Player && result == ItemDeliverResult.None)
+        {
+            bool used = ItemUseManager.Instance.TryUse(item.itemData);
+            if (used)
+            {
+                IItemSource playerSource = GetSource(StorageTarget.Player);
+                if (playerSource != null)
+                {
+                    // 1개만 차감
+                    playerSource.TryRemoveItem(new StoredItem(item.itemData, 1));
+                }
+            }
+        }
     }
+
     #endregion
 
     #region 유틸 함수
@@ -224,17 +243,17 @@ public sealed class InventoryManager : MonoBehaviour
     
     // ----- Auto Deliver -----
 
-    public bool TryAutoDeliver(StoredItem item, StorageTarget from)
+    public ItemDeliverResult TryAutoDeliver(StoredItem item, StorageTarget from)
     {
         if (item == null)
         {
-            return false;
+            return ItemDeliverResult.None;
         }
 
         IItemSource fromSource = GetSource(from);
         if (fromSource == null)
         {
-            return false;
+            return ItemDeliverResult.None;
         }
 
         IItemSink playerInv = GetSink(StorageTarget.Player);
@@ -267,10 +286,11 @@ public sealed class InventoryManager : MonoBehaviour
         }
 
         // 그 외 (월드 등) → 플레이어 인벤토리로
-        return TryDeliver(fromSource, playerInv, item);
+        bool success = TryDeliver(fromSource, playerInv, item);
+        return success ? ItemDeliverResult.Delivered : ItemDeliverResult.FailedHasTarget;
     }
 
-    
+
     public bool TryAddItem(IItemSink sink, ItemData data, int amount = 1)
     {
         if (sink == null || data == null || amount <= 0)
@@ -310,28 +330,37 @@ public sealed class InventoryManager : MonoBehaviour
     }
 
     // IItemSink 여러개에 순서대로 TryDeliver
-    public bool TryDeliverWithFallbacks(IItemSource from, StoredItem item, params IItemSink[] sinks)
+    ItemDeliverResult TryDeliverWithFallbacks(IItemSource from, StoredItem item, params IItemSink[] sinks)
     {
         if (from == null || item == null || sinks == null)
         {
-            return false;
+            return ItemDeliverResult.None;
         }
+
+        bool hasTarget = false;
 
         for (int i = 0; i < sinks.Length; i++)
         {
             IItemSink sink = sinks[i];
             if (sink == null)
-            {
                 continue;
-            }
+
+            hasTarget = true;
 
             if (TryDeliver(from, sink, item))
             {
-                return true;
+                return ItemDeliverResult.Delivered;
             }
         }
 
-        return false;
+        if (!hasTarget)
+        {
+            // 실제로 옮길 수 있는 대상이 아예 없었다
+            return ItemDeliverResult.None;
+        }
+
+        // 대상은 있었는데 전부 실패 (칸 부족, 조건 불일치 등)
+        return ItemDeliverResult.FailedHasTarget;
     }
 
     public bool TryDeliver(IItemSource from, IItemSink to, StoredItem item)

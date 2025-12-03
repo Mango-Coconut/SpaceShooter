@@ -69,6 +69,17 @@ public class PlayerController : MonoBehaviour
     static readonly int MoveYHash = Animator.StringToHash("MoveY");
     void Update()
     {
+        //개발자 도구
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            TakeDamage(1);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            Heal(1);
+        }
+
+
         switch (state)
         {
             case PlayerState.Cutscene:
@@ -162,21 +173,37 @@ public class PlayerController : MonoBehaviour
         animator.SetTrigger(triggerHash);
     }
 
+    public void TakeDamage(int amount)
+    {
+        curHP -= amount;
+        if (curHP <= 0)
+        {
+            Die();
+            return;
+        }
+        curHP = Mathf.Clamp(curHP, 0, maxHP);
+        Debug.Log($"takedamage {amount}, curhp : {curHP}");
+    }
+    public bool Heal(int amount)
+    {
+        if(curHP == maxHP) return false;
+        curHP += amount;
+        curHP = Mathf.Clamp(curHP, 0, maxHP);
+        Debug.Log($"heal {amount}, curhp : {curHP}");
+        return true;
+    }
 
     void Die()
     {
         Debug.Log($"사망");
         OnPlayerDie();
     }
+
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("MonsterAttack"))
         {
-            curHP--;
-            if (curHP <= 0)
-            {
-                Die();
-            }
+            TakeDamage(1);
         }
     }
 

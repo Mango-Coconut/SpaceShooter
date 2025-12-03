@@ -190,11 +190,11 @@ public class DroppedItem : MonoBehaviour, IInteractable
         if (worldInventory == null) return;
         if (item == null || item.itemData == null) return;
 
-        bool picked = InventoryManager.Instance.TryAutoDeliver(item, StorageTarget.World);
+        ItemDeliverResult picked = InventoryManager.Instance.TryAutoDeliver(item, StorageTarget.World);
 
-        if (!picked)
+        // 인벤 공간 없거나 등등 실패 -> 그냥 바닥에 남아있음.
+        if (picked != ItemDeliverResult.Delivered)
         {
-            // 인벤 공간 없거나 등등 -> 그냥 바닥에 남아있음.
             return;
         }
 
