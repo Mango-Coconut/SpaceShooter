@@ -22,22 +22,15 @@ MonoBehaviour:
     \uD55C\uB2E4.\n\uBC14\uB098\uB098\uB97C \uBA39\uACE0 \uC140\uB9AC\uC5D0\uAC8C
     \uB2E4\uC2DC \uB9D0\uC744 \uAC78\uC790."
   icon: {fileID: 21300000, guid: 4d9739ed467a58f4585e5132a703437f, type: 3}
-  category: 3
-  recommendedLevel: 0
   isRepeatable: 0
-  requiredQuestIds: []
-  requiredPlayerLevel: 0
   objectives:
-  - objectiveId: 
-    description: 
+  - objectiveId: 0001
+    description: "\uBC14\uB098\uB098 \uC0AC\uC6A9"
     type: 3
-    requiredCount: 0
-    isOptional: 0
-  - objectiveId: 
-    description: 
-    type: 3
-    requiredCount: 0
-    isOptional: 0
+    targetId: 
+    requiredCount: 1
   reward:
-    coin: 0
-    items: []
+    coin: 1000
+    items:
+    - itemData: {fileID: 11400000, guid: 09bb427e16823d1499a6043d799f3c3d, type: 2}
+      amount: 1

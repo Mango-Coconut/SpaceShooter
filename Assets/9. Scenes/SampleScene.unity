@@ -1515,8 +1515,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instanceId: SampleScene_NPC1
   icon: {fileID: 21300000, guid: 7db1923eb587c3345bdbe7f985d43b60, type: 3}
-  dialogueAsset: {fileID: 11400000, guid: 4ef8174d428eaf54faf2580357165c2b, type: 2}
   hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
+  dialogueAsset: {fileID: 11400000, guid: 4ef8174d428eaf54faf2580357165c2b, type: 2}
+  offeredQuest: {fileID: 0}
+  nodeLocked: 
+  nodeCanAccept: 0
+  nodeInProgress: 1
+  nodeReadyToTurnIn: 3
+  nodeCompleted: 6
 --- !u!4 &241772280
 Transform:
   m_ObjectHideFlags: 0
@@ -12123,7 +12129,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 844058765}
   m_LocalRotation: {x: 0.0018467215, y: -0.33599886, z: 0.0006587986, w: 0.9418604}
-  m_LocalPosition: {x: 6.636997, y: 2.4, z: -10.566827}
+  m_LocalPosition: {x: -13.643003, y: 2.4, z: -24.996826}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -12937,7 +12943,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.001960698, y: -0.003921449, z: 0.000007688883, w: 0.99999046}
-  m_LocalPosition: {x: 0.79999995, y: 2.4, z: -2}
+  m_LocalPosition: {x: 0.80000055, y: 2.4, z: -1.9999992}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14361,7 +14367,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1079786509}
   m_LocalRotation: {x: -0, y: -0.33230343, z: -0, w: 0.9431726}
-  m_LocalPosition: {x: 4.76, y: 0, z: -9.51}
+  m_LocalPosition: {x: -15.52, y: 0, z: -23.94}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15554,7 +15560,6 @@ MonoBehaviour:
   moveSpeed: 10
   jumpPower: 5
   gravity: 9.81
-  ladderJumpHorizontalPower: 5
   verticalVelocity: 0
   isMoving: 0
 --- !u!1 &1091952440
@@ -16651,8 +16656,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instanceId: SampleScene_NPC2
   icon: {fileID: 21300000, guid: 7db1923eb587c3345bdbe7f985d43b60, type: 3}
-  dialogueAsset: {fileID: 11400000, guid: 10505caa6d0fcf044a92ef7ba4909be6, type: 2}
   hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
+  dialogueAsset: {fileID: 11400000, guid: 10505caa6d0fcf044a92ef7ba4909be6, type: 2}
+  offeredQuest: {fileID: 0}
+  nodeLocked: 
+  nodeCanAccept: 
+  nodeInProgress: 
+  nodeReadyToTurnIn: 
+  nodeCompleted: 
 --- !u!4 &1369810369
 Transform:
   m_ObjectHideFlags: 0

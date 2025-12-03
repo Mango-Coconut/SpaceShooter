@@ -30,31 +30,61 @@ MonoBehaviour:
     - text: "\uC54C\uACA0\uB2E4."
       nextNodeId: 1
       command:
-        type: 0
+        type: 2
         itemId: 
         itemCount: 0
-        questData: {fileID: 0}
+        questData: {fileID: 11400000, guid: a4b6818f2e7b151469ee9d788debad77, type: 2}
     - text: "\uD544\uC694 \uC5C6\uC5B4. (\uD29C\uD1A0\uB9AC\uC5BC \uC0DD\uB7B5)"
-      nextNodeId: 3
+      nextNodeId: 2
       command:
         type: 0
         itemId: 
         itemCount: 0
         questData: {fileID: 0}
   - nodeId: 1
-    text: "\uADF8\uB9AC\uACE0 \uCF54\uB108 \uB3CC\uBA74 \uBC14\uB85C \uBAAC\uC2A4\uD130\uAC00
-      \uC788\uC73C\uB2C8\uAE4C \uC5B4\uADF8\uB85C \uC548 \uB04C\uAC8C \uC870\uC2EC\uD558\uACE0,
-      2\uCE35\uC73C\uB85C \uC62C\uB77C\uAC00\uBA74 \uBCF4\uAE09 \uC0C1\uC790\uAC00
-      \uC788\uC744\uAC70\uC57C."
+    text: "\uBA39\uACE0 \uB2E4\uC2DC \uC640~"
+    command:
+      type: 0
+      itemId: 
+      itemCount: 0
+      questData: {fileID: 0}
+    isEnd: 1
+    nextNodeId: 
+    choices: []
+  - nodeId: 2
+    text: "\uADF8\uB798.. \uB108 \uC54C\uC544\uC11C \uD574"
+    command:
+      type: 0
+      itemId: 
+      itemCount: 0
+      questData: {fileID: 0}
+    isEnd: 1
+    nextNodeId: 
+    choices: []
+  - nodeId: 3
+    text: "\uC654\uC5B4? "
     command:
       type: 0
       itemId: 
       itemCount: 0
       questData: {fileID: 0}
     isEnd: 0
-    nextNodeId: 2
+    nextNodeId: 4
     choices: []
-  - nodeId: 2
+  - nodeId: 4
+    text: "\uCF54\uB108 \uB3CC\uBA74 \uBC14\uB85C \uBAAC\uC2A4\uD130\uAC00 \uC788\uC73C\uB2C8\uAE4C
+      \uC5B4\uADF8\uB85C \uC548 \uB04C\uAC8C \uC870\uC2EC\uD558\uACE0, 2\uCE35\uC73C\uB85C
+      \uC62C\uB77C\uAC00\uBA74 \uBCF4\uAE09 \uC0C1\uC790\uAC00 \uC788\uC744\uAC70\uC57C.
+      \uD0C4\uC57D\uC740 \uAC70\uAE30\uC11C \uC5BB\uC73C\uBA74 \uB3FC"
+    command:
+      type: 0
+      itemId: 
+      itemCount: 0
+      questData: {fileID: 0}
+    isEnd: 0
+    nextNodeId: 5
+    choices: []
+  - nodeId: 5
     text: "2\uCE35\uC5D0 \uD5EC\uB808\uB098\uB3C4 \uC788\uC73C\uB2C8 \uC0AC\uACE0\uC2F6\uC740\uAC70
       \uC0AC\uB3C4 \uB418\uACE0. \uC870\uC2EC\uD574!"
     command:
@@ -65,8 +95,8 @@ MonoBehaviour:
     isEnd: 1
     nextNodeId: 
     choices: []
-  - nodeId: 3
-    text: "\uADF8\uB798.. \uB108 \uC54C\uC544\uC11C \uD574"
+  - nodeId: 6
+    text: "\uC774\uC81C \uAC00\uBD10\uB3C4 \uB3FC."
     command:
       type: 0
       itemId: 
@@ -75,20 +105,3 @@ MonoBehaviour:
     isEnd: 1
     nextNodeId: 
     choices: []
-  - nodeId: 3
-    text: "\uADF8\uB798.. \uB108 \uC54C\uC544\uC11C \uD574"
-    command:
-      type: 0
-      itemId: 
-      itemCount: 0
-      questData: {fileID: 0}
-    isEnd: 1
-    nextNodeId: 
-    choices:
-    - text: 
-      nextNodeId: 
-      command:
-        type: 0
-        itemId: 
-        itemCount: 0
-        questData: {fileID: 0}

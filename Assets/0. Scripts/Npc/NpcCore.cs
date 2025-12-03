@@ -16,6 +16,11 @@ public class NpcCore
     }
     public void Initialize(DialogueAsset asset)
     {
-        dialogueCore.Start(asset);
+        Initialize(asset, null);
+    }
+
+    public void Initialize(DialogueAsset asset, string startNodeId)
+    {
+        dialogueCore.Start(asset, startNodeId);
     }
 }

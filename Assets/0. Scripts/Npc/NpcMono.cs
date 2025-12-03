@@ -12,7 +12,6 @@ public class NpcMono : MonoBehaviour, IInteractable
     public NpcCore Core { get; private set; }
     
     [SerializeField] Sprite icon;
-    [SerializeField] DialogueAsset dialogueAsset;
 
     ShopInventory shopInventory;
     public ShopInventory ShopInventory => shopInventory;
@@ -22,6 +21,18 @@ public class NpcMono : MonoBehaviour, IInteractable
     
     // Interact시 발송할 이벤트
     [SerializeField] GameEventHub hub;
+
+    // 대화 에셋
+    [SerializeField] DialogueAsset dialogueAsset;
+
+    [SerializeField] QuestData offeredQuest;   // 이 NPC가 주는 퀘스트 하나
+
+    [Header("Dialogue Start Nodes By QuestState")]
+    [SerializeField] string nodeLocked;        // 조건 부족 (레벨/선행퀘 등)
+    [SerializeField] string nodeCanAccept;     // 퀘스트 수락 가능한 상태
+    [SerializeField] string nodeInProgress;    // 진행 중
+    [SerializeField] string nodeReadyToTurnIn; // 완료 조건 충족 (보고만 하면 됨)
+    [SerializeField] string nodeCompleted;     // 이미 완료 후
 
     void Awake()
     {
@@ -56,7 +67,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         Core.dialogueCore.OnEnded -= HandleDialogueEnded;
         Core.dialogueCore.OnCommand += HandleCommand;
         Core.dialogueCore.OnEnded += HandleDialogueEnded;
-       }
+    }
 
     void OnDisable()
     {
@@ -89,10 +100,11 @@ public class NpcMono : MonoBehaviour, IInteractable
                 {
                     Debug.Log("DialogueCommand.questdata null"); return;
                 }
-                if (hub == null && hub.quest == null)
+                if (hub == null || hub.quest == null)
                 {
                     Debug.Log("hub or hub.quest null"); return;
                 }
+                Debug.Log($"Start Quest {command.questData.title}");
                 hub.quest.RaiseQuestStartRequested(command.questData, this);
 
                 break;
@@ -101,10 +113,11 @@ public class NpcMono : MonoBehaviour, IInteractable
                 {
                     Debug.Log("DialogueCommand.questdata null"); return;
                 }
-                if (hub == null && hub.quest == null)
+                if (hub == null || hub.quest == null)
                 {
                     Debug.Log("hub or hub.quest null"); return;
                 }
+                Debug.Log($"Complete Quest {command.questData.title}");
                 hub.quest.RaiseQuestCompleteRequested(command.questData, this);
 
                 break;
@@ -139,8 +152,31 @@ public class NpcMono : MonoBehaviour, IInteractable
         player.gate.PushUI();
 
         hub.npc.RaiseEnter(this);
-        Core.Initialize(dialogueAsset);
+        string startNodeId = GetStartNodeIdByQuestState();
+        Core.Initialize(dialogueAsset, startNodeId);
     }
+    string GetStartNodeIdByQuestState()
+    {
+        if (offeredQuest == null) return nodeCanAccept; // 그냥 일반 대사만 있는 NPC면 적당히 처리
+
+        QuestState questState = QuestManager.Instance.GetQuestState(offeredQuest);
+        // enum QuestViewState { Locked, CanAccept, Active, ReadyToTurnIn, Completed }
+
+        switch (questState)
+        {
+            case QuestState.Locked: return nodeLocked;
+            case QuestState.CanAccept: return nodeCanAccept;
+            case QuestState.Active: return nodeInProgress;
+            case QuestState.ReadyToTurnIn: return nodeReadyToTurnIn;
+            case QuestState.Completed: return nodeCompleted;
+            default: return nodeCanAccept;
+        }
+    }
+    public void EnrollQuest(QuestData data)
+    {
+        offeredQuest = data;
+    }
+
     public void Exit()
     {
         if (isEnter == false) return;

@@ -5,9 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class QuestReward
 {
-    // [Header("기본 보상")]
-    // public int exp;
     public int coin;
+    //public int bitcoin;
 
     [Header("아이템 보상")]
     public List<QuestItemReward> items;

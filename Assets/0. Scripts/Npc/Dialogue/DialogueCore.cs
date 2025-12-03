@@ -8,17 +8,21 @@ public class DialogueCore
     Dictionary<string, DialogueNode> nodeMap;
     DialogueNode current;
 
+    #region 이벤트 정의
     public event Action<DialogueNode> OnNodeChanged;
-    //if Shop -> NpcMono -> PanelManager
     public event Action<DialogueCommand> OnCommand;
     public event Action OnEnded;
 
-    public void Start(DialogueAsset dialogueAsset)
+    void RaiseNodeChanged() => OnNodeChanged?.Invoke(current);
+    void RaiseEnded() => OnEnded?.Invoke();
+    void ExecuteCommand(DialogueCommand cmd)
     {
-        asset = dialogueAsset;
-        BuildMap();
-        Goto(asset.startNodeId);
+        if (cmd == null) return;
+        if (cmd.type == DialogueCommandType.None) return;
+
+        OnCommand?.Invoke(cmd);
     }
+    #endregion
 
     void BuildMap()
     {
@@ -34,8 +38,43 @@ public class DialogueCore
         }
     }
 
-    void Goto(string nodeId)
+    // 일반 시작
+    public void Start(DialogueAsset dialogueAsset)
     {
+        asset = dialogueAsset;
+        BuildMap();
+        Goto(asset.startNodeId);
+    }
+
+    // 특정 노드로 대화 시작
+    public void Start(DialogueAsset dialogueAsset, string startNodeId = null)
+    {
+        asset = dialogueAsset;
+        BuildMap();
+
+        if (string.IsNullOrEmpty(startNodeId))
+        {
+            startNodeId = asset.startNodeId;
+        }
+
+        Goto(startNodeId);
+    }
+
+    public void Next() // 선택지 없는 노드에서 “다음”
+    {
+        if (current == null) return;
+        if (current.HasChoices)  return; // 선택지는 SelectChoice로만
+        if (current.isEnd)
+        {
+            Goto(null);
+            return;
+        }
+        Goto(current.nextNodeId);
+    }
+
+    void Goto(string nodeId)
+    {   
+        // 읽을 노드가 없으면 끝내기
         if (string.IsNullOrEmpty(nodeId))
         {
             current = null;
@@ -58,38 +97,9 @@ public class DialogueCore
         {
             ExecuteCommand(current.command);
         }
-
         RaiseNodeChanged();
     }
 
-    void RaiseNodeChanged()
-    {
-        OnNodeChanged?.Invoke(current);
-    }
-    void RaiseEnded()
-    {
-        OnEnded?.Invoke();
-    }
-
-    public void Next() // 선택지 없는 노드에서 “다음”
-    {
-        if (current == null)
-        {
-            return;
-        }
-        if (current.HasChoices)
-        {
-            return; // 선택지는 SelectChoice로만
-        }
-        if (current.isEnd)
-        {
-            // 끝
-            Goto(null);
-            return;
-        }
-
-        Goto(current.nextNodeId);
-    }
 
     public void SelectChoice(int index)
     {
@@ -118,11 +128,5 @@ public class DialogueCore
         }
     }
 
-    void ExecuteCommand(DialogueCommand cmd)
-    {
-        if (cmd == null) return;
-        if (cmd.type == DialogueCommandType.None) return;
 
-        OnCommand?.Invoke(cmd);
-    }
 }

@@ -18,7 +18,7 @@ public class QuestEventChannel : ScriptableObject
         {
             Debug.LogWarning(
                 string.Format("QuestEventChannel: OnQuestStartRequested has no listeners. quest = {0}",
-                    quest != null ? quest.questName : "null")
+                    quest != null ? quest.title : "null")
             );
         }
     }
@@ -33,7 +33,7 @@ public class QuestEventChannel : ScriptableObject
         {
             Debug.LogWarning(
                 string.Format("QuestEventChannel: OnQuestCompleteRequested has no listeners. quest = {0}",
-                    quest != null ? quest.questName : "null")
+                    quest != null ? quest.title : "null")
             );
         }
     }
