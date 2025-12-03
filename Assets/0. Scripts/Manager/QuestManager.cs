@@ -8,7 +8,6 @@ public class QuestManager : MonoBehaviour
 
 
     Dictionary<string, QuestInstance> activeQuests = new Dictionary<string, QuestInstance>();
-
     List<QuestData> completedQuests = new List<QuestData>();
 
     public static QuestManager Instance { get; private set; }
@@ -26,22 +25,65 @@ public class QuestManager : MonoBehaviour
 
     void OnEnable()
     {
-        if (hub != null && hub.quest != null)
-        {
-            hub.quest.OnQuestStartRequested += HandleQuestStartRequested;
-            hub.quest.OnQuestCompleteRequested += HandleQuestCompleteRequested;
-        }
+        Subscribe();
     }
 
     void OnDisable()
     {
-        if (hub != null && hub.quest != null)
+        UnSubcribe();
+    }
+
+    #region Event Subscribe
+    void Subscribe()
+    {
+        UnSubcribe();
+        if (hub != null)
         {
-            hub.quest.OnQuestStartRequested -= HandleQuestStartRequested;
-            hub.quest.OnQuestCompleteRequested -= HandleQuestCompleteRequested;
+            if (hub.quest != null)
+            {
+                hub.quest.OnQuestStartRequested += HandleQuestStartRequested;
+                hub.quest.OnQuestCompleteRequested += HandleQuestCompleteRequested;
+            }
+
+            if (hub.enemy != null)
+            {
+                hub.enemy.OnEnemyKilled += HandleEnemyKilled;
+            }
+
+            if (hub.item != null)
+            {
+                hub.item.OnItemObtained += HandleItemCollected;
+                hub.item.OnItemUsed += HandleItemUsed;
+            }
         }
     }
 
+    void UnSubcribe()
+    {
+        if (hub != null)
+        {
+            if (hub.quest != null)
+            {
+                hub.quest.OnQuestStartRequested -= HandleQuestStartRequested;
+                hub.quest.OnQuestCompleteRequested -= HandleQuestCompleteRequested;
+            }
+
+            if (hub.enemy != null)
+            {
+                hub.enemy.OnEnemyKilled -= HandleEnemyKilled;
+            }
+
+            if (hub.item != null)
+            {
+                hub.item.OnItemObtained -= HandleItemCollected;
+                hub.item.OnItemUsed -= HandleItemUsed;
+            }
+        }
+    }
+
+    #endregion
+
+    #region 상태 판정
     public QuestState GetQuestState(QuestData quest)
     {
         // 1. 이미 완료했는지
@@ -64,7 +106,9 @@ public class QuestManager : MonoBehaviour
         // 4. 조건 충족했으면 수락 가능
         return QuestState.CanAccept;
     }
+    #endregion
 
+    #region 퀘스트 시작
     void HandleQuestStartRequested(QuestData quest, NpcMono npc)
     {
         bool started = TryStartQuest(quest, npc);
@@ -131,6 +175,45 @@ public class QuestManager : MonoBehaviour
         // TODO: UI 갱신, 토스트, 퀘스트 수락 연출 등 필요하면 여기서
         return true;
     }
+    #endregion
+
+    #region 퀘스트 진행 중
+
+    // 전역 허브 이벤트 받기
+    void HandleEnemyKilled(string enemyId, int amount)
+    {
+        Progress(QuestObjectiveType.KillMonster, enemyId, amount);
+    }
+
+    void HandleItemCollected(string itemId, int amount)
+    {
+        Progress(QuestObjectiveType.CollectItem, itemId, amount);
+    }
+
+    void HandleItemUsed(string itemId, int amount)
+    {
+        Progress(QuestObjectiveType.UseItem, itemId, amount);
+    }
+
+    void Progress(QuestObjectiveType type, string targetId, int amount)
+    {
+        if (activeQuests == null || activeQuests.Count == 0)
+            return;
+
+        foreach (KeyValuePair<string, QuestInstance> pair in activeQuests)
+        {
+            QuestInstance inst = pair.Value;
+            if (inst == null)
+                continue;
+
+            inst.TryProgress(type, targetId, amount);
+
+            // 목표 달성 여부 체크
+            OnObjectiveProgressChanged(inst);
+        }
+    }
+
+    #endregion
 
     void HandleQuestCompleteRequested(QuestData quest, NpcMono npc)
     {

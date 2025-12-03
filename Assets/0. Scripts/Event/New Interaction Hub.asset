@@ -15,3 +15,5 @@ MonoBehaviour:
   npc: {fileID: 11400000, guid: 7ca6e325ff7d81243913c1c2464de79b, type: 2}
   chest: {fileID: 11400000, guid: 57bb9276cfab10e4fb0cb4c685574ab5, type: 2}
   quest: {fileID: 11400000, guid: 33a03c24606ad364c884e58dea37707a, type: 2}
+  enemy: {fileID: 11400000, guid: 2665262ba1452c24ba5f26e8f05dae31, type: 2}
+  item: {fileID: 11400000, guid: d8e59866f16c1f84f92555bc8266a7c1, type: 2}
