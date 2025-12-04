@@ -9,4 +9,4 @@ public class GameEventHub : ScriptableObject
     public EnemyEventChannel enemy;
     public ItemEventChannel item;
 
-}
+}   

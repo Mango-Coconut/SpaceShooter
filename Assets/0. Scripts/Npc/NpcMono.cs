@@ -25,8 +25,9 @@ public class NpcMono : MonoBehaviour, IInteractable
     // 대화 에셋
     [SerializeField] DialogueAsset dialogueAsset;
 
-    [SerializeField] QuestData offeredQuest;   // 이 NPC가 주는 퀘스트 하나
+    [SerializeField] QuestData linkedQuest;   // 이 NPC가 주는 퀘스트 하나
 
+    // 대화를 어디서부터 시작할 지
     [Header("Dialogue Start Nodes By QuestState")]
     [SerializeField] string nodeLocked;        // 조건 부족 (레벨/선행퀘 등)
     [SerializeField] string nodeCanAccept;     // 퀘스트 수락 가능한 상태
@@ -95,33 +96,16 @@ public class NpcMono : MonoBehaviour, IInteractable
                 }
                 OpenShop?.Invoke();
                 break;
+            case DialogueCommandType.ProceedQuest:
+                HandleProceedQuest(command.questData);
+                break;
             case DialogueCommandType.StartQuest:
-                if (command.questData == null)
-                {
-                    Debug.Log("DialogueCommand.questdata null"); return;
-                }
-                if (hub == null || hub.quest == null)
-                {
-                    Debug.Log("hub or hub.quest null"); return;
-                }
-                Debug.Log($"Start Quest {command.questData.title}");
-                hub.quest.RaiseQuestStartRequested(command.questData, this);
-
+                HandleStartQuestCommand(command.questData);
                 break;
+
             case DialogueCommandType.CompleteQuest:
-                if (command.questData == null)
-                {
-                    Debug.Log("DialogueCommand.questdata null"); return;
-                }
-                if (hub == null || hub.quest == null)
-                {
-                    Debug.Log("hub or hub.quest null"); return;
-                }
-                Debug.Log($"Complete Quest {command.questData.title}");
-                hub.quest.RaiseQuestCompleteRequested(command.questData, this);
-
+                HandleCompleteQuestCommand(command.questData);
                 break;
-
         }
     }
 
@@ -152,29 +136,49 @@ public class NpcMono : MonoBehaviour, IInteractable
         player.gate.PushUI();
 
         hub.npc.RaiseEnter(this);
-        string startNodeId = GetStartNodeIdByQuestState();
-        Core.Initialize(dialogueAsset, startNodeId);
+        Core.Initialize(dialogueAsset);
     }
-    string GetStartNodeIdByQuestState()
+    void HandleProceedQuest(QuestData quest)
     {
-        if (offeredQuest == null) return nodeCanAccept; // 그냥 일반 대사만 있는 NPC면 적당히 처리
-
-        QuestState questState = QuestManager.Instance.GetQuestState(offeredQuest);
-        // enum QuestViewState { Locked, CanAccept, Active, ReadyToTurnIn, Completed }
-
-        switch (questState)
+        if (quest == null)
         {
-            case QuestState.Locked: return nodeLocked;
-            case QuestState.CanAccept: return nodeCanAccept;
-            case QuestState.Active: return nodeInProgress;
-            case QuestState.ReadyToTurnIn: return nodeReadyToTurnIn;
-            case QuestState.Completed: return nodeCompleted;
-            default: return nodeCanAccept;
+            // 커맨드에서 안 넘겨줬으면, 이 NPC의 linkedQuest 사용
+            quest = linkedQuest;
+            if (quest == null) return;
+        }
+
+        QuestState state = QuestManager.Instance.GetQuestState(quest);
+
+        // 최종 상태 기준으로 진입할 노드 고르기
+        if (quest.questDialogue == null)
+            return;
+
+        string nodeId = quest.GetNodeIdByState(state); 
+        Debug.Log($"state : {state}, nodeid : {nodeId}");
+
+        // 퀘스트 전용 대화 에셋으로 갈아타서, 해당 상태 노드로 진입
+        Core.Initialize(quest.questDialogue, nodeId);
+    }
+    void HandleStartQuestCommand(QuestData quest)
+    {
+        bool started = QuestManager.Instance.TryStartQuest(quest, this);
+        if (!started)
+        {
+            Debug.Log("StartQuest failed: " + quest.title);
+        }
+    }
+
+    void HandleCompleteQuestCommand(QuestData quest)
+    {
+        bool completed = QuestManager.Instance.TryCompleteQuest(quest, this);
+        if (!completed)
+        {
+            Debug.Log("CompleteQuest failed: " + quest.title);
         }
     }
     public void EnrollQuest(QuestData data)
     {
-        offeredQuest = data;
+        linkedQuest = data;
     }
 
     public void Exit()

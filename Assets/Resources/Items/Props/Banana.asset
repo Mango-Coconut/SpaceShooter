@@ -19,6 +19,8 @@ MonoBehaviour:
   modelPrefab: {fileID: 3985617635156133948, guid: b6272b210e18d8f4da51d82ea4c1b458, type: 3}
   type: 2
   equiptype: 0
+  useEffects:
+  - {fileID: 11400000, guid: 23579fe929e316e42b60fd6cf6225ee4, type: 2}
   rarity: 6
   price: 10
   weight: 1

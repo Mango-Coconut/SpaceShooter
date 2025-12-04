@@ -1516,8 +1516,8 @@ MonoBehaviour:
   instanceId: SampleScene_NPC1
   icon: {fileID: 21300000, guid: 7db1923eb587c3345bdbe7f985d43b60, type: 3}
   hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
-  dialogueAsset: {fileID: 11400000, guid: 4ef8174d428eaf54faf2580357165c2b, type: 2}
-  offeredQuest: {fileID: 0}
+  dialogueAsset: {fileID: 11400000, guid: c82c6fd63e4aebb4586cfa97e4cd8ab9, type: 2}
+  linkedQuest: {fileID: 0}
   nodeLocked: 
   nodeCanAccept: 0
   nodeInProgress: 1
@@ -1922,7 +1922,6 @@ MonoBehaviour:
   playerInventoryMono: {fileID: 1089791407}
   equipInventoryMono: {fileID: 1089791408}
   worldInventoryMono: {fileID: 464043054}
-  dontDestroyOnLoad: 1
 --- !u!4 &316702654
 Transform:
   m_ObjectHideFlags: 0
@@ -14604,6 +14603,7 @@ GameObject:
   - component: {fileID: 1089791405}
   - component: {fileID: 1089791407}
   - component: {fileID: 1089791408}
+  - component: {fileID: 1089791413}
   - component: {fileID: 1089791409}
   - component: {fileID: 1089791402}
   - component: {fileID: 1089791398}
@@ -15562,6 +15562,18 @@ MonoBehaviour:
   gravity: 9.81
   verticalVelocity: 0
   isMoving: 0
+--- !u!114 &1089791413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079786509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97431c75afdbcc24cb1d51c91aeee61e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1091952440
 GameObject:
   m_ObjectHideFlags: 0
@@ -16658,7 +16670,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 7db1923eb587c3345bdbe7f985d43b60, type: 3}
   hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
   dialogueAsset: {fileID: 11400000, guid: 10505caa6d0fcf044a92ef7ba4909be6, type: 2}
-  offeredQuest: {fileID: 0}
+  linkedQuest: {fileID: 0}
   nodeLocked: 
   nodeCanAccept: 
   nodeInProgress: 

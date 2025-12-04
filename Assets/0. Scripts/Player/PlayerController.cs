@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
         equipInventory = GetComponent<EquipInventoryMono>();
         interactor = GetComponent<Interactor>();
         animator = GetComponent<Animator>();
-        curHP = maxHP;
+        curHP = maxHP-1;
     }
 
     static readonly int MoveXHash = Animator.StringToHash("MoveX");

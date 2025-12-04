@@ -5,13 +5,10 @@ using UnityEngine;
 public class QuestData : ScriptableObject
 {
     [Header("기본 정보")]
-    public string id;            // 저장/로딩용 고유 ID
-    public string title;          // UI 제목
-    [TextArea]
-    public string summary;            // 짧은 설명 (목록용)
-    [TextArea(3, 6)]
-    public string description;        // 상세 설명 (상세창용)
-
+    public string id;
+    public string title;
+    [TextArea] public string summary;
+    [TextArea(3, 6)] public string description;
     public Sprite icon;
 
     public bool isRepeatable;
@@ -21,4 +18,27 @@ public class QuestData : ScriptableObject
 
     [Header("보상")]
     public QuestReward reward;
+
+    [Header("이 퀘스트 전용 대화 에셋")]
+    public DialogueAsset questDialogue;
+
+    [Header("퀘스트 상태별 시작 노드 ID")]
+    public string nodeLocked;
+    public string nodeCanAccept;
+    public string nodeInProgress;
+    public string nodeReadyToTurnIn;
+    public string nodeCompleted;
+
+    public string GetNodeIdByState(QuestState state)
+    {
+        switch (state)
+        {
+            case QuestState.Locked:         return nodeLocked;
+            case QuestState.CanAccept:      return nodeCanAccept;
+            case QuestState.Active:         return nodeInProgress;
+            case QuestState.ReadyToTurnIn:  return nodeReadyToTurnIn;
+            case QuestState.Completed:      return nodeCompleted;
+            default:                        return nodeCanAccept;
+        }
+    }
 }

@@ -4,6 +4,7 @@ public sealed class InventoryManager : MonoBehaviour
 {
     [SerializeField] GameEventHub hub;
     [SerializeField] PlayerController player;
+    ItemUseManager itemUseManager;
 
     [SerializeField] InventoryMono playerInventoryMono;
     [SerializeField] EquipInventoryMono equipInventoryMono;
@@ -19,7 +20,7 @@ public sealed class InventoryManager : MonoBehaviour
     InventoryMono shopInventoryMono;
     public InventoryMono ShopInventoryMono => shopInventoryMono;
 
-    PanelManager panel;
+    PanelManager panelManager;
 
     #region Singleton
     static InventoryManager instance;
@@ -37,7 +38,6 @@ public sealed class InventoryManager : MonoBehaviour
         }
     }
 
-    [SerializeField] bool dontDestroyOnLoad = true;
 
     void Awake()
     {
@@ -49,23 +49,26 @@ public sealed class InventoryManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         instance = this;
+        DontDestroyOnLoad(gameObject);
 
-        if (dontDestroyOnLoad)
-        {
-            DontDestroyOnLoad(gameObject);
-        }
+        InitializeRefs();
+    }
 
+    void InitializeRefs()
+    {
         if (player == null)
         {
-            Log.Warn("PlayerController is null.");
+            player = FindFirstObjectByType<PlayerController>();
+        }
+        else if (itemUseManager == null)
+        {
+            itemUseManager = player.GetComponent<ItemUseManager>();
         }
 
-        panel = FindObjectOfType<PanelManager>();
-        if (panel == null)
+        if (panelManager == null)
         {
-            Log.Warn("PanelManager is null.");
+            panelManager = FindFirstObjectByType<PanelManager>();
         }
     }
 
@@ -92,10 +95,10 @@ public sealed class InventoryManager : MonoBehaviour
     {
         Unsubscribe();
 
-        if (panel != null)
+        if (panelManager != null)
         {
-            panel.OnItemDropped += HandleItemDropped;
-            panel.OnItemRightClicked += HandleRightClick;
+            panelManager.OnItemDropped += HandleItemDropped;
+            panelManager.OnItemRightClicked += HandleRightClick;
         }
 
         if (hub != null)
@@ -115,10 +118,10 @@ public sealed class InventoryManager : MonoBehaviour
 
     void Unsubscribe()
     {
-        if (panel != null)
+        if (panelManager != null)
         {
-            panel.OnItemDropped -= HandleItemDropped;
-            panel.OnItemRightClicked -= HandleRightClick;
+            panelManager.OnItemDropped -= HandleItemDropped;
+            panelManager.OnItemRightClicked -= HandleRightClick;
         }
 
         if (hub != null && hub.chest != null)
@@ -196,20 +199,23 @@ public sealed class InventoryManager : MonoBehaviour
     {
         if (item == null)
             return;
+            
+        InitializeRefs();
 
         ItemDeliverResult result = TryAutoDeliver(item, from);
 
         // 인벤토리에서 우클릭했고, 옮길 대상이 아예 없을 때 → 아이템 사용 시도
         if (from == StorageTarget.Player && result == ItemDeliverResult.None)
         {
-            bool used = ItemUseManager.Instance.TryUse(item.itemData);
+            bool used = itemUseManager.TryUse(item.itemData);
             if (used)
             {
                 IItemSource playerSource = GetSource(StorageTarget.Player);
-                if (playerSource != null)
+                // 1개만 차감
+                bool removed = playerSource.TryRemoveItem(new StoredItem(item.itemData, 1));
+                if (removed)
                 {
-                    // 1개만 차감
-                    playerSource.TryRemoveItem(new StoredItem(item.itemData, 1));
+                    hub.item.RaiseItemUsed(item.itemData.id);
                 }
             }
         }
@@ -255,6 +261,8 @@ public sealed class InventoryManager : MonoBehaviour
         {
             return ItemDeliverResult.None;
         }
+
+        InitializeRefs();
 
         IItemSink playerInv = GetSink(StorageTarget.Player);
         IItemSink chestInv = GetSink(StorageTarget.Chest);
@@ -395,6 +403,7 @@ public sealed class InventoryManager : MonoBehaviour
             return false;
         }
 
+        InitializeRefs();
         // 2. 월드 인벤토리에 드랍 (실패하면 롤백)
         if (!worldInventoryMono.Core.TryAddItem_PlayerDrop(item, player.transform))
         {

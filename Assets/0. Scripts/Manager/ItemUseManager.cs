@@ -4,35 +4,46 @@ using UnityEngine;
 
 public class ItemUseManager : MonoBehaviour
 {
-    public static ItemUseManager Instance { get; private set; }
-
-    PlayerController player;
-
-    ItemUseContext ctx;
+    // 이 플레이어의 ItemUseManager라는 걸 명시적으로 보여주기 위한 참조
+    public PlayerController Player { get; private set; }
+    public ItemUseContext Context { get; private set; }
 
     void Awake()
     {
-        Instance = this;
-        player = FindFirstObjectByType<PlayerController>();
-        ctx = new ItemUseContext(player);
+        Player = GetComponent<PlayerController>();
+        if (Player == null)
+        {
+            Debug.LogError("ItemUseManager: 같은 오브젝트에 PlayerController가 필요합니다.");
+        }
+
+        Context = new ItemUseContext(Player);
     }
 
-public bool TryUse(ItemData data)
-{
-    if (data == null || data.useEffects == null || data.useEffects.Length == 0)
-        return false;
-
-    bool used = false;
-
-    foreach (ItemUseEffect effect in data.useEffects)
+    public bool TryUse(ItemData data)
     {
-        if (effect == null)
-            continue;
+        if (data == null || data.useEffects == null || data.useEffects.Length == 0)
+            return false;
 
-        if (effect.Apply(ctx))
-            used = true;
+        if (data.type != ItemType.Consumable)
+            return false;
+
+        if (Context == null)
+            return false;
+
+        bool used = false;
+
+        for (int i = 0; i < data.useEffects.Length; i++)
+        {
+            ItemUseEffect effect = data.useEffects[i];
+            if (effect == null)
+                continue;
+
+            if (effect.Apply(Context))
+            {
+                used = true;
+            }
+        }
+
+        return used;
     }
-
-    return used;
-}
 }

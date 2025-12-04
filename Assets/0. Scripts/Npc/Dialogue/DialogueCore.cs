@@ -49,6 +49,7 @@ public class DialogueCore
     // 특정 노드로 대화 시작
     public void Start(DialogueAsset dialogueAsset, string startNodeId = null)
     {
+        Debug.Log($"start : {dialogueAsset.name}, {startNodeId}");
         asset = dialogueAsset;
         BuildMap();
 
@@ -114,13 +115,25 @@ public class DialogueCore
 
         DialogueChoice choice = current.choices[index];
 
-        // 커맨드 먼저 쏘고
-        ExecuteCommand(choice.command);
+        bool hasCommand = (choice.command != null && choice.command.type != DialogueCommandType.None);
 
-        // 다음 노드로 이동
+        // 1) 커맨드가 있는 선택지라면 → 커맨드에게 흐름을 일임
+        if (hasCommand)
+        {
+            ExecuteCommand(choice.command);
+            if (!string.IsNullOrEmpty(choice.nextNodeId))
+            {
+                Goto(choice.nextNodeId);
+            }
+            return;
+        }
+
+        // 2) 커맨드가 없는 순수 분기 선택지라면 → nextNodeId로만 이동
         if (string.IsNullOrEmpty(choice.nextNodeId))
         {
-            Goto(null);
+            current = null;
+            RaiseNodeChanged();
+            RaiseEnded();
         }
         else
         {

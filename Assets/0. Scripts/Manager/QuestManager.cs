@@ -221,6 +221,10 @@ public class QuestManager : MonoBehaviour
         // 1) 해당 퀘스트 상태가 ReadyToTurnIn인지 확인
         // 2) 맞으면 Complete + reward 지급
     }
+    public bool TryCompleteQuest(QuestData data, NpcMono npc)
+    {
+        return true;
+    }
 
 
 

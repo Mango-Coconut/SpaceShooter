@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5aa6e94ff61d49742bb329790c080577, type: 3}
   m_Name: BananaMukbang
   m_EditorClassIdentifier: 
-  questId: 0001
-  questName: "\uBC14\uB098\uB098 \uBA39\uAE30"
+  id: 
+  title: 
   summary: "\uBC14\uB098\uB098\uB97C \uBA39\uACE0 \uC140\uB9AC\uC5D0\uAC8C \uB9D0\uC744
     \uAC78\uC790."
   description: "\uB2F9\uC2E0\uC740 \uBC29\uAE08 \uC804\uD22C\uB97C \uCE58\uB974\uACE0
@@ -34,3 +34,9 @@ MonoBehaviour:
     items:
     - itemData: {fileID: 11400000, guid: 09bb427e16823d1499a6043d799f3c3d, type: 2}
       amount: 1
+  questDialogue: {fileID: 11400000, guid: e6f62c940ff481c4887b03f2ec02af07, type: 2}
+  nodeLocked: 0
+  nodeCanAccept: 0
+  nodeInProgress: 3
+  nodeReadyToTurnIn: 4
+  nodeCompleted: 5

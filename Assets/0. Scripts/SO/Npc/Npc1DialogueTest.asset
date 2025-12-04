@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 152a050ff26dfc0499c8279958c688a2, type: 3}
+  m_Name: Npc1DialogueTest
+  m_EditorClassIdentifier: 
+  startNodeId: 0
+  nodes:
+  - nodeId: 0
+    text: "\uAE30\uB2E4\uB9AC\uACE0 \uC788\uC5C8\uC5B4."
+    command:
+      type: 0
+      questData: {fileID: 0}
+    isEnd: 1
+    nextNodeId: 1
+    choices:
+    - text: "Quest : [\uBC14\uB098\uB098 \uBA39\uBC29]"
+      nextNodeId: 
+      command:
+        type: 2
+        questData: {fileID: 11400000, guid: a4b6818f2e7b151469ee9d788debad77, type: 2}
+    - text: "\uB05D\uB0B4\uAE30"
+      nextNodeId: 
+      command:
+        type: 0
+        questData: {fileID: 0}
+  - nodeId: 1
+    text: "\uC5D0\uC14B \uAD50\uCCB4 \uB418\uC5B4\uC57C \uD558\uB294\uB370 \uC548
+      \uB410\uB124"
+    command:
+      type: 0
+      questData: {fileID: 0}
+    isEnd: 1
+    nextNodeId: 
+    choices: []
