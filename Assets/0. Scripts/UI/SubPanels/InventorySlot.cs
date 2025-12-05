@@ -63,7 +63,11 @@ public class InventorySlot : MonoBehaviour, ISlotUI
 
     public void Bind(StoredItem item)
     {
-        if (item == null || item.itemData == null) return;
+        if (item == null || item.itemData == null)
+        {
+            Invisible();
+            return;
+        }
 
         enterItem = item;
 

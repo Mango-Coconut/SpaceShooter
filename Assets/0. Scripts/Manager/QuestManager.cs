@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,6 +10,7 @@ public class QuestManager : MonoBehaviour
 
     Dictionary<string, QuestInstance> activeQuests = new Dictionary<string, QuestInstance>();
     List<QuestData> completedQuests = new List<QuestData>();
+
 
     public static QuestManager Instance { get; private set; }
     void Awake()
@@ -39,12 +41,6 @@ public class QuestManager : MonoBehaviour
         UnSubcribe();
         if (hub != null)
         {
-            if (hub.quest != null)
-            {
-                hub.quest.OnQuestStartRequested += HandleQuestStartRequested;
-                hub.quest.OnQuestCompleteRequested += HandleQuestCompleteRequested;
-            }
-
             if (hub.enemy != null)
             {
                 hub.enemy.OnEnemyKilled += HandleEnemyKilled;
@@ -62,12 +58,6 @@ public class QuestManager : MonoBehaviour
     {
         if (hub != null)
         {
-            if (hub.quest != null)
-            {
-                hub.quest.OnQuestStartRequested -= HandleQuestStartRequested;
-                hub.quest.OnQuestCompleteRequested -= HandleQuestCompleteRequested;
-            }
-
             if (hub.enemy != null)
             {
                 hub.enemy.OnEnemyKilled -= HandleEnemyKilled;
@@ -109,14 +99,6 @@ public class QuestManager : MonoBehaviour
     #endregion
 
     #region 퀘스트 시작
-    void HandleQuestStartRequested(QuestData quest, NpcMono npc)
-    {
-        bool started = TryStartQuest(quest, npc);
-        if (started)
-        {
-            npc.EnrollQuest(quest);
-        }
-    }
     public bool TryStartQuest(QuestData quest, NpcMono giver)
     {
         if (quest == null)
@@ -161,10 +143,8 @@ public class QuestManager : MonoBehaviour
         QuestInstance instance = new QuestInstance(quest);
         activeQuests.Add(quest.id, instance);
 
-        Debug.Log(
-            string.Format("퀘스트 시작: {0} (giver: {1})",
-                quest.title,
-                giver != null ? giver.name : "null"));
+        giver.EnrollQuest(quest);
+        hub.quest.RaiseQuestStateChanged(instance);
 
         // 목표가 없는 퀘스트라면 바로 ReadyToTurnIn 상태로 만들 수도 있음
         if (instance.AreAllObjectivesDone())
@@ -215,31 +195,97 @@ public class QuestManager : MonoBehaviour
 
     #endregion
 
-    void HandleQuestCompleteRequested(QuestData quest, NpcMono npc)
+    #region  퀘스트 완료
+    public bool TryCompleteQuest(QuestData quest, NpcMono npc, PlayerController player)
     {
-        // 여기서:
-        // 1) 해당 퀘스트 상태가 ReadyToTurnIn인지 확인
-        // 2) 맞으면 Complete + reward 지급
-    }
-    public bool TryCompleteQuest(QuestData data, NpcMono npc)
-    {
+        if (quest == null)
+        {
+            Log.Warn("QuestManager: quest is null in HandleQuestCompleteRequested.");
+            return false;
+        }
+
+        // 1. 완료 요청 받은 퀘스트의 인스턴스 확인
+        QuestInstance instance;
+        if (!activeQuests.TryGetValue(quest.id, out instance))
+        {
+            Log.Warn($"QuestManager: Quest not found in activeQuests ({quest.title})");
+            return false;
+        }
+
+        // 2. 해당 퀘스트가 완료 가능한 상태인지
+        if (instance.state != QuestState.ReadyToTurnIn)
+        {
+            Log.Warn($"QuestManager: {quest.title} is not ready to turn in. Current state: {instance.state}");
+            return false;
+        }
+
+        // 3. 보상 지급
+        if (quest.reward != null)
+        {
+            // 골드 지급
+            if (quest.reward.coin > 0)
+            {
+                InventoryManager.Instance.TryAddCoin(player.inventory.Core, quest.reward.coin);
+                Log.Info($"[Quest] Gained Gold: {quest.reward.coin}");
+            }
+
+            // 아이템 지급
+            if (quest.reward.items != null && quest.reward.items.Count > 0)
+            {
+                InventoryManager inv = InventoryManager.Instance;
+                if (inv != null && inv.PlayerInventoryMono != null)
+                {
+                    for (int i = 0; i < quest.reward.items.Count; i++)
+                    {
+                        QuestItemReward itemReward = quest.reward.items[i];
+                        bool added = inv.TryAddItem(inv.PlayerInventoryMono.Core, itemReward.itemData, itemReward.amount);
+                        Log.Info($"[Quest] Item Reward: {itemReward.itemData.name} x{itemReward.amount} (Result: {added})");
+
+                        // 아이템 추가 실패 시 중단 및 false 반환
+                        if (!added)
+                        {
+                            Log.Warn($"QuestManager: Failed to grant item reward {itemReward.itemData.name}");
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    Log.Warn("InventoryManager not ready while granting item rewards.");
+                    return false;
+                }
+            }
+        }
+
+        // 4. 퀘스트 상태를 완료로 전환
+        instance.state = QuestState.Completed;
+        completedQuests.Add(quest);
+        activeQuests.Remove(quest.id);
+
+        // 5. 이벤트 알림 (UI / 사운드 등)
+        if (hub != null && hub.quest != null)
+        {
+            hub.quest.RaiseQuestStateChanged(instance);
+        }
+
+        Log.Info($"[Quest] Completed: {quest.title} (NPC: {npc?.name ?? "null"})");
         return true;
     }
 
+    #endregion
 
-
-    void OnObjectiveProgressChanged(QuestInstance quest)
+    void OnObjectiveProgressChanged(QuestInstance instance)
     {
         // 1️⃣ 모든 목표가 완료되었는지 검사
-        bool allDone = AreAllObjectivesDone(quest);
+        bool allDone = AreAllObjectivesDone(instance);
 
         // 2️⃣ 아직 진행 중이었다면 상태 전환
-        if (allDone && quest.state == QuestState.Active)
+        if (allDone && instance.state == QuestState.Active)
         {
-            quest.state = QuestState.ReadyToTurnIn;
+            instance.state = QuestState.ReadyToTurnIn;
 
             // 플레이어에게 알림 띄우기 등
-            Debug.Log($"[{quest.data.title}] 목표 전부 완료! 보고하러 가세요.");
+            hub.quest.RaiseQuestStateChanged(instance);
 
             // UI나 알림 시스템으로 이벤트 브로드캐스트할 수도 있음
             // e.g. hub.quest.RaiseQuestReadyToTurnIn(quest.data);

@@ -16,38 +16,61 @@ MonoBehaviour:
   nodes:
   - nodeId: 0
     text: "\uC548\uB155~"
+    command:
+      type: 0
+      questData: {fileID: 0}
     isEnd: 0
     nextNodeId: 
     choices:
     - text: "\uC548\uB155\uD558\uC138\uC694"
       nextNodeId: 1
-      command: 0
+      command:
+        type: 0
+        questData: {fileID: 0}
     - text: "\uAEBC\uC838!"
       nextNodeId: 3
-      command: 0
+      command:
+        type: 0
+        questData: {fileID: 0}
   - nodeId: 1
     text: "\uBB34\uC2A8 \uC77C\uC774\uC57C?"
+    command:
+      type: 0
+      questData: {fileID: 0}
     isEnd: 0
     nextNodeId: 2
     choices: []
   - nodeId: 2
     text: "\uD544\uC694\uD55C \uAC70 \uC788\uC5B4?"
+    command:
+      type: 0
+      questData: {fileID: 0}
     isEnd: 0
     nextNodeId: 
     choices:
     - text: "\uC0C1\uC810"
       nextNodeId: 2
-      command: 1
+      command:
+        type: 1
+        questData: {fileID: 0}
     - text: "\uB05D\uB0B4\uAE30"
       nextNodeId: 4
-      command: 0
+      command:
+        type: 0
+        questData: {fileID: 0}
   - nodeId: 3
     text: "\uBB50\uC57C \uC774 \uBBF8\uCE5C\uB188\uC740!"
+    command:
+      type: 0
+      questData: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
   - nodeId: 4
     text: "\uC798\uAC00~"
+    command:
+      type: 0
+      questData: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []

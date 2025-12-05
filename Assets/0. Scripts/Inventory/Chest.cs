@@ -13,6 +13,7 @@ public class Chest : InventoryMono, IInteractable
 
     [Header("Initial Items (for editor setup)")]
     [SerializeField] StoredItem[] chestitems;
+    [SerializeField] int chestCoins;
 
     PlayerController owner;
     bool isOpen = false;
@@ -58,6 +59,10 @@ public class Chest : InventoryMono, IInteractable
                 }
                 TryAddItem(item);
             }
+        }
+        if(chestCoins > 0)
+        {
+            Core.TryAddCoin(chestCoins);
         }
     }
 

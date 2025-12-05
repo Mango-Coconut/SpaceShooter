@@ -39,7 +39,7 @@ public class ShopManager : MonoBehaviour
             Log.Info($"구매할 수 없습니다.");
             return;
         }
-        playerInventory.Core.ModifyCoin(-totalPrice);
+        InventoryManager.Instance.TryAddCoin(playerInventory.Core, -totalPrice);
         shopSlotPanel.SetCoin(playerInventory.Core.MyCoin);
     }
 }

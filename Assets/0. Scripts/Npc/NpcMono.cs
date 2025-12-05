@@ -138,6 +138,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         hub.npc.RaiseEnter(this);
         Core.Initialize(dialogueAsset);
     }
+    
     void HandleProceedQuest(QuestData quest)
     {
         if (quest == null)
@@ -170,7 +171,7 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     void HandleCompleteQuestCommand(QuestData quest)
     {
-        bool completed = QuestManager.Instance.TryCompleteQuest(quest, this);
+        bool completed = QuestManager.Instance.TryCompleteQuest(quest, this, player);
         if (!completed)
         {
             Debug.Log("CompleteQuest failed: " + quest.title);

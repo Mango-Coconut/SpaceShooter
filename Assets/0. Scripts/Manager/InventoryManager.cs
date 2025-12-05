@@ -95,12 +95,6 @@ public sealed class InventoryManager : MonoBehaviour
     {
         Unsubscribe();
 
-        if (panelManager != null)
-        {
-            panelManager.OnItemDropped += HandleItemDropped;
-            panelManager.OnItemRightClicked += HandleRightClick;
-        }
-
         if (hub != null)
         {
             if (hub.chest != null)
@@ -118,12 +112,6 @@ public sealed class InventoryManager : MonoBehaviour
 
     void Unsubscribe()
     {
-        if (panelManager != null)
-        {
-            panelManager.OnItemDropped -= HandleItemDropped;
-            panelManager.OnItemRightClicked -= HandleRightClick;
-        }
-
         if (hub != null && hub.chest != null)
         {
             hub.chest.OnOpen -= HandleSetChestInventory;
@@ -187,7 +175,7 @@ public sealed class InventoryManager : MonoBehaviour
     #endregion
 
     #region  Drag & Drop / Right Click
-    void HandleItemDropped(StorageTarget from, StorageTarget to, StoredItem item)
+    public void HandleItemDropped(StorageTarget from, StorageTarget to, StoredItem item)
     {
         IItemSource fromSource = GetSource(from);
         IItemSink toSink = GetSink(to);
@@ -298,6 +286,14 @@ public sealed class InventoryManager : MonoBehaviour
         return success ? ItemDeliverResult.Delivered : ItemDeliverResult.FailedHasTarget;
     }
 
+    public bool TryAddCoin(ICoinSink sink, int amount)
+    {
+        if (sink == null || amount <= 0)
+        {
+            return false;
+        }
+        return sink.TryAddCoin(amount);
+    }
 
     public bool TryAddItem(IItemSink sink, ItemData data, int amount = 1)
     {

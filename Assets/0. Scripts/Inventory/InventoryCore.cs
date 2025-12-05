@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class InventoryCore : IItemSource, IItemSink
+public class InventoryCore : IItemSource, IItemSink, ICoinSink
 {
     int capacity = 20;
     public int Capacity => capacity;
@@ -28,11 +28,12 @@ public class InventoryCore : IItemSource, IItemSink
     void RaiseCoinChanged(int myCoin) => OnCoinChanged?.Invoke(myCoin);
 
     //돈 바꾸기
-    public void ModifyCoin(int delta)
+    public bool TryAddCoin(int amount)
     {
-        myCoin += delta;
-        if (myCoin < 0) myCoin = 0;
+        if(myCoin + amount < 0) return false;
+        myCoin += amount;
         RaiseCoinChanged(myCoin);
+        return true;
     }
 
     // 메인 진입점
@@ -45,7 +46,7 @@ public class InventoryCore : IItemSource, IItemSink
 
         if (data.type == ItemType.Coin)
         {
-            ModifyCoin(incoming.count * data.price);
+            TryAddCoin(incoming.count * data.price);
             return true;
         }
 
@@ -394,4 +395,5 @@ public class InventoryCore : IItemSource, IItemSink
         RaiseItemChanged();
         RaiseCoinChanged(myCoin);
     }
+
 }

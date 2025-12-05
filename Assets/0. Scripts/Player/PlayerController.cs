@@ -159,7 +159,7 @@ public class PlayerController : MonoBehaviour
     {
         StoredItem item;
         bool isWeaponEquip = equipInventory.TryGetEquipped(EquipType.Weapon, out item);
-        playerWeapon.Equip(item);
+        if(isWeaponEquip) playerWeapon.Equip(item);
         animator.SetBool("IsEquip", isWeaponEquip);
 
         //playerArmor.HelmetEquip(equipInventory.GetEquipped(EquipType.Helmet, out item));

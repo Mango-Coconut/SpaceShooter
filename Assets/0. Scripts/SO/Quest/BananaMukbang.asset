@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5aa6e94ff61d49742bb329790c080577, type: 3}
   m_Name: BananaMukbang
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: 00000
+  title: "\uBC14\uB098\uB098 \uBA39\uBC29"
   summary: "\uBC14\uB098\uB098\uB97C \uBA39\uACE0 \uC140\uB9AC\uC5D0\uAC8C \uB9D0\uC744
     \uAC78\uC790."
   description: "\uB2F9\uC2E0\uC740 \uBC29\uAE08 \uC804\uD22C\uB97C \uCE58\uB974\uACE0

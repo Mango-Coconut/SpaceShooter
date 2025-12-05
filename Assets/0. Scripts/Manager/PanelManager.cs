@@ -20,11 +20,6 @@ public class PanelManager : MonoBehaviour
     DragSlotUIController dragSlotUIController;
     #endregion
 
-
-    //이벤트들
-    public event Action<StorageTarget, StorageTarget, StoredItem> OnItemDropped;
-    public event Action<StoredItem, StorageTarget> OnItemRightClicked;
-
     // Chest, Npc 등 전역 이벤트 연결
     [SerializeField] GameEventHub hub;
 
@@ -306,7 +301,7 @@ public class PanelManager : MonoBehaviour
         StorageTarget fromStorage = args.Source;
         StorageTarget toStorage = ToStorageTarget(args.Pointer);
 
-        OnItemDropped?.Invoke(fromStorage, toStorage, args.Item);
+        InventoryManager.Instance.HandleItemDropped(fromStorage, toStorage, args.Item);
         dragSlotUIController.Hide();
     }
 
@@ -315,8 +310,7 @@ public class PanelManager : MonoBehaviour
         if (args.Item == null || args.Item.itemData == null) { return; }
 
         tooltipUIController.Hide();
-        // 외부 이벤트는 기존 시그니처 유지
-        OnItemRightClicked?.Invoke(args.Item, args.Source);
+        InventoryManager.Instance.HandleRightClick(args.Item, args.Source);
     }
     #endregion
 
