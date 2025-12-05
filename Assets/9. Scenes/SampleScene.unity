@@ -23447,6 +23447,7 @@ MonoBehaviour:
   playerInventory: {fileID: 1089791407}
   equipInventory: {fileID: 1089791408}
   worldInventory: {fileID: 464043054}
+  questManager: {fileID: 1243426906}
 --- !u!4 &1977636330
 Transform:
   m_ObjectHideFlags: 0

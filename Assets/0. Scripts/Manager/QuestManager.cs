@@ -23,6 +23,7 @@ public class QuestManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        BuildQuestCacheFromResources();
     }
 
     void OnEnable()
@@ -113,38 +114,34 @@ public class QuestManager : MonoBehaviour
         // 수락 가능한 상태가 아니면 거부
         if (state == QuestState.Locked)
         {
-            Debug.Log(
-                string.Format("퀘스트 [{0}] 시작 실패: 조건 미충족(Locked).", quest.title));
+            Log.Info(string.Format("퀘스트 [{0}] 시작 실패: 조건 미충족(Locked).", quest.title));
             return false;
         }
 
         if (state == QuestState.Active)
         {
-            Debug.Log(
-                string.Format("퀘스트 [{0}] 시작 실패: 이미 진행 중.", quest.title));
+            Log.Info(string.Format("퀘스트 [{0}] 시작 실패: 이미 진행 중.", quest.title));
             return false;
         }
 
         if (state == QuestState.ReadyToTurnIn)
         {
-            Debug.Log(
-                string.Format("퀘스트 [{0}] 시작 실패: 이미 목표 달성, 보고 대기 상태.", quest.title));
+            Log.Info(string.Format("퀘스트 [{0}] 시작 실패: 이미 목표 달성, 보고 대기 상태.", quest.title));
             return false;
         }
 
         if (state == QuestState.Completed)
         {
-            Debug.Log(
-                string.Format("퀘스트 [{0}] 시작 실패: 이미 완료된 퀘스트.", quest.title));
+            Log.Info(string.Format("퀘스트 [{0}] 시작 실패: 이미 완료된 퀘스트.", quest.title));
             return false;
         }
 
-        // 여기까지 왔으면 CanAccept일 가능성이 크다.
+        // 수락 하기
         QuestInstance instance = new QuestInstance(quest);
-        activeQuests.Add(quest.id, instance);
 
-        giver.EnrollQuest(quest);
-        hub.quest.RaiseQuestStateChanged(instance);
+        activeQuests.Add(quest.id, instance); // 자신에게 등록
+        giver.EnrollQuest(quest); // 해당 NPC에게 등록
+        hub.quest.RaiseQuestStateChanged(instance); // UI 등 기타 요소에게 알려줌
 
         // 목표가 없는 퀘스트라면 바로 ReadyToTurnIn 상태로 만들 수도 있음
         if (instance.AreAllObjectivesDone())
@@ -159,7 +156,7 @@ public class QuestManager : MonoBehaviour
 
     #region 퀘스트 진행 중
 
-    // 전역 허브 이벤트 받기
+    // 퀘스트 완료 조건을 충족시키는 전역 허브 이벤트 받기
     void HandleEnemyKilled(string enemyId, int amount)
     {
         Progress(QuestObjectiveType.KillMonster, enemyId, amount);
@@ -226,33 +223,22 @@ public class QuestManager : MonoBehaviour
             if (quest.reward.coin > 0)
             {
                 InventoryManager.Instance.TryAddCoin(player.inventory.Core, quest.reward.coin);
-                Log.Info($"[Quest] Gained Gold: {quest.reward.coin}");
             }
 
             // 아이템 지급
             if (quest.reward.items != null && quest.reward.items.Count > 0)
             {
                 InventoryManager inv = InventoryManager.Instance;
-                if (inv != null && inv.PlayerInventoryMono != null)
+                for (int i = 0; i < quest.reward.items.Count; i++)
                 {
-                    for (int i = 0; i < quest.reward.items.Count; i++)
+                    QuestItemReward itemReward = quest.reward.items[i];
+                    bool added = inv.TryAddItem(inv.PlayerInventoryMono.Core, itemReward.itemData, itemReward.amount);
+                    // 아이템 추가 실패 시 중단 및 false 반환
+                    if (!added)
                     {
-                        QuestItemReward itemReward = quest.reward.items[i];
-                        bool added = inv.TryAddItem(inv.PlayerInventoryMono.Core, itemReward.itemData, itemReward.amount);
-                        Log.Info($"[Quest] Item Reward: {itemReward.itemData.name} x{itemReward.amount} (Result: {added})");
-
-                        // 아이템 추가 실패 시 중단 및 false 반환
-                        if (!added)
-                        {
-                            Log.Warn($"QuestManager: Failed to grant item reward {itemReward.itemData.name}");
-                            return false;
-                        }
+                        Log.Warn($"인벤토리 비우고 다시 오렴(혹은 다른 버그)");
+                        return false;
                     }
-                }
-                else
-                {
-                    Log.Warn("InventoryManager not ready while granting item rewards.");
-                    return false;
                 }
             }
         }
@@ -276,33 +262,22 @@ public class QuestManager : MonoBehaviour
 
     void OnObjectiveProgressChanged(QuestInstance instance)
     {
-        // 1️⃣ 모든 목표가 완료되었는지 검사
-        bool allDone = AreAllObjectivesDone(instance);
+        // 1. 모든 목표가 완료되었는지 검사
+        bool allDone = instance.objectives.All(o => o.isCompleted);
 
-        // 2️⃣ 아직 진행 중이었다면 상태 전환
+        // 2. 아직 진행 중이었다면 상태 전환
         if (allDone && instance.state == QuestState.Active)
         {
             instance.state = QuestState.ReadyToTurnIn;
-
-            // 플레이어에게 알림 띄우기 등
             hub.quest.RaiseQuestStateChanged(instance);
-
-            // UI나 알림 시스템으로 이벤트 브로드캐스트할 수도 있음
-            // e.g. hub.quest.RaiseQuestReadyToTurnIn(quest.data);
         }
-
-        // 3️⃣ 일부만 완료된 경우엔 그냥 진행도만 업데이트
-    }
-
-    bool AreAllObjectivesDone(QuestInstance quest)
-    {
-        return quest.objectives.All(o => o.isCompleted);
     }
 
     bool CheckPrerequisites(QuestData quest)
     {
         if (quest == null)
             return false;
+        //추후에 추가
 
         // 1. 레벨 조건 (플레이어 스탯 등)
 
@@ -312,4 +287,199 @@ public class QuestManager : MonoBehaviour
 
         return true;
     }
+
+
+    #region Save&Load
+    public QuestManagerSaveData SaveData()
+    {
+        QuestManagerSaveData data = new QuestManagerSaveData();
+        data.activeQuests = new List<QuestInstanceSaveData>();
+        data.completedQuestIds = new List<string>();
+
+        // 1) 진행 중인 퀘스트들
+        foreach (KeyValuePair<string, QuestInstance> kv in activeQuests)
+        {
+            QuestInstance instance = kv.Value;
+            if (instance == null || instance.data == null) continue;
+
+            QuestInstanceSaveData s = new QuestInstanceSaveData();
+            s.questId = instance.data.id;
+            s.state = instance.state;
+
+            // 목표들 진행도 저장 (필요하면)
+            if (instance.objectives != null)
+            {
+                s.objectives = new List<QuestObjectiveSaveData>();
+                for (int i = 0; i < instance.objectives.Count; i++)
+                {
+                    ObjectiveProgress instObj = instance.objectives[i];
+
+                    QuestObjectiveSaveData os = new QuestObjectiveSaveData();
+                    os.index = i;
+                    os.currentCount = instObj.currentCount;  // 네 구조에 맞게 필드 이름 맞춰줘
+                    os.isCompleted = instObj.isCompleted;
+
+                    s.objectives.Add(os);
+                }
+            }
+
+            data.activeQuests.Add(s);
+        }
+
+        // 2) 완료된 퀘스트들: id만 저장
+        for (int i = 0; i < completedQuests.Count; i++)
+        {
+            QuestData q = completedQuests[i];
+            if (q == null) continue;
+            data.completedQuestIds.Add(q.id);
+        }
+
+        return data;
+    }
+
+
+    public void LoadData(QuestManagerSaveData data)
+    {
+        activeQuests.Clear();
+        completedQuests.Clear();
+
+        if (data == null)
+        {
+            Log.Warn("QuestManager.LoadData: data is null");
+            return;
+        }
+
+        // -----------------------------
+        // 1) 완료된 퀘스트 복원
+        // -----------------------------
+        if (data.completedQuestIds != null)
+        {
+            for (int i = 0; i < data.completedQuestIds.Count; i++)
+            {
+                string id = data.completedQuestIds[i];
+                QuestData q = GetQuestById(id);
+                if (q == null)
+                {
+                    Log.Warn($"QuestManager.LoadData: 완료된 퀘스트 {id} 를 찾을 수 없음");
+                    continue;
+                }
+
+                completedQuests.Add(q);
+            }
+        }
+
+        // -----------------------------
+        // 2) 진행 중 퀘스트 복원
+        // -----------------------------
+        if (data.activeQuests != null)
+        {
+            for (int i = 0; i < data.activeQuests.Count; i++)
+            {
+                QuestInstanceSaveData s = data.activeQuests[i];
+                if (string.IsNullOrEmpty(s.questId))
+                    continue;
+
+                QuestData qd = GetQuestById(s.questId);
+                if (qd == null)
+                {
+                    Log.Warn($"QuestManager.LoadData: QuestData '{s.questId}' 를 찾을 수 없음");
+                    continue;
+                }
+
+                // 새로운 인스턴스 생성
+                QuestInstance instance = new QuestInstance(qd);
+                instance.state = s.state;
+
+                // 목표 진행도 복원
+                if (s.objectives != null && instance.objectives != null)
+                {
+                    int count = Mathf.Min(s.objectives.Count, instance.objectives.Count);
+                    for (int j = 0; j < count; j++)
+                    {
+                        QuestObjectiveSaveData savedObj = s.objectives[j];
+                        ObjectiveProgress obj = instance.objectives[j];
+
+                        obj.currentCount = savedObj.currentCount;
+                        obj.isCompleted = savedObj.isCompleted;
+                    }
+                }
+
+                activeQuests[qd.id] = instance;
+            }
+        }
+
+        // -----------------------------
+        // 3) 로드 후 UI 갱신 이벤트 발송
+        // -----------------------------
+        if (hub != null && hub.quest != null)
+        {
+            foreach (var kv in activeQuests)
+            {
+                hub.quest.RaiseQuestStateChanged(kv.Value);
+            }
+        }
+
+        Log.Info($"QuestManager.LoadData 완료: active={activeQuests.Count}, completed={completedQuests.Count}");
+    }
+
+    List<QuestData> questDatabase; // 모든 퀘스트의 종류
+    Dictionary<string, QuestData> questById;
+    void BuildQuestCacheFromResources()
+    {
+        questById = new Dictionary<string, QuestData>();
+
+        QuestData[] allQuests = Resources.LoadAll<QuestData>("Quests");
+        if (allQuests == null || allQuests.Length == 0)
+        {
+            Log.Warn("QuestManager: Resources/Quests 에서 QuestData를 찾지 못했습니다.");
+            return;
+        }
+
+        for (int i = 0; i < allQuests.Length; i++)
+        {
+            QuestData data = allQuests[i];
+            if (data == null || string.IsNullOrEmpty(data.id))
+            {
+                continue;
+            }
+
+            if (!questById.ContainsKey(data.id))
+            {
+                questById.Add(data.id, data);
+            }
+            else
+            {
+                Log.Warn($"QuestManager: 중복된 Quest id 발견 ({data.id})");
+            }
+        }
+
+        Log.Info($"QuestManager: 퀘스트 캐싱 완료. 개수 = {questById.Count}");
+    }
+
+    // -------------------------------
+    // 2) id로 QuestData 가져오기
+    // -------------------------------
+    public QuestData GetQuestById(string id)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            return null;
+        }
+
+        if (questById == null || questById.Count == 0)
+        {
+            // 혹시 Awake 전에 호출되었거나, 에디터에서 리셋된 경우 대비
+            BuildQuestCacheFromResources();
+        }
+
+        QuestData data;
+        if (questById.TryGetValue(id, out data))
+        {
+            return data;
+        }
+
+        Log.Warn($"QuestManager.GetQuestById: 해당 id의 퀘스트를 찾을 수 없습니다. ({id})");
+        return null;
+    }
+    #endregion
 }

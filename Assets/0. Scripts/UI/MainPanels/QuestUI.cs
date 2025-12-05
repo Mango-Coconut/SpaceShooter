@@ -23,18 +23,17 @@ public class QuestUI : MonoBehaviour
 
     void HandleQuestStateChange(QuestInstance quest)
     {
-        if(quest.state == QuestState.Active)
+        QuestSlot existingSlot = questSlots.Find(slot => slot.Data == quest.data);
+
+        if (existingSlot != null)
         {
-            QuestSlot newQuest = Instantiate(questSlotPrefab, QuestSlotPanel.transform);
-            questSlots.Add(newQuest);
-            newQuest.Set(quest);
+            existingSlot.Set(quest);
         }
-        foreach(QuestSlot slot in questSlots)
+        else
         {
-            if(slot.Data == quest.data)
-            {
-                slot.Set(quest);
-            }
+            QuestSlot newSlot = Instantiate(questSlotPrefab, QuestSlotPanel.transform);
+            newSlot.Set(quest);
+            questSlots.Add(newSlot);
         }
     }
 }

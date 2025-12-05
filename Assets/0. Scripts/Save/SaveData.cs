@@ -10,4 +10,5 @@ public class SaveData
     public WorldDropData world;
     public List<ChestData> chests;
     public List<NpcData> npcs;
+    public QuestManagerSaveData quests;
 }

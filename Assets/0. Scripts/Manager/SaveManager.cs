@@ -9,6 +9,8 @@ public class SaveManager : MonoBehaviour
     [SerializeField] InventoryMono playerInventory;
     [SerializeField] EquipInventoryMono equipInventory;
     [SerializeField] WorldInventoryMono worldInventory;
+    [SerializeField] QuestManager questManager;
+
     void Awake()
     {
         ItemDatabase.Initialize(new ResourcesItemProvider("Items"));
@@ -39,8 +41,10 @@ public class SaveManager : MonoBehaviour
             save.equipped = equipInventory.Core.SaveData();
             // 3) 월드 드랍
             save.world = worldInventory.Core.SaveData();
+            // 4) 퀘스트 상태
+            save.quests = questManager.SaveData();
 
-            // 4) 상자
+            // 5) 상자
             Chest[] allChests = FindObjectsByType<Chest>(FindObjectsSortMode.InstanceID);
             save.chests = new List<ChestData>();
             for (int i = 0; i < allChests.Length; i++)
@@ -50,7 +54,7 @@ public class SaveManager : MonoBehaviour
                 save.chests.Add(chest.SaveData());
             }
 
-            // 5) NPC
+            // 6) NPC
             NpcMono[] allNpcs = FindObjectsByType<NpcMono>(FindObjectsSortMode.InstanceID);
             save.npcs = new List<NpcData>();
             for (int i = 0; i < allNpcs.Length; i++)
@@ -140,17 +144,21 @@ public class SaveManager : MonoBehaviour
                 equipInventory.Core.LoadData(save.equipped);
             }
 
-            // 3) 월드 드랍 (성공적으로 파싱된 경우에만)
-            // world initialization handled inside WorldInventoryCore.LoadData after successful parse
+            // 3) 월드 드랍
             if (save.world != null)
             {
                 worldInventory.Core.LoadData(save.world);
             }
+            // 4) 퀘스트 상태
+            if (questManager != null)
+            {
+                questManager.LoadData(save.quests);   // save.quests가 null이면 내부에서 알아서 처리
+            }
 
-            // 4) 상자
+            // 5) 상자
             LoadChests(save);
 
-            // 5) NPC
+            // 6) NPC
             LoadNpcs(save);
         }
         catch (Exception ex)
