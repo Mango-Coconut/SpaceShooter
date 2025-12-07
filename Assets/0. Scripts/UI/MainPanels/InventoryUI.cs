@@ -8,6 +8,7 @@ public class InventoryUI : MonoBehaviour
     //인벤토리 슬롯
     [SerializeField] SlotPanel slotPanel;
     public SlotPanel SlotPanel => slotPanel;
+    
 
     //장비 슬롯
     [SerializeField] EquipSlotPanel equipSlotPanel;

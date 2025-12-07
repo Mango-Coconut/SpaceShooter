@@ -288,7 +288,7 @@ public sealed class InventoryManager : MonoBehaviour
 
     public bool TryAddCoin(ICoinSink sink, int amount)
     {
-        if (sink == null || amount <= 0)
+        if (sink == null || amount == 0)
         {
             return false;
         }

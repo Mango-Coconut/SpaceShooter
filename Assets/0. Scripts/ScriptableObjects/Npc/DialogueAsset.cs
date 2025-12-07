@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Dialogue/DialogueAsset")]
+[CreateAssetMenu(menuName = "ScriptableObjects/Dialogue/DialogueAsset")]
 public class DialogueAsset : ScriptableObject
 {
     public string startNodeId;

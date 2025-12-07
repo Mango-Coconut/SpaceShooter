@@ -2,9 +2,10 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-public class ToItemPrefab : Editor
+// 
+public class SetUpDroppedItemPrefab : Editor
 {
-    [MenuItem("Tools/Setup/Attach Item Components")]
+    [MenuItem("Tools/Setup/DroppedItemPrefab")]
     private static void AttachItemComponents()
     {
         foreach (var obj in Selection.objects)

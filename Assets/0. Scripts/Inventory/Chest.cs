@@ -15,7 +15,7 @@ public class Chest : InventoryMono, IInteractable
     [SerializeField] StoredItem[] chestitems;
     [SerializeField] int chestCoins;
 
-    PlayerController owner;
+    PlayerController curPlayer;
     bool isOpen = false;
 
     [SerializeField] Sprite chestSprite;
@@ -87,7 +87,7 @@ public class Chest : InventoryMono, IInteractable
     void OpenChest(PlayerController pc)
     {
         isOpen = true;
-        owner = pc;
+        curPlayer = pc;
 
         pc.gate.PushUI();
         if (hub != null && hub.chest != null)
@@ -99,12 +99,12 @@ public class Chest : InventoryMono, IInteractable
     {
         isOpen = false;
 
-        var targetPc = pc != null ? pc : owner;
+        var targetPc = pc != null ? pc : curPlayer;
         if (targetPc != null)
         {
             targetPc.gate.PopUI();
         }
-        owner = null;
+        curPlayer = null;
 
         if (hub != null && hub.chest != null)
         {
@@ -114,13 +114,13 @@ public class Chest : InventoryMono, IInteractable
     
     public void ForceCloseFromUI()
     {
-        CloseChest(owner);
+        CloseChest(curPlayer);
     }
 
 
     public bool IsAvailable() => true;
     public void OnFocus() { }
-    public void OnUnfocus() {CloseChest(owner); }
+    public void OnUnfocus() {CloseChest(curPlayer); }
 
     public Sprite GetIcon() => chestSprite;
     public (string inputKeyText, string behaviorText) GetPrompt() => ("F", "열기");
@@ -138,5 +138,12 @@ public class Chest : InventoryMono, IInteractable
         }
 
         return data;
+    }
+
+    public bool CanInteract()
+    {
+        if(curPlayer != null) return false;
+
+        return true;
     }
 }

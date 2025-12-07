@@ -1,3 +1,4 @@
+// 플레이어 행동 제한
 [System.Flags]
 public enum BlockAct
 {

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 152a050ff26dfc0499c8279958c688a2, type: 3}
-  m_Name: Npc1DialogueTest
+  m_Name: Npc1Dialogue
   m_EditorClassIdentifier: 
   startNodeId: 0
   nodes:
@@ -20,7 +20,7 @@ MonoBehaviour:
       type: 0
       questData: {fileID: 0}
     isEnd: 1
-    nextNodeId: 1
+    nextNodeId: 
     choices:
     - text: "Quest : [\uBC14\uB098\uB098 \uBA39\uBC29]"
       nextNodeId: 
@@ -32,12 +32,3 @@ MonoBehaviour:
       command:
         type: 0
         questData: {fileID: 0}
-  - nodeId: 1
-    text: "\uC5D0\uC14B \uAD50\uCCB4 \uB418\uC5B4\uC57C \uD558\uB294\uB370 \uC548
-      \uB410\uB124"
-    command:
-      type: 0
-      questData: {fileID: 0}
-    isEnd: 1
-    nextNodeId: 
-    choices: []

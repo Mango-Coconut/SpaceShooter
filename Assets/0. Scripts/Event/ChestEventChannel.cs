@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName="Game/Chest/ChestInteractionChannel")]
-public class ChestInteractionChannel : ScriptableObject
+[CreateAssetMenu(menuName = "ScriptableObjects/Event/EventChannel/ChestEventChannel")]
+public class ChestEventChannel : ScriptableObject
 {
     public event Action<Chest> OnOpen;
     public event Action<Chest> OnClose;

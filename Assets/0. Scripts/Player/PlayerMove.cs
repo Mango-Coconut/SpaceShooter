@@ -31,12 +31,43 @@ public class PlayerMove : MonoBehaviour
         wasGrounded = false;
     }
 
-    public void Tick()
+    public void Tick(PlayerState state)
     {
-        if(wasGrounded) Move();
+        switch (state)
+        {
+            case PlayerState.Climb:
+                TickLadder();
+                break;
+
+            case PlayerState.Cutscene:
+                TickFrozen();
+                break;
+
+            // Normal / Air / 그 외 이동 가능한 상태들
+            default:
+                TickDefault();    // 지상 + 공중 공통 처리
+                break;
+        }
+
+        wasGrounded = cc.isGrounded;
+    }
+    void TickDefault()
+    {
+        Move();
         ApplyVertical();
         MoveFinal();
-        wasGrounded = cc.isGrounded;
+    }
+
+    // 컷신/스턴 등 이동 정지용
+    void TickFrozen()
+    {
+        isMoving = false;
+        horizontalDir = Vector3.zero;
+        verticalVelocity = 0f;
+
+        // 필요하면 CharacterController.Move 호출 안 해도 됨
+        // 여기서는 충돌 정리용으로 살짝만 호출해도 되고, 완전 정지면 생략 가능
+        // cc.Move(Vector3.zero);
     }
 
     public void TickLadder()

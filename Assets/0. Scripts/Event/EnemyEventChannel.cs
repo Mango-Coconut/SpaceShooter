@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Game/EnemyEventChannel")]
+[CreateAssetMenu(menuName = "ScriptableObjects/Event/EventChannel/EnemyEventChannel")]
 public class EnemyEventChannel : ScriptableObject
 {
     public event Action<string, int> OnEnemyKilled;

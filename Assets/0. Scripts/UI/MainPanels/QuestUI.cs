@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class QuestUI : MonoBehaviour
@@ -9,6 +10,10 @@ public class QuestUI : MonoBehaviour
     List<QuestSlot> questSlots = new List<QuestSlot>();
     [SerializeField] QuestSlot questSlotPrefab;
 
+    void Awake()
+    {
+        QuestSlotPanel.SetActive(false);
+    }
     void OnEnable()
     {
         hub.quest.OnQuestStateChanged += HandleQuestStateChange;
@@ -19,6 +24,17 @@ public class QuestUI : MonoBehaviour
         hub.quest.OnQuestStateChanged -= HandleQuestStateChange;
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            if(questSlots.Count != 0) QuestSlotPanel.SetActive(true);
+        }
+        else if (Input.GetKeyUp(KeyCode.Q))
+        {
+            QuestSlotPanel.SetActive(false);
+        }
+    }
 
 
     void HandleQuestStateChange(QuestInstance quest)

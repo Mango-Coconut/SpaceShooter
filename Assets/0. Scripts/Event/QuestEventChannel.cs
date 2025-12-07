@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Game/Quest/QuestEventChannel")]
+[CreateAssetMenu(menuName = "ScriptableObjects/Event/EventChannel/QuestEventChannel")]
 public class QuestEventChannel : ScriptableObject
 {
     public event Action<QuestInstance> OnQuestStateChanged;

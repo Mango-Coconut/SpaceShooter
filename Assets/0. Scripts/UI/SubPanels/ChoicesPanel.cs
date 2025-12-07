@@ -31,6 +31,13 @@ public class ChoicesPanel : MonoBehaviour
         {
             DialogueChoice choice = choices[i];
 
+            //만약 퀘스트 선택지인데 완료 상태면 안 뜨게끔
+            if(choice.command.type == DialogueCommandType.ProceedQuest 
+                && QuestManager.Instance.GetQuestState(choice.command.questData) == QuestState.Completed)
+            {
+                continue;
+            }
+
             GameObject btnObj = Instantiate(buttonPrefab, transform);
             spawnedButtons.Add(btnObj);
 

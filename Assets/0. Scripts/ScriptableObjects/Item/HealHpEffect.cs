@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Item/Effects/HealHp")]
+[CreateAssetMenu(menuName = "ScriptableObjects/ItemEffects/HealHp")]
 public class HealHpEffect : ItemUseEffect
 {
     [SerializeField] int healAmount;

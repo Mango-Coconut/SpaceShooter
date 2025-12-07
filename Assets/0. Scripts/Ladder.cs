@@ -15,7 +15,7 @@ public class Ladder : MonoBehaviour, IInteractable
     public Transform bottomCamPos;
     [SerializeField] LayerMask obstacleMask;
     bool isUsing = false;
-    PlayerController curPc;
+    PlayerController curPlayer;
 
     [SerializeField] GameObject topcollider;
     [SerializeField] GameObject bottomcollider;
@@ -28,7 +28,7 @@ public class Ladder : MonoBehaviour, IInteractable
     public void Interact(PlayerController pc)
     {
         // 이미 누가 사용 중이면 막기
-        if (curPc != null)
+        if (curPlayer != null)
         {
             Debug.Log("이미 점유 중인 플레이어가 있음. 혹은 끝날때 널처리 안함");
             return;
@@ -48,11 +48,11 @@ public class Ladder : MonoBehaviour, IInteractable
         // 선택된 시작점에 장애물 있는지 체크
         if (Physics.CheckSphere(startPos.position, 0.2f, obstacleMask))
         {
-            // 여기서 막히면 curPc를 잡지 말아야 다음에 다시 시도 가능
+            // 여기서 막히면 curPlayer를 잡지 말아야 다음에 다시 시도 가능
             return;
         }
 
-        curPc = pc;
+        curPlayer = pc;
 
         pc.StartLadderClimb(this, startPos, startCamPos);
         SetActiveChildCollider(true);
@@ -84,6 +84,13 @@ public class Ladder : MonoBehaviour, IInteractable
     public void Clear()
     {
         SetActiveChildCollider(false);
-        curPc = null;
+        curPlayer = null;
+    }
+
+    public bool CanInteract()
+    {
+        if (curPlayer != null) return false;
+
+        return true;
     }
 }

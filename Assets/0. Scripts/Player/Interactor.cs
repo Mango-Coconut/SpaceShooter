@@ -21,7 +21,6 @@ public class Interactor : MonoBehaviour
     {
         timer += Time.deltaTime;
         if (timer >= 0.1f) { timer = 0f; Scan();}
-
     }
 
     void Scan()
@@ -41,7 +40,11 @@ public class Interactor : MonoBehaviour
             for (int i = 0; i < count; i++)
             {
                 var col = buffer[i]; if (!col) continue;
-                var cand = col.GetComponentInParent<IInteractable>(); if (cand == null) continue;
+                var cand = col.GetComponentInParent<IInteractable>(); 
+                if (cand == null) continue;
+                // 상호작용 로직 바꾸기
+                // if (cand == null || !cand.CanInteract()) continue;
+                
 
                 Vector3 toCenter = col.bounds.center - ray.origin;
                 float t = Vector3.Dot(toCenter, ray.direction);

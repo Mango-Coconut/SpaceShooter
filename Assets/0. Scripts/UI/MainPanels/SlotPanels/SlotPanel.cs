@@ -9,7 +9,7 @@ public class SlotPanel : SlotPanelBase
     public InventoryMono Inventory => inventory;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] StorageTarget myStorageType;
-
+    [SerializeField] CoinPanel coinPanel;
 
     void OnEnable()
     {
@@ -116,6 +116,11 @@ public class SlotPanel : SlotPanelBase
         }
     }
 
+    void CoinRefresh(int coin)
+    {
+        coinPanel.SetCoin(coin);
+    }
+
     #endregion
 
     #region 인벤토리 이벤트 구독
@@ -129,12 +134,18 @@ public class SlotPanel : SlotPanelBase
 
         UnsubscribeInventory();
         inventory.Core.OnItemChanged += Refresh;
+
+        if(coinPanel == null) return;
+        inventory.Core.OnCoinChanged += CoinRefresh;
     }
 
     void UnsubscribeInventory()
     {
         if (inventory == null) return;
         inventory.Core.OnItemChanged -= Refresh;
+
+        if(coinPanel == null) return;
+        inventory.Core.OnCoinChanged -= CoinRefresh;
     }
 
 

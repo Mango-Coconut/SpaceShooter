@@ -1,3 +1,4 @@
+// 아이템 옮기기 결과에 따른 반환형
 public enum ItemDeliverResult
 {
     None,            // 옮길 대상 자체가 없어서 아무것도 안 함

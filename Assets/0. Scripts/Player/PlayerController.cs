@@ -11,6 +11,7 @@ using Cinemachine;
 public class PlayerController : MonoBehaviour
 {
 
+    [SerializeField]
     public PlayerState state;
     public PlayerActionGate gate;
 
@@ -79,15 +80,36 @@ public class PlayerController : MonoBehaviour
             Heal(1);
         }
 
+        switch (state)
+        {
+            case PlayerState.Cutscene:
+                // 컷신 중에는 움직임 정지
+                playerMove.Tick(PlayerState.Cutscene);
+                break;
+
+            case PlayerState.Normal:
+                playerMove.Tick(PlayerState.Normal);
+                break;
+
+            case PlayerState.Climb:
+                playerMove.Tick(PlayerState.Climb);
+                break;
+
+            case PlayerState.Air:
+                playerMove.Tick(PlayerState.Air);
+                break;
+        }
 
         switch (state)
         {
             case PlayerState.Cutscene:
+                // 별도 처리 필요시 여기
                 break;
 
             case PlayerState.Normal:
-                playerMove.Tick();
                 UpdateMoveAnim();
+
+                // 땅에서 떨어지면 Air로 전환
                 if (!playerMove.IsGrounded)
                 {
                     state = PlayerState.Air;
@@ -95,28 +117,27 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case PlayerState.Climb:
-                playerMove.TickLadder();
                 UpdateMoveAnim();
                 break;
 
             case PlayerState.Air:
-                playerMove.Tick();
+                // 착지 체크
                 if (playerMove.IsGrounded)
                 {
-                    // 땅에 닿았으니 상태는 무조건 Normal로 복구
-                    float fallSpeed = playerMove.VerticalSpeed; // 음수면 아래로 떨어지는 중
+                    float fallSpeed = playerMove.VerticalSpeed; // 음수면 아래로 떨어진 값
                     state = PlayerState.Normal;
 
-                    // 충분히 빠르게 떨어졌으면 하드 랜딩 처리
+                    // 충분히 빠르게 떨어졌으면 하드 랜딩
                     if (fallSpeed <= -hardLandingSpeed)
                     {
                         gate.PushAll();                          // 애니 동안 입력 막기
                         animator.SetTrigger("FallingToGround");  // Landing 애니 트리거
                     }
-                    // 느리게 떨어진 경우는 그냥 아무 애니 없이 Normal 복귀
+                    // 느리게 떨어진 경우는 그냥 Normal 복귀
                 }
                 break;
         }
+
 
     }
     void UpdateMoveAnim()
@@ -212,8 +233,6 @@ public class PlayerController : MonoBehaviour
     //Ladder에서 다시 호출
     public void StartLadderClimb(Ladder newLadder, Transform startPos, Transform startCamPos)
     {
-        if (curLadder != null) { Debug.Log("이미 타고 있는 Ladder가 있음 혹은 끝날때 널처리 안함"); return; }
-        if (newLadder == null) { Debug.Log("타려는 Ladder가 null임"); return; }
         curLadder = newLadder;
 
         playerMove.SnapTo(startPos.position, startPos.rotation);
@@ -221,7 +240,7 @@ public class PlayerController : MonoBehaviour
 
         gate.PushAll();
         animator.SetTrigger("ClimbStart");
-        state = PlayerState.Climb;
+        state = PlayerState.Cutscene;
     }
     // 사다기 타기 시작모션 끝날경우
     public void OnClimbStartExit()
@@ -237,6 +256,7 @@ public class PlayerController : MonoBehaviour
         gate.PopClimb();
         gate.PushAll();
         CamController.Instance.SetCutsceneCam(curLadder.topCamPos);
+        state = PlayerState.Cutscene;
         animator.SetTrigger("ClimbOnTop");
     }
     //사다리 맨아래 도착 애니메이션 시작
@@ -245,6 +265,7 @@ public class PlayerController : MonoBehaviour
         gate.PopClimb();
         gate.PushAll();
         CamController.Instance.SetCutsceneCam(curLadder.bottomCamPos);
+        state = PlayerState.Cutscene;
         animator.SetTrigger("ClimbOnBottom");
     }
     //사다리 맨위 도착 애니메이션 완료

@@ -6,6 +6,7 @@ public interface IInteractable
     void OnFocus();
     void OnUnfocus();
     void Interact(PlayerController player);
+    public bool CanInteract();
 
     (string inputKeyText, string behaviorText) GetPrompt();
     Sprite GetIcon();

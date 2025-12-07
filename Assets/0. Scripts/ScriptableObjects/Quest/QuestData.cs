@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Game/Quest Data")]
+[CreateAssetMenu(menuName = "ScriptableObjects/Quest/QuestData")]
 public class QuestData : ScriptableObject
 {
     [Header("기본 정보")]

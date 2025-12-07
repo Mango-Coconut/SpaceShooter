@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Item/Effects/TestEffect")]
+[CreateAssetMenu(menuName = "ScriptableObjects/ItemEffects/HealHp")]
 public class TestItemEffect : ItemUseEffect
 {
     public override bool Apply(ItemUseContext ctx)

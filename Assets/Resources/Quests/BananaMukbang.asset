@@ -26,8 +26,8 @@ MonoBehaviour:
   objectives:
   - objectiveId: 0001
     description: "\uBC14\uB098\uB098 \uC0AC\uC6A9"
-    type: 3
-    targetId: 
+    type: 1
+    targetId: 0
     requiredCount: 1
   reward:
     coin: 1000

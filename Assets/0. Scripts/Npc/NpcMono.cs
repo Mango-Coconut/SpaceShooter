@@ -17,7 +17,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     public ShopInventory ShopInventory => shopInventory;
     
     Animator animator;
-    PlayerController player;
+    PlayerController curPlayer;
     
     // Interact시 발송할 이벤트
     [SerializeField] GameEventHub hub;
@@ -132,8 +132,8 @@ public class NpcMono : MonoBehaviour, IInteractable
 
         isEnter = true;
 
-        player = pc;
-        player.gate.PushUI();
+        curPlayer = pc;
+        curPlayer.gate.PushUI();
 
         hub.npc.RaiseEnter(this);
         Core.Initialize(dialogueAsset);
@@ -171,9 +171,10 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     void HandleCompleteQuestCommand(QuestData quest)
     {
-        bool completed = QuestManager.Instance.TryCompleteQuest(quest, this, player);
+        bool completed = QuestManager.Instance.TryCompleteQuest(quest, this, curPlayer);
         if (!completed)
         {
+            // Core.dialogueCore.GotoQuestCompleteFailedNode();
             Debug.Log("CompleteQuest failed: " + quest.title);
         }
     }
@@ -185,13 +186,13 @@ public class NpcMono : MonoBehaviour, IInteractable
     public void Exit()
     {
         if (isEnter == false) return;
-        if (player == null || player.gate == null) return;
+        if (curPlayer == null || curPlayer.gate == null) return;
         if (hub == null || hub.npc == null) return;
 
         isEnter = false;
 
-        player.gate.PopUI();
-        player = null;
+        curPlayer.gate.PopUI();
+        curPlayer = null;
 
         hub.npc.RaiseExit(this);
     }
@@ -228,4 +229,10 @@ public class NpcMono : MonoBehaviour, IInteractable
         return data;
     }
 
+    public bool CanInteract()
+    {
+        if(curPlayer != null) return false;
+
+        return true;
+    }
 }

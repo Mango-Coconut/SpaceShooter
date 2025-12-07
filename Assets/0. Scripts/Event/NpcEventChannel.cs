@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName="Game/NPC/NpcInteractionChannel")]
-public class NpcInteractionChannel : ScriptableObject
+[CreateAssetMenu(menuName = "ScriptableObjects/Event/EventChannel/NpcEventChannel")]
+public class NpcEventChannel : ScriptableObject
 {
     public event Action<NpcMono> OnEnter;
     public event Action<NpcMono> OnExit;

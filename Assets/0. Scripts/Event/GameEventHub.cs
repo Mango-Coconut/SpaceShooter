@@ -1,10 +1,10 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName="Game/GameEventHub")]
+[CreateAssetMenu(menuName = "ScriptableObjects/Event/EventHub/GameEventHub")]
 public class GameEventHub : ScriptableObject
 {
-    public NpcInteractionChannel npc;
-    public ChestInteractionChannel chest;
+    public NpcEventChannel npc;
+    public ChestEventChannel chest;
     public QuestEventChannel quest;
     public EnemyEventChannel enemy;
     public ItemEventChannel item;

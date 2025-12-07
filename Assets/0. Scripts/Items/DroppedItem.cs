@@ -31,9 +31,6 @@ public class DroppedItem : MonoBehaviour, IInteractable
     void Awake()
     {
         mpb = new MaterialPropertyBlock();
-        RefreshRendererArray();
-        EnableEmissionKeywordOnAll();
-        Shining(false);
 
         // 1) 에디터에서 씬에 직접 깔아둔 드랍만 초기화
         //    (= 프리팹이 아니라, 장면에 존재하는 상태로 시작하는 경우)
@@ -48,6 +45,8 @@ public class DroppedItem : MonoBehaviour, IInteractable
             // 이제 이 아이템의 비주얼 반영
             ApplyVisualModel();
         }
+
+        Shining(false);
     }
 
     // 월드 인벤토리가 런타임에 생성한 직후 호출하는 초기화 루틴
@@ -57,8 +56,6 @@ public class DroppedItem : MonoBehaviour, IInteractable
         item = newItem;
 
         ApplyVisualModel();
-        RefreshRendererArray();
-        EnableEmissionKeywordOnAll();
         Shining(false);
     }
 
@@ -90,6 +87,10 @@ public class DroppedItem : MonoBehaviour, IInteractable
         {
             Debug.LogWarning($"[{name}] modelPrefab missing in ItemData ({item?.itemData?.name ?? "null"})");
         }
+
+        // 모델이 바뀔 때마다 렌더러, 발광 세팅 갱신
+        RefreshRendererArray();
+        EnableEmissionKeywordOnAll();
     }
 
     // 현재 모델에서 하이라이트 대상 Renderer들을 전부 모은다.
@@ -198,10 +199,15 @@ public class DroppedItem : MonoBehaviour, IInteractable
             return;
         }
 
-        // 성공적으로 플레이어 인벤으로 들어갔으면 줍는 애니메이션 및 하이라이트 종료
+        // 성공적으로 플레이어 인벤으로 들어갔으면 줍는 애니메이션 실행과 하이라이트 종료
         player.PlayAnimToTrigger(PickHash);
         Shining(false);
 
         // 실제 파괴는 WorldInventory 쪽에서 처리됨. 여기서는 안 없앰.
+    }
+
+    public bool CanInteract()
+    {
+        return true;
     }
 }

@@ -1,1 +1,7 @@
-public enum EquipType {None,Weapon, Helmet, ChestArmor}
+public enum EquipType
+{
+    None,
+    Weapon,
+    Helmet,
+    ChestArmor
+}

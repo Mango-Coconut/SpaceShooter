@@ -159,12 +159,12 @@ public class QuestManager : MonoBehaviour
     // 퀘스트 완료 조건을 충족시키는 전역 허브 이벤트 받기
     void HandleEnemyKilled(string enemyId, int amount)
     {
-        Progress(QuestObjectiveType.KillMonster, enemyId, amount);
+        //Progress(QuestObjectiveType.KillMonster, enemyId, amount);
     }
 
     void HandleItemCollected(string itemId, int amount)
     {
-        Progress(QuestObjectiveType.CollectItem, itemId, amount);
+        //Progress(QuestObjectiveType.CollectItem, itemId, amount);
     }
 
     void HandleItemUsed(string itemId, int amount)
