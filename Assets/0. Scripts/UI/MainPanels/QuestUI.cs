@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -26,6 +27,7 @@ public class QuestUI : MonoBehaviour
 
     void Update()
     {
+        if(hasActiveOrReady) return;
         if (Input.GetKeyDown(KeyCode.Q))
         {
             if(questSlots.Count != 0) QuestSlotPanel.SetActive(true);
@@ -36,20 +38,40 @@ public class QuestUI : MonoBehaviour
         }
     }
 
-
+    bool hasActiveOrReady;
     void HandleQuestStateChange(QuestInstance quest)
     {
-        QuestSlot existingSlot = questSlots.Find(slot => slot.Data == quest.data);
+        QuestSlot existingSlot = questSlots.Find(slot => slot.QuestInstance.data == quest.data);
 
-        if (existingSlot != null)
+        if (quest.state == QuestState.Completed && quest.data.isRepeatable)
         {
-            existingSlot.Set(quest);
+            if (existingSlot != null)
+            {
+                questSlots.Remove(existingSlot);
+                Destroy(existingSlot.gameObject);
+            }
         }
         else
         {
-            QuestSlot newSlot = Instantiate(questSlotPrefab, QuestSlotPanel.transform);
-            newSlot.Set(quest);
-            questSlots.Add(newSlot);
+            // 나머지 상태는 갱신/생성
+            if (existingSlot != null)
+            {
+                existingSlot.Set(quest);
+            }
+            else
+            {
+                QuestSlot newSlot = Instantiate(questSlotPrefab, QuestSlotPanel.transform);
+                newSlot.Set(quest);
+                questSlots.Add(newSlot);
+            }
         }
+
+        hasActiveOrReady =
+            questSlots.Any(slot =>
+                slot.QuestInstance.state == QuestState.Active ||
+                slot.QuestInstance.state == QuestState.ReadyToTurnIn);
+
+        // 패널 활성/비활성 토글
+        QuestSlotPanel.SetActive(hasActiveOrReady);
     }
 }

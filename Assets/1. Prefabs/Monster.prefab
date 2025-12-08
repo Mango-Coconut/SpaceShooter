@@ -525,11 +525,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8711da9e2990ad44a089ec40afd09c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
   state: 0
   traceDist: 5
   attackDist: 2
   isDie: 0
   hp: 100
+  monsterID: Monster0001
   punchs:
   - {fileID: 1152041179104000207}
   - {fileID: 1152041179104000189}

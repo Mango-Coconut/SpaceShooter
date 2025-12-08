@@ -10,69 +10,58 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 152a050ff26dfc0499c8279958c688a2, type: 3}
-  m_Name: Npc2Dialogue
+  m_Name: Dialogue_Quest_KillMonster
   m_EditorClassIdentifier: 
   startNodeId: 0
   nodes:
   - nodeId: 0
-    text: "\uC548\uB155~"
+    text: "\uBAAC\uC2A4\uD130\uAC00 \uB05D\uC5C6\uC774 \uB098\uC640. \uC5B4\uC11C
+      \uC0AC\uB0E5\uD558\uACE0 \uC624\uB834"
     command:
       type: 0
       questData: {fileID: 0}
     isEnd: 0
     nextNodeId: 
     choices:
-    - text: "\uC548\uB155\uD558\uC138\uC694"
+    - text: "\uB124"
       nextNodeId: 1
       command:
-        type: 0
-        questData: {fileID: 0}
-    - text: "\uAEBC\uC838!"
-      nextNodeId: 3
+        type: 3
+        questData: {fileID: 11400000, guid: afc053c6aba6cea43bde6dec0322c282, type: 2}
+    - text: "\uC2EB\uC5B4"
+      nextNodeId: 
       command:
         type: 0
         questData: {fileID: 0}
   - nodeId: 1
-    text: "\uBB34\uC2A8 \uC77C\uC774\uC57C?"
-    command:
-      type: 0
-      questData: {fileID: 0}
-    isEnd: 0
-    nextNodeId: 2
-    choices: []
-  - nodeId: 2
-    text: "\uD544\uC694\uD55C \uAC70 \uC788\uC5B4?"
-    command:
-      type: 0
-      questData: {fileID: 0}
-    isEnd: 0
-    nextNodeId: 
-    choices:
-    - text: "\uC0C1\uC810"
-      nextNodeId: 2
-      command:
-        type: 1
-        questData: {fileID: 0}
-    - text: "\uD018\uC2A4\uD2B8(\uBAAC\uC2A4\uD130 \uC0AC\uB0E5)"
-      nextNodeId: 
-      command:
-        type: 2
-        questData: {fileID: 11400000, guid: afc053c6aba6cea43bde6dec0322c282, type: 2}
-    - text: "\uB05D\uB0B4\uAE30"
-      nextNodeId: 4
-      command:
-        type: 0
-        questData: {fileID: 0}
-  - nodeId: 3
-    text: "\uBB50\uC57C \uC774 \uBBF8\uCE5C\uB188\uC740!"
+    text: "\uAC14\uB2E4\uC640~"
     command:
       type: 0
       questData: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+  - nodeId: 2
+    text: "\uC544\uC9C1 \uC548 \uC8FD\uC600\uC796\uC544. \uB098\uB294 \uB2E4 \uC54C\uACE0
+      \uC788\uB2E8\uB2E4"
+    command:
+      type: 0
+      questData: {fileID: 0}
+    isEnd: 1
+    nextNodeId: 
+    choices: []
+  - nodeId: 3
+    text: "\uC798\uD588\uC5B4. \uB2E4\uC74C\uC5D0 \uB610 \uC640. \uD55C\uB9C8\uB9AC\uB2F9
+      \uCC9C\uC6D0\uC774\uB2C8\uAE4C"
+    command:
+      type: 4
+      questData: {fileID: 11400000, guid: afc053c6aba6cea43bde6dec0322c282, type: 2}
+    isEnd: 1
+    nextNodeId: 
+    choices: []
   - nodeId: 4
-    text: "\uC798\uAC00~"
+    text: "repeatable\uC774\uB77C \uC644\uB8CC \uC0C1\uD0DC\uAC00 \uB418\uBA74 \uC548
+      \uB418\uB294\uB370, \uBC84\uADF8\uAC00 \uB0AC\uAD6C\uB098"
     command:
       type: 0
       questData: {fileID: 0}

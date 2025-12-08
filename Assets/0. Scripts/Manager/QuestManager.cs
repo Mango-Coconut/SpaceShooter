@@ -78,7 +78,7 @@ public class QuestManager : MonoBehaviour
     public QuestState GetQuestState(QuestData quest)
     {
         // 1. 이미 완료했는지
-        if (completedQuests.Contains(quest))
+        if (completedQuests.Contains(quest) && !quest.isRepeatable)
             return QuestState.Completed;
 
         // 2. 현재 진행 중인지
@@ -159,7 +159,7 @@ public class QuestManager : MonoBehaviour
     // 퀘스트 완료 조건을 충족시키는 전역 허브 이벤트 받기
     void HandleEnemyKilled(string enemyId, int amount)
     {
-        //Progress(QuestObjectiveType.KillMonster, enemyId, amount);
+        Progress(QuestObjectiveType.KillMonster, enemyId, amount);
     }
 
     void HandleItemCollected(string itemId, int amount)
@@ -245,8 +245,14 @@ public class QuestManager : MonoBehaviour
 
         // 4. 퀘스트 상태를 완료로 전환
         instance.state = QuestState.Completed;
-        completedQuests.Add(quest);
+        // 반복 불가 퀘스트만 '완료 목록'에 넣어서 영구 완료 처리
+        if (!quest.isRepeatable)
+        {
+            completedQuests.Add(quest);
+        }
+        // 진행 중 목록에서는 항상 제거 (반복 가능/불가능 상관 없이)
         activeQuests.Remove(quest.id);
+
 
         // 5. 이벤트 알림 (UI / 사운드 등)
         if (hub != null && hub.quest != null)

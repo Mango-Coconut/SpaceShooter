@@ -2,7 +2,7 @@ public enum QuestObjectiveType
 {
     None,
     UseItem,
-    //KillMonster,
+    KillMonster,
     //CollectItem,
     //TalkToNpc,
     //ReachArea,

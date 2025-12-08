@@ -5,17 +5,17 @@ using UnityEngine;
 
 public class QuestSlot : MonoBehaviour
 {
-    QuestData data;
-    public QuestData Data => data;
+    QuestInstance questInstance;
+    public QuestInstance QuestInstance => questInstance;
     [SerializeField] TMP_Text questTitle;
     [SerializeField] TMP_Text questState;
 
     public void Set(QuestInstance instance)
     {        
-        if(data == null) data = instance.data;
-        else if(data != instance.data) return;
+        if(questInstance == null) questInstance = instance;
+        else if(questInstance.data != instance.data) return;
 
-        questTitle.SetText(data.title);
+        questTitle.SetText(questInstance.data.title);
         if(instance.state == QuestState.Locked || instance.state == QuestState.CanAccept)
         {
             questState.SetText("받기 전인데 뜨면 안되지");

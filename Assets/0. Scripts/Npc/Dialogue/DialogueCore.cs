@@ -49,7 +49,7 @@ public class DialogueCore
     // 특정 노드로 대화 시작
     public void Start(DialogueAsset dialogueAsset, string startNodeId = null)
     {
-        Debug.Log($"start : {dialogueAsset.name}, {startNodeId}");
+        Debug.Log($"start quest dialogue : {dialogueAsset.name}, {startNodeId}");
         asset = dialogueAsset;
         BuildMap();
 

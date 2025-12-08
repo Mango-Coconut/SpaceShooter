@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa6e94ff61d49742bb329790c080577, type: 3}
+  m_Name: MonsterKill
+  m_EditorClassIdentifier: 
+  id: 00001
+  title: "\uBAAC\uC2A4\uD130 \uC0AC\uB0E5"
+  summary: "\uBAAC\uC2A4\uD130 \uD55C \uB9C8\uB9AC \uC0AC\uB0E5 \uD6C4 \uD5EC\uB808\uB098\uC5D0\uAC8C
+    \uB9D0\uC744 \uAC78\uC790."
+  description: "\uC815\uCC30\uBCD1 \uD55C \uB9C8\uB9AC\uAC00 \uCF54\uC55E\uAE4C\uC9C0
+    \uC640 \uC788\uB2E4. \uBE68\uB9AC \uCC98\uCE58\uD574\uC57C \uD55C\uB2E4!"
+  icon: {fileID: 21300000, guid: 75b406d89fdc92846a9b9ab3b00136fe, type: 3}
+  isRepeatable: 1
+  objectives:
+  - objectiveId: 1001
+    description: "\uBAAC\uC2A4\uD130 \uC0AC\uB0E5"
+    type: 2
+    targetId: Monster0001
+    requiredCount: 1
+  reward:
+    coin: 1000
+    items: []
+  questDialogue: {fileID: 11400000, guid: d9ccd458198521e48ad40f8857109e17, type: 2}
+  nodeLocked: 
+  nodeCanAccept: 0
+  nodeInProgress: 2
+  nodeReadyToTurnIn: 3
+  nodeCompleted: 4

@@ -9,6 +9,7 @@ using UnityEngine.AI;
 
 public class MonsterController : MonoBehaviour
 {
+    [SerializeField] GameEventHub hub;
     public enum State
     {
         IDLE, TRACE, ATTACK, DIE
@@ -26,6 +27,7 @@ public class MonsterController : MonoBehaviour
     public bool isDie = false;
     public int hp = 100;
 
+    public string monsterID = "Monster0001";
     [SerializeField] Collider[] punchs;
     Transform tr;
     //TODO 타겟 관리 방법 바꾸기
@@ -48,27 +50,49 @@ public class MonsterController : MonoBehaviour
         StartCoroutine(MonsterAction());
     }
 
-    private void OnCollisionEnter(Collision other) {
-        if (other.gameObject.CompareTag("Bullet"))
+    void OnEnable()
+    {
+        PlayerController.OnPlayerDie += this.OnPlayerDie;
+    }
+    void OnDisable()
+    {
+        PlayerController.OnPlayerDie -= this.OnPlayerDie;
+    }
+    IEnumerator CheckMonsterState()
+    {
+        while (state != State.DIE && !isDie)
         {
-            Destroy(other.gameObject);
-            anim.SetTrigger(hashHit);
-            Vector3 pos = other.GetContact(0).point;
-            Quaternion rot = Quaternion.LookRotation(-other.GetContact(0).normal);
-            GameObject blood = Instantiate(bloodEffect, pos, rot, transform);
-            Destroy(blood, 1);
-            hp -= 10;
-            if (hp <= 0)
+            float dist = (tr.position - target.position).sqrMagnitude;
+            if (dist < attackDist * attackDist)
             {
-                state = State.DIE;
+                state = State.ATTACK;
             }
+            else if (dist < traceDist * traceDist)
+            {
+                state = State.TRACE;
+            }
+            else
+            {
+                state = State.IDLE;
+            }
+
+            yield return new WaitForSeconds(0.3f);
         }
     }
+    void OnPlayerDie()
+    {
+
+        StopAllCoroutines();
+        agent.isStopped = true;
+        anim.SetFloat(hashSpeed, Random.Range(0.9f, 1.1f));
+        anim.SetTrigger(hashPlayerDie);
+    }
+
     IEnumerator MonsterAction()
     {
         while (!isDie)
         {
-            
+
             switch (state)
             {
                 case State.IDLE:
@@ -96,49 +120,32 @@ public class MonsterController : MonoBehaviour
                     {
                         col.enabled = false;
                     }
+                    hub.enemy.RaiseEnemyKilled(monsterID);
                     break;
             }
             if (state == State.DIE) yield break;
             yield return new WaitForSeconds(0.3f);
         }
     }
-    IEnumerator CheckMonsterState()
-    {
-        while (state != State.DIE && !isDie)
-        {
-            float dist = (tr.position - target.position).sqrMagnitude;
-            if (dist < attackDist * attackDist)
-            {
-                state = State.ATTACK;
-            }
-            else if (dist < traceDist * traceDist)
-            {
-                state = State.TRACE;
-            }
-            else
-            {
-                state = State.IDLE;
-            }
 
-            yield return new WaitForSeconds(0.3f);
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Bullet"))
+        {
+            Destroy(other.gameObject);
+            anim.SetTrigger(hashHit);
+            Vector3 pos = other.GetContact(0).point;
+            Quaternion rot = Quaternion.LookRotation(-other.GetContact(0).normal);
+            GameObject blood = Instantiate(bloodEffect, pos, rot, transform);
+            Destroy(blood, 1);
+            hp -= 10;
+            if (hp <= 0)
+            {
+                state = State.DIE;
+            }
         }
     }
-    void OnPlayerDie()
-    {
-        
-        StopAllCoroutines();
-        agent.isStopped = true;
-        anim.SetFloat(hashSpeed, Random.Range(0.9f, 1.1f));
-        anim.SetTrigger(hashPlayerDie);
-    }
-    void OnEnable()
-    {
-        PlayerController.OnPlayerDie += this.OnPlayerDie;
-    }
-    void OnDisable()
-    {
-        PlayerController.OnPlayerDie -= this.OnPlayerDie;
-    }
+
     void OnDrawGizmos()
     {
         if (state == State.TRACE)
