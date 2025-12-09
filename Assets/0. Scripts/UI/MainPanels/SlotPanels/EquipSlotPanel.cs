@@ -1,9 +1,12 @@
 using UnityEngine;
 
-public class EquipSlotPanel : SlotPanelBase
+[RequireComponent(typeof(SlotPanelEventForwarder))]
+public class EquipSlotPanel : MonoBehaviour
 {
     [SerializeField] EquipInventoryMono equipInventory;
     public EquipInventoryMono EquipInventory => equipInventory;
+    
+    SlotPanelEventForwarder forwarder;
 
     [SerializeField] private InventorySlot[] fixedSlots;
 
@@ -14,23 +17,21 @@ public class EquipSlotPanel : SlotPanelBase
         ChestArmor = 2
     }
     [Tooltip("0: Weapon, 1: Helmet, 2: ChestArmor")]
-    InventorySlot weaponSlot => uiSlots[(int)EquipIndex.Weapon] as InventorySlot;
-    InventorySlot helmetSlot => uiSlots[(int)EquipIndex.Helmet] as InventorySlot;
-    InventorySlot chestArmorSlot => uiSlots[(int)EquipIndex.ChestArmor] as InventorySlot;
+    InventorySlot weaponSlot => fixedSlots[(int)EquipIndex.Weapon];
+    InventorySlot helmetSlot => fixedSlots[(int)EquipIndex.Helmet];
+    InventorySlot chestArmorSlot => fixedSlots[(int)EquipIndex.ChestArmor];
     void Awake()
     {
-        uiSlots.AddRange(fixedSlots); // 수동 슬롯 연결
+        forwarder = GetComponent<SlotPanelEventForwarder>();
     }
     void OnEnable()
     {
         SubscribeInventory();
-        SubscribeSlotUI();
         RefreshAll();
     }
     void OnDisable()
     {
         UnSubscribeInventory();
-        UnSubscribeSlotUI();
     }
 
     public void RefreshAll()
@@ -56,7 +57,7 @@ public class EquipSlotPanel : SlotPanelBase
         equipInventory.OnChanged -= RefreshAll;
     }
 
-    protected override StorageTarget GetSource()
+    public StorageTarget GetSource()
     {
         return StorageTarget.Equip;
     }

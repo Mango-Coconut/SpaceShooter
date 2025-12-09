@@ -26,6 +26,7 @@ public class Interactor : MonoBehaviour
 
     void Scan()
     {
+        if(current != null) return;
         var cam = Camera.main; if (!cam) return;
 
         Vector3 center = transform.position + transform.forward * forwardOffset;

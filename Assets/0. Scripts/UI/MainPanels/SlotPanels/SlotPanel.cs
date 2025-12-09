@@ -1,16 +1,22 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class SlotPanel : SlotPanelBase
+[RequireComponent(typeof(SlotPanelEventForwarder))]
+public class SlotPanel : MonoBehaviour
 {
     [SerializeField] InventoryMono inventory;
     public InventoryMono Inventory => inventory;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] StorageTarget myStorageType;
     [SerializeField] CoinPanel coinPanel;
+    protected SlotPanelEventForwarder forwarder;
 
+    readonly List<ISlotUI> uiSlots = new List<ISlotUI>();
+
+    void Awake()
+    {
+        forwarder = GetComponent<SlotPanelEventForwarder>();
+    }
     void OnEnable()
     {
         OnPanelEnabled();
@@ -31,7 +37,6 @@ public class SlotPanel : SlotPanelBase
     protected virtual void OnPanelDisabled()
     {
         UnsubscribeInventory();
-        UnSubscribeSlotUI();
     }
 
     #region 인벤토리 세팅 관련
@@ -43,39 +48,55 @@ public class SlotPanel : SlotPanelBase
         if (!ReferenceEquals(inventory, newInventory))
         {
             inventory = newInventory;
-
             // 새로운 인벤토리 이벤트 구독
             SubscribeInventory();
         }
 
         // 슬롯 세팅
-        SetSlot(inventory == null ? 0 : inventory.Capacity);
+        int capacity = inventory == null ? 0 : inventory.Capacity;
+        SetSlot(capacity);
 
         Refresh();
     }
 
     // 인벤토리 세팅 시 슬롯UI 재생성
-    protected void SetSlot(int targetCount)
+    void SetSlot(int targetCount)
     {
-        //이벤트 해제
-        UnSubscribeSlotUI();
+        uiSlots.Clear();
 
         // 부족하면 생성
-        for (int i = uiSlots.Count; i < targetCount; i++)
+        for (int i = 0; i < targetCount; i++)
         {
-            ISlotUI slot = Instantiate(slotPrefab, transform).GetComponent<ISlotUI>();
-            uiSlots.Add(slot);
-        }
-        // 넘치면 제거
-        for (int i = uiSlots.Count - 1; i >= targetCount; i--)
-        {
-            ISlotUI slot = uiSlots[i];
-            if (slot != null) Destroy(slot.GO);
-            uiSlots.RemoveAt(i);
+            ISlotUI slot = null;
+
+            if (i < transform.childCount)
+            {
+                slot = transform.GetChild(i).GetComponent<ISlotUI>();
+                if (slot == null)
+                {
+                    slot = Instantiate(slotPrefab, transform).GetComponent<ISlotUI>();
+                }
+            }
+            else
+            {
+                slot = Instantiate(slotPrefab, transform).GetComponent<ISlotUI>();
+            }
+
+            if (slot != null && !uiSlots.Contains(slot))
+            {
+                uiSlots.Add(slot);
+            }
         }
 
-        //이벤트 구독
-        SubscribeSlotUI();
+        // 자식이 더 많으면 삭제
+        for (int i = transform.childCount - 1; i >= targetCount; i--)
+        {
+            Transform child = transform.GetChild(i);
+            Destroy(child.gameObject);
+        }
+
+        // 각 슬롯 이벤트 재 구독
+        forwarder.RebuildSlots();
     }
 
 
@@ -149,7 +170,7 @@ public class SlotPanel : SlotPanelBase
     }
 
 
-    protected override StorageTarget GetSource()
+    public StorageTarget GetSource()
     {
         return myStorageType;
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -251,10 +252,10 @@ public class PanelManager : MonoBehaviour
     {
         if (curNpc.ShopInventory == null) return;
         if (IsOpen(shopUI.gameObject)) return;
+        shopUI.gameObject.SetActive(true);
         shopUI.SetSlotPanel(curNpc);
         InventoryUIOpen();
 
-        shopUI.gameObject.SetActive(true);
         shopUI.Bind(curNpc.ShopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
     }
     void ShopClose()
@@ -343,14 +344,8 @@ public class PanelManager : MonoBehaviour
         // UI가 열려 있으면 닫고 마우스 Free
         if (enabledUICount > 0)
         {
-            if (IsOpen(inventoryUI.gameObject))
-            {
-                InventoryUIClose();
-            }
-            else if (curNpc != null)
-            {
-                if(interactor != null) interactor.InteractExit();
-            }
+            if(inventoryUI.isActiveAndEnabled) InventoryUIClose();
+            else if(interactor != null) interactor.InteractExit();
             
             if(enabledUICount == 0) CursorController.Apply(true);
         }

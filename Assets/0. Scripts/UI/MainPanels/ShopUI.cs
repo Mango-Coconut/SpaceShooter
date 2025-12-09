@@ -5,9 +5,16 @@ using UnityEngine;
 public class ShopUI : MonoBehaviour
 {
     [SerializeField] ShopSlotPanel shopSlotPanel;
+    SlotPanelEventForwarder forwarder;
 
     public event Action<SlotPanelEventArgs> MouseEntered;
     public event Action<SlotPanelEventArgs> MouseExited;
+
+
+    void Awake()
+    {
+        forwarder = shopSlotPanel.GetComponent<SlotPanelEventForwarder>();
+    }
 
     public void SetSlotPanel(NpcMono npc)
     {
@@ -23,14 +30,14 @@ public class ShopUI : MonoBehaviour
     void SubscribeShopSlotPanel()
     {
         UnSubscribeShopSlotPanel();
-        shopSlotPanel.MouseEntered += ForwardMouseEnter;
-        shopSlotPanel.MouseExited += ForwardMouseExit;
+        forwarder.MouseEntered += ForwardMouseEnter;
+        forwarder.MouseExited += ForwardMouseExit;
     }
 
     void UnSubscribeShopSlotPanel()
     {
-        shopSlotPanel.MouseEntered -= ForwardMouseEnter;
-        shopSlotPanel.MouseExited -= ForwardMouseExit;
+        forwarder.MouseEntered -= ForwardMouseEnter;
+        forwarder.MouseExited -= ForwardMouseExit;
     }
 
     void ForwardMouseEnter(SlotPanelEventArgs e)

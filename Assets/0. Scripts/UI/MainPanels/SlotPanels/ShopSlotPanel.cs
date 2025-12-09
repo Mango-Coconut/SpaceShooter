@@ -7,39 +7,47 @@ using UnityEngine;
 public class ShopSlotPanel : SlotPanel
 {
     int playerCoin;
-    
     public event Action<StoredItem, int> BoughtItem;
+
+    void Awake()
+    {
+        forwarder = GetComponent<SlotPanelEventForwarder>();
+    }
 
     protected override void OnPanelEnabled()
     {
         base.OnPanelEnabled();
+        forwarder.RebuildSlots();
         SubscribeShopSlots();
     }
+
     protected override void OnPanelDisabled()
     {
         UnsubscribeShopSlots();
         base.OnPanelDisabled();
     }
 
-    // 기존 슬롯의 MouseEvent 포워딩은 SlotPanelBase에서
+    // 기존 슬롯의 MouseEvent 포워딩은 forwarder에서 알아서 처리
     // 여기는 ShopSlot만의 이벤트를 추가로 포워딩
     void SubscribeShopSlots()
     {
         UnsubscribeShopSlots();
-        for (int i = 0; i < uiSlots.Count; i++)
+        foreach (ISlotUI slot in forwarder.Slots)
         {
-            ShopSlot shopSlot = uiSlots[i] as ShopSlot;
+            ShopSlot shopSlot = slot as ShopSlot;
             if (shopSlot == null) continue;
+
             shopSlot.BoughtItem += ForwardBoughtItem;
         }
     }
 
     void UnsubscribeShopSlots()
     {
-        for (int i = 0; i < uiSlots.Count; i++)
+        foreach (ISlotUI slot in forwarder.Slots)
         {
-            ShopSlot shopSlot = uiSlots[i] as ShopSlot;
+            ShopSlot shopSlot = slot as ShopSlot;
             if (shopSlot == null) continue;
+
             shopSlot.BoughtItem -= ForwardBoughtItem;
         }
     }
@@ -49,12 +57,13 @@ public class ShopSlotPanel : SlotPanel
         base.Refresh();  // 기본 인벤토리 → 슬롯 바인딩
 
         // 추가로 각 슬롯에 코인 정보 넘기기
-        for (int i = 0; i < uiSlots.Count; i++)
+        foreach (ISlotUI slot in forwarder.Slots)
         {
-            ShopSlot shopSlot = uiSlots[i] as ShopSlot;
+            ShopSlot shopSlot = slot as ShopSlot;
             if (shopSlot != null)
             {
                 shopSlot.SetPlayerCoin(playerCoin);
+                shopSlot.Refresh();
             }
         }
     }

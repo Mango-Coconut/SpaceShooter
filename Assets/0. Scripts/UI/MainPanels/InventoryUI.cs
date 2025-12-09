@@ -15,11 +15,11 @@ public class InventoryUI : MonoBehaviour
     public EquipSlotPanel EquipSlotPanel => equipSlotPanel;
 
     //구독 편하게 하기 용
-    SlotPanelBase[] panels;
+    SlotPanelEventForwarder[] forwarders;
 
     void Awake()
     {
-        panels = GetComponentsInChildren<SlotPanelBase>(true);
+        forwarders = GetComponentsInChildren<SlotPanelEventForwarder>(true);
     }
 
     void OnEnable()
@@ -42,33 +42,35 @@ public class InventoryUI : MonoBehaviour
     {
         UnsubscribeSlotPanel();
 
-        for (int i = 0; i < panels.Length; i++)
+        for (int i = 0; i < forwarders.Length; i++)
         {
-            panels[i].MouseEntered += ForwardMouseEnter;
-            panels[i].MouseExited += ForwardMouseExit;
-            panels[i].RightClicked += ForwardRightClick;
-            panels[i].DragBegan += ForwardBeginDrag;
-            panels[i].Dragging += ForwardDragging;
-            panels[i].DragEnded += ForwardDropped;
+            SlotPanelEventForwarder f = forwarders[i];
+            if (f == null) continue;
+
+            f.MouseEntered += ForwardMouseEnter;
+            f.MouseExited += ForwardMouseExit;
+            f.RightClicked += ForwardRightClick;
+            f.DragBegan += ForwardBeginDrag;
+            f.Dragging += ForwardDragging;
+            f.DragEnded += ForwardDropped;
         }
     }
 
     private void UnsubscribeSlotPanel()
     {
-        if (panels == null)
-        {
-            NullChecker.NullCheck(this, nameof(panels));
-            return;
-        }
+        if (forwarders == null) return;
 
-        for (int i = 0; i < panels.Length; i++)
+        for (int i = 0; i < forwarders.Length; i++)
         {
-            panels[i].MouseEntered -= ForwardMouseEnter;
-            panels[i].MouseExited -= ForwardMouseExit;
-            panels[i].RightClicked -= ForwardRightClick;
-            panels[i].DragBegan -= ForwardBeginDrag;
-            panels[i].Dragging -= ForwardDragging;
-            panels[i].DragEnded -= ForwardDropped;
+            SlotPanelEventForwarder f = forwarders[i];
+            if (f == null) continue;
+
+            f.MouseEntered -= ForwardMouseEnter;
+            f.MouseExited -= ForwardMouseExit;
+            f.RightClicked -= ForwardRightClick;
+            f.DragBegan -= ForwardBeginDrag;
+            f.Dragging -= ForwardDragging;
+            f.DragEnded -= ForwardDropped;
         }
     }
 

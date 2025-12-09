@@ -70,7 +70,7 @@ public class DroppedItem : MonoBehaviour, IInteractable
         InventoryManager IM = InventoryManager.Instance;
         bool picked = IM.TryDeliverBasic(IM.GetSource(StorageTarget.World), IM.GetSink(StorageTarget.Player), item);
         // 인벤 공간 없거나 등등 실패 -> 그냥 바닥에 남아있음.
-        if (picked) return;
+        if (!picked) return;
 
         // 성공적으로 플레이어 인벤으로 들어갔으면 줍는 애니메이션 실행과 하이라이트 종료
         curPlayer = pc;
