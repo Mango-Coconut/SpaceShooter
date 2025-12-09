@@ -58,6 +58,12 @@ public class ShopSlot : MonoBehaviour, ISlotUI
 
         enterItem = item;
 
+        // 초기화
+        slider.value = 0;
+        sliderHandleCountText.enabled = false;
+        totalCoin.SetText("0");
+
+        // 바인딩
         itemImage.sprite = enterItem.itemData.icon;
         itemImageCount.text = enterItem.count.ToString();
         slider.maxValue = enterItem.count;
@@ -74,6 +80,11 @@ public class ShopSlot : MonoBehaviour, ISlotUI
     public void Clear()
     {
         enterItem = null;
+
+        slider.value = 0;
+        sliderHandleCountText.enabled = false;
+        totalCoin.text = "";
+        buyButton.interactable = false;
         Invisible();
     }
 
