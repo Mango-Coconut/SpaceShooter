@@ -252,11 +252,10 @@ public class PanelManager : MonoBehaviour
     {
         if (curNpc.ShopInventory == null) return;
         if (IsOpen(shopUI.gameObject)) return;
-        shopUI.gameObject.SetActive(true);
-        shopUI.SetSlotPanel(curNpc);
-        InventoryUIOpen();
-
         shopUI.Bind(curNpc.ShopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
+        shopUI.gameObject.SetActive(true);
+        
+        InventoryUIOpen();
     }
     void ShopClose()
     {
@@ -345,7 +344,7 @@ public class PanelManager : MonoBehaviour
         if (enabledUICount > 0)
         {
             if(inventoryUI.isActiveAndEnabled) InventoryUIClose();
-            else if(interactor != null) interactor.InteractExit();
+            if(interactor != null) interactor.InteractExit();
             
             if(enabledUICount == 0) CursorController.Apply(true);
         }

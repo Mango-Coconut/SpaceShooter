@@ -16,12 +16,6 @@ public class ShopUI : MonoBehaviour
         forwarder = shopSlotPanel.GetComponent<SlotPanelEventForwarder>();
     }
 
-    public void SetSlotPanel(NpcMono npc)
-    {
-        shopSlotPanel.SetInventory(npc.ShopInventory);
-        SubscribeShopSlotPanel();
-    }
-
     void OnDisable() 
     {
         UnSubscribeShopSlotPanel();
@@ -52,8 +46,9 @@ public class ShopUI : MonoBehaviour
 
     public void Bind(ShopInventory inventory, int playerCoin)
     {
-        shopSlotPanel.SetCoin(playerCoin);
         shopSlotPanel.SetInventory(inventory);
+        shopSlotPanel.SetCoin(playerCoin);
+        SubscribeShopSlotPanel();
     }
 
     public void Clear()

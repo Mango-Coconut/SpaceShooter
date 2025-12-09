@@ -9,15 +9,9 @@ public class ShopSlotPanel : SlotPanel
     int playerCoin;
     public event Action<StoredItem, int> BoughtItem;
 
-    void Awake()
-    {
-        forwarder = GetComponent<SlotPanelEventForwarder>();
-    }
-
     protected override void OnPanelEnabled()
     {
         base.OnPanelEnabled();
-        forwarder.RebuildSlots();
         SubscribeShopSlots();
     }
 
