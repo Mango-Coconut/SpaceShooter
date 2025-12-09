@@ -74,53 +74,38 @@ public class Chest : InventoryMono, IInteractable
 
     public void Interact(PlayerController pc)
     {
-        if (isOpen == false)
-        {
-            OpenChest(pc);
-        }
-        else
-        {
-            CloseChest(pc);
-        }
-    }
+        if (isOpen) return;
 
-    void OpenChest(PlayerController pc)
-    {
         isOpen = true;
-        curPlayer = pc;
 
+        curPlayer = pc;
         pc.gate.PushUI();
-        if (hub != null && hub.chest != null)
-        {
-            hub.chest.RaiseOpen(this);
-        }
+
+        hub.chest.RaiseOpen(this);
     }
-    void CloseChest(PlayerController pc)
+
+    public void Exit()
     {
+        if(!isOpen) return;
+
         isOpen = false;
 
-        var targetPc = pc != null ? pc : curPlayer;
-        if (targetPc != null)
-        {
-            targetPc.gate.PopUI();
-        }
+        curPlayer.gate.PopUI();
         curPlayer = null;
 
-        if (hub != null && hub.chest != null)
-        {
-            hub.chest.RaiseClose(this);
-        }
+        hub.chest.RaiseClose(this);
     }
-    
+
+
     public void ForceCloseFromUI()
     {
-        CloseChest(curPlayer);
+        Exit();
     }
 
 
     public bool IsAvailable() => true;
     public void OnFocus() { }
-    public void OnUnfocus() {CloseChest(curPlayer); }
+    public void OnUnfocus() {}
 
     public Sprite GetIcon() => chestSprite;
     public (string inputKeyText, string behaviorText) GetPrompt() => ("F", "열기");

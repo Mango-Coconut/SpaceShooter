@@ -349,7 +349,7 @@ public class PanelManager : MonoBehaviour
             }
             else if (curNpc != null)
             {
-                HandleNpcExit(curNpc);
+                if(interactor != null) interactor.InteractExit();
             }
             
             if(enabledUICount == 0) CursorController.Apply(true);

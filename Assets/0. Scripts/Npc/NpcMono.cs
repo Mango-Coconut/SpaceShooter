@@ -76,12 +76,11 @@ public class NpcMono : MonoBehaviour, IInteractable
         Core.dialogueCore.OnEnded -= HandleDialogueEnded;
     }
 
-
-
     void HandleDialogueEnded()
     {
-        Exit();
+        if (curPlayer != null) curPlayer.InteractExit();
     }
+
     void HandleCommand(DialogueCommand command)
     {
         switch (command.type)
@@ -110,33 +109,32 @@ public class NpcMono : MonoBehaviour, IInteractable
     }
 
     #endregion
-    bool isEnter = false;
     public void Interact(PlayerController pc)
     {
-        //추후 네트워크 환경 등에서 널가드 추가
-        // if (pc == null) Log.Error("NpcMono : PlayerController is null");
-        if (isEnter == false)
-        {
-            Enter(pc);
-        }
-        else
-        {
-            Exit();
-        }
+        if(!CanInteract()) return;
+        Enter(pc);
     }
     public void Enter(PlayerController pc)
     {
-        if (isEnter == true) return;
         if (pc == null || pc.gate == null) return;
         if (hub == null || hub.npc == null) return;
-
-        isEnter = true;
 
         curPlayer = pc;
         curPlayer.gate.PushUI();
 
         hub.npc.RaiseEnter(this);
         Core.Initialize(dialogueAsset);
+    }
+    
+    public void Exit()
+    {
+        if (curPlayer == null || curPlayer.gate == null) return;
+        if (hub == null || hub.npc == null) return;
+
+        curPlayer.gate.PopUI();
+        curPlayer = null;
+
+        hub.npc.RaiseExit(this);
     }
     
     void HandleProceedQuest(QuestData quest)
@@ -183,19 +181,6 @@ public class NpcMono : MonoBehaviour, IInteractable
         linkedQuest = data;
     }
 
-    public void Exit()
-    {
-        if (isEnter == false) return;
-        if (curPlayer == null || curPlayer.gate == null) return;
-        if (hub == null || hub.npc == null) return;
-
-        isEnter = false;
-
-        curPlayer.gate.PopUI();
-        curPlayer = null;
-
-        hub.npc.RaiseExit(this);
-    }
 
     public bool IsAvailable()
     {
@@ -209,7 +194,7 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     public void OnUnfocus()
     {
-        Exit();
+        //Exit();
     }
     
     public Sprite GetIcon() => icon;

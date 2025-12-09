@@ -212,7 +212,7 @@ public sealed class InventoryManager : MonoBehaviour
     #endregion
 
     #region 유틸 함수
-    IItemSource GetSource(StorageTarget target)
+    public IItemSource GetSource(StorageTarget target)
     {
         switch (target)
         {
@@ -229,7 +229,7 @@ public sealed class InventoryManager : MonoBehaviour
         }
     }
 
-    IItemSink GetSink(StorageTarget target)
+    public IItemSink GetSink(StorageTarget target)
     {
         return (IItemSink)GetSource(target);
     }

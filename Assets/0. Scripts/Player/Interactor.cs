@@ -10,7 +10,8 @@ public class Interactor : MonoBehaviour
     [SerializeField] LayerMask interactableLayer;
     public bool gizmoEnable = true;
 
-    IInteractable current;
+    public IInteractable selected;
+    public IInteractable current;
     static readonly Collider[] buffer = new Collider[32];
 
     float timer = 0;
@@ -43,7 +44,7 @@ public class Interactor : MonoBehaviour
                 var cand = col.GetComponentInParent<IInteractable>(); 
                 if (cand == null) continue;
                 // 상호작용 로직 바꾸기
-                // if (cand == null || !cand.CanInteract()) continue;
+                if (cand == null || !cand.CanInteract()) continue;
                 
 
                 Vector3 toCenter = col.bounds.center - ray.origin;
@@ -63,21 +64,42 @@ public class Interactor : MonoBehaviour
             }
         }
 
-        if (!ReferenceEquals(current, best))
+        if (!ReferenceEquals(selected, best))
         {
-            current?.OnUnfocus();
-            current = best;
-            current?.OnFocus();
-            OnInteractorChange?.Invoke(current);
+            selected?.OnUnfocus();
+            selected = best;
+            selected?.OnFocus();
+            OnInteractorChange?.Invoke(selected);
         }
     }
 
+
     public bool Interact(PlayerController player)
     {
-        if (current == null) return false;
-        if (!current.IsAvailable()) return false;
+        // 1) 사다리는 토글형 상호작용이 아니므로 current에 넣지 않는다.
+        Ladder ladder = selected as Ladder;
+        if (ladder != null)
+        {
+            if (!ladder.CanInteract()) return false;   // 이미 타는 중이면 무시
+            ladder.Interact(player);
+            return true;
+        }
+
+        if (current != null)
+        {
+            InteractExit(); return true;
+        }
+        if (selected == null) return false;
+        if (!selected.IsAvailable()) return false;
+        current = selected;
         current.Interact(player);
         return true;
+    }
+    public void InteractExit()
+    {
+        if(current == null) return;
+        current.Exit();
+        current = null;
     }
 
     void OnDrawGizmos()

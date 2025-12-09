@@ -54,8 +54,13 @@ public class Ladder : MonoBehaviour, IInteractable
 
         curPlayer = pc;
 
-        pc.StartLadderClimb(this, startPos, startCamPos);
+        curPlayer.StartLadderClimb(this, startPos, startCamPos);
         SetActiveChildCollider(true);
+    }
+    public void Exit()
+    {
+        //이미 플레이어쪽에서 Clear 부름
+        //Exit 불가. 끝까지 내려가던가 올라가야 끝나기 가능
     }
 
     public bool IsAvailable()

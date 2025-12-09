@@ -59,6 +59,34 @@ public class DroppedItem : MonoBehaviour, IInteractable
         Shining(false);
     }
 
+    PlayerController curPlayer;
+    // 플레이어가 이 아이템을 줍으려고 했을 때 호출
+    public void Interact(PlayerController pc)
+    {
+        if (pc == null || pc.inventory == null) return;
+        if (worldInventory == null) return;
+        if (item == null || item.itemData == null) return;
+
+        InventoryManager IM = InventoryManager.Instance;
+        bool picked = IM.TryDeliverBasic(IM.GetSource(StorageTarget.World), IM.GetSink(StorageTarget.Player), item);
+        // 인벤 공간 없거나 등등 실패 -> 그냥 바닥에 남아있음.
+        if (picked) return;
+
+        // 성공적으로 플레이어 인벤으로 들어갔으면 줍는 애니메이션 실행과 하이라이트 종료
+        curPlayer = pc;
+        pc.PlayAnimToTrigger(PickHash);
+        pc.gate.PushAll();
+        Shining(false);
+
+        // 실제 파괴는 WorldInventory 쪽에서 처리됨. 여기서는 안 없앰.
+    }
+
+    public void Exit()
+    {
+        if(curPlayer == null) return;
+        curPlayer.gate.PopAll();
+    }
+
     // 외형 모델링을 modelRoot 밑에 붙여준다.
     // 기존 모델은 제거하고 새 모델로 교체.
     void ApplyVisualModel()
@@ -184,27 +212,7 @@ public class DroppedItem : MonoBehaviour, IInteractable
         return (item != null && item.itemData != null) ? item.itemData.icon : null;
     }
 
-    // 플레이어가 이 아이템을 줍으려고 했을 때 호출
-    public void Interact(PlayerController player)
-    {
-        if (player == null || player.inventory == null) return;
-        if (worldInventory == null) return;
-        if (item == null || item.itemData == null) return;
-
-        ItemDeliverResult picked = InventoryManager.Instance.TryAutoDeliver(item, StorageTarget.World);
-
-        // 인벤 공간 없거나 등등 실패 -> 그냥 바닥에 남아있음.
-        if (picked != ItemDeliverResult.Delivered)
-        {
-            return;
-        }
-
-        // 성공적으로 플레이어 인벤으로 들어갔으면 줍는 애니메이션 실행과 하이라이트 종료
-        player.PlayAnimToTrigger(PickHash);
-        Shining(false);
-
-        // 실제 파괴는 WorldInventory 쪽에서 처리됨. 여기서는 안 없앰.
-    }
+    
 
     public bool CanInteract()
     {

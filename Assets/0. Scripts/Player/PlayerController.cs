@@ -175,6 +175,11 @@ public class PlayerController : MonoBehaviour
         interactor.Interact(this);
     }
 
+    public void InteractExit()
+    {
+        interactor.InteractExit();
+    }
+
     //equipInventory.OnChanged += HandleEquipChanged
     void HandleEquipChanged()
     {
