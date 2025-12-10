@@ -12,7 +12,6 @@ public class ShopSlotPanel : SlotPanel
     protected override void OnPanelEnabled()
     {
         base.OnPanelEnabled();
-        SubscribeShopSlots();
     }
 
     protected override void OnPanelDisabled()
@@ -49,7 +48,8 @@ public class ShopSlotPanel : SlotPanel
     public override void Refresh()
     {
         base.Refresh();  // 기본 인벤토리 → 슬롯 바인딩
-
+        
+        SubscribeShopSlots();
         // 추가로 각 슬롯에 코인 정보 넘기기
         foreach (ISlotUI slot in forwarder.Slots)
         {

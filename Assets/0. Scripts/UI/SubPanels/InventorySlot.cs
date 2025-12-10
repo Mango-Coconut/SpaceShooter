@@ -3,8 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(SlotPointerHandler))]
-[RequireComponent(typeof(SlotClickHandler))]
-[RequireComponent(typeof(SlotDragHandler))]
 public class InventorySlot : MonoBehaviour, ISlotUI
 {    
     #region UI Child Components

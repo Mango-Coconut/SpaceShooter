@@ -40,6 +40,7 @@ public class PanelManager : MonoBehaviour
         dragSlotUIController = GetComponent<DragSlotUIController>();
         raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         //fromStorage = inventoryUI.SlotPanel.Inventory.Core;
+
     }
     void OnEnable()
     {
@@ -252,8 +253,8 @@ public class PanelManager : MonoBehaviour
     {
         if (curNpc.ShopInventory == null) return;
         if (IsOpen(shopUI.gameObject)) return;
-        shopUI.Bind(curNpc.ShopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
         shopUI.gameObject.SetActive(true);
+        shopUI.Bind(curNpc.ShopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
         
         InventoryUIOpen();
     }

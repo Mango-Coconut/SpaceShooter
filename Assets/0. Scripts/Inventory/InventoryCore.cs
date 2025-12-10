@@ -8,7 +8,7 @@ public class InventoryCore : IItemSource, IItemSink, ICoinSink
 
     List<StoredItem> slots = new List<StoredItem>();
 
-    int myCoin = 0;
+    int myCoin = 1000;
     public int MyCoin => myCoin;
 
 

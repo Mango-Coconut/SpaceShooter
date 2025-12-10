@@ -56,6 +56,11 @@ public class NpcUI : MonoBehaviour
             nextButton.gameObject.SetActive(true);
             choicesPanel.gameObject.SetActive(false);
         }
+
+        if(node.command.questData != null)
+        {
+            
+        }
     }
 
     void OnClickChoice(int index)

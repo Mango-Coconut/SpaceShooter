@@ -105,6 +105,13 @@ public class NpcMono : MonoBehaviour, IInteractable
             case DialogueCommandType.CompleteQuest:
                 HandleCompleteQuestCommand(command.questData);
                 break;
+            case DialogueCommandType.ShowQuestRewards:
+                HandleShowQuestRewards(command);
+                break;
+
+            case DialogueCommandType.HideQuestRewards:
+                HandleHideQuestRewards();
+                break;
         }
     }
 
@@ -176,6 +183,32 @@ public class NpcMono : MonoBehaviour, IInteractable
             Debug.Log("CompleteQuest failed: " + quest.title);
         }
     }
+
+    void HandleShowQuestRewards(DialogueCommand command)
+    {
+        if (hub == null || hub.quest == null) return;
+
+        // 어떤 퀘스트의 보상인지 찾는 로직
+        // 1) 아직 수락 전이면 QuestData 기준 (command.questId 등)
+        // 2) 이미 수락한 상태면 QuestInstance 찾아오기
+
+        QuestData data = QuestManager.Instance.GetQuestById(command.questData.id);
+        if (data == null)
+        {
+            // 수락 전 미리보기면 여기서 QuestData → 임시 QuestInstance 만들 수도 있음
+            return;
+        }
+
+        hub.quest.RaiseRequestRewardPreview(data);
+    }
+
+    void HandleHideQuestRewards()
+    {
+        if (hub == null || hub.quest == null) return;
+
+        hub.quest.RaiseRequestRewardPreviewHide();
+    }
+
     public void EnrollQuest(QuestData data)
     {
         linkedQuest = data;

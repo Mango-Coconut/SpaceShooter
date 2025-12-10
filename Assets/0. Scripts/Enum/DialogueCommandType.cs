@@ -5,5 +5,8 @@ public enum DialogueCommandType
     OpenShop,
     ProceedQuest,
     StartQuest,
-    CompleteQuest
+    CompleteQuest,
+
+    ShowQuestRewards,
+    HideQuestRewards,
 }
