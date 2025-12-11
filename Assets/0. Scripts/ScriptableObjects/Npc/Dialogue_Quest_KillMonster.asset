@@ -34,7 +34,7 @@ MonoBehaviour:
       command:
         type: 0
         newAsset: {fileID: 0}
-    showQuestRewards: 0
+    showQuestRewards: 1
   - nodeId: 1
     text: "\uAC14\uB2E4\uC640~"
     command:
@@ -63,7 +63,7 @@ MonoBehaviour:
     isEnd: 1
     nextNodeId: 
     choices: []
-    showQuestRewards: 0
+    showQuestRewards: 1
   - nodeId: 4
     text: "repeatable\uC774\uB77C \uC644\uB8CC \uC0C1\uD0DC\uAC00 \uB418\uBA74 \uC548
       \uB418\uB294\uB370, \uBC84\uADF8\uAC00 \uB0AC\uAD6C\uB098"

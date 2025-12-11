@@ -14,19 +14,17 @@ public class Interactor : MonoBehaviour
     public IInteractable current;
     static readonly Collider[] buffer = new Collider[32];
 
-    float timer = 0;
 
     public event Action<IInteractable> OnInteractorChange;
 
-    void Update()
+    public void Scan()
     {
-        timer += Time.deltaTime;
-        if (timer >= 0.1f) { timer = 0f; Scan();}
-    }
+        if(current != null)
+        {
+            OnInteractorChange?.Invoke(null);
+            return;
+        } 
 
-    void Scan()
-    {
-        if(current != null) return;
         var cam = Camera.main; if (!cam) return;
 
         Vector3 center = transform.position + transform.forward * forwardOffset;
@@ -96,11 +94,18 @@ public class Interactor : MonoBehaviour
         current.Interact(player);
         return true;
     }
+
     public void InteractExit()
     {
         if(current == null) return;
         current.Exit();
         current = null;
+    }
+
+    public void Clear()
+    {
+        selected = null;
+        OnInteractorChange?.Invoke(null);
     }
 
     void OnDrawGizmos()

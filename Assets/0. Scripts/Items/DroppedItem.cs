@@ -83,7 +83,7 @@ public class DroppedItem : MonoBehaviour, IInteractable
 
     public void Exit()
     {
-        if(curPlayer == null) return;
+        if (curPlayer == null) return;
         curPlayer.gate.PopAll();
     }
 
@@ -193,7 +193,10 @@ public class DroppedItem : MonoBehaviour, IInteractable
 
     // IInteractable 구현들 ------------------------
 
-    public bool IsAvailable() => gameObject.activeInHierarchy;
+    public bool IsAvailable()
+    {
+        return true;
+    }
 
     public void OnFocus()
     {
@@ -212,7 +215,7 @@ public class DroppedItem : MonoBehaviour, IInteractable
         return (item != null && item.itemData != null) ? item.itemData.icon : null;
     }
 
-    
+
 
     public bool CanInteract()
     {

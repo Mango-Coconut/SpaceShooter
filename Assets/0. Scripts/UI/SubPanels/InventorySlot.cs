@@ -63,7 +63,7 @@ public class InventorySlot : MonoBehaviour, ISlotUI
     {
         if (item == null || item.itemData == null)
         {
-            Invisible();
+            Clear();
             return;
         }
 

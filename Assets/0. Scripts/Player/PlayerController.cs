@@ -14,21 +14,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     public PlayerState state;
     public PlayerActionGate gate;
-
-    // Inventory
     [HideInInspector] public InventoryMono inventory;
     [HideInInspector] public EquipInventoryMono equipInventory;
 
-
     Interactor interactor;
-
     [SerializeField] PlayerWeapon playerWeapon;
-
     PlayerMove playerMove;
 
     Animator animator;
-
-
     public CinemachineVirtualCamera vcamCutscene;
 
     readonly int maxHP = 10;
@@ -39,6 +32,7 @@ public class PlayerController : MonoBehaviour
     public static event PlayerDieHandler OnPlayerDie;
 
 
+    float scanTimer = 0;
 
 
     void OnEnable()
@@ -139,6 +133,19 @@ public class PlayerController : MonoBehaviour
         }
 
 
+        scanTimer += Time.deltaTime;
+        if (scanTimer >= 0.1f)
+        {
+            if(state == PlayerState.Cutscene)
+            {
+                interactor.Clear();
+                return;
+            }
+
+            scanTimer = 0f;
+            interactor.Scan();
+        }
+
     }
     void UpdateMoveAnim()
     {
@@ -186,6 +193,7 @@ public class PlayerController : MonoBehaviour
         StoredItem item;
         bool isWeaponEquip = equipInventory.TryGetEquipped(EquipType.Weapon, out item);
         if(isWeaponEquip) playerWeapon.Equip(item);
+        else playerWeapon.UnEquip();
         animator.SetBool("IsEquip", isWeaponEquip);
 
         //playerArmor.HelmetEquip(equipInventory.GetEquipped(EquipType.Helmet, out item));
@@ -233,7 +241,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    #region Ladder Methods
+    #region 사다리 타기
     public Ladder curLadder;
     //Ladder에서 다시 호출
     public void StartLadderClimb(Ladder newLadder, Transform startPos, Transform startCamPos)
