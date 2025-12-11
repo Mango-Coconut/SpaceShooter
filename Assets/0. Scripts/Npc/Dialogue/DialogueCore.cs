@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class DialogueCore
 {
-    DialogueAsset asset;
+    public DialogueAsset asset;
     Dictionary<string, DialogueNode> nodeMap;
     DialogueNode current;
 
     #region 이벤트 정의
     public event Action<DialogueNode> OnNodeChanged;
-    public event Action<DialogueCommand> OnCommand;
+    public event Action<DialogueCommand, DialogueAsset> OnCommand;
     public event Action OnEnded;
 
     void RaiseNodeChanged() => OnNodeChanged?.Invoke(current);
@@ -20,7 +20,7 @@ public class DialogueCore
         if (cmd == null) return;
         if (cmd.type == DialogueCommandType.None) return;
 
-        OnCommand?.Invoke(cmd);
+        OnCommand?.Invoke(cmd, asset);
     }
     #endregion
 
@@ -49,17 +49,15 @@ public class DialogueCore
     // 특정 노드로 대화 시작
     public void Start(DialogueAsset dialogueAsset, string startNodeId = null)
     {
-        Debug.Log($"start quest dialogue : {dialogueAsset.name}, {startNodeId}");
         asset = dialogueAsset;
         BuildMap();
 
-        if (string.IsNullOrEmpty(startNodeId))
-        {
-            startNodeId = asset.startNodeId;
-        }
+        if (string.IsNullOrEmpty(startNodeId)) startNodeId = asset.startNodeId;
 
         Goto(startNodeId);
     }
+
+    
 
     public void Next() // 선택지 없는 노드에서 “다음”
     {

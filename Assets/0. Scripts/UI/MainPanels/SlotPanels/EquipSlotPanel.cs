@@ -1,12 +1,11 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SlotPanelEventForwarder))]
 public class EquipSlotPanel : MonoBehaviour
 {
     [SerializeField] EquipInventoryMono equipInventory;
     public EquipInventoryMono EquipInventory => equipInventory;
-    
-    SlotPanelEventForwarder forwarder;
+
+    SlotEventAggregator forwarder;
 
     [SerializeField] private InventorySlot[] fixedSlots;
 
@@ -20,10 +19,13 @@ public class EquipSlotPanel : MonoBehaviour
     InventorySlot weaponSlot => fixedSlots[(int)EquipIndex.Weapon];
     InventorySlot helmetSlot => fixedSlots[(int)EquipIndex.Helmet];
     InventorySlot chestArmorSlot => fixedSlots[(int)EquipIndex.ChestArmor];
+
     void Awake()
     {
-        forwarder = GetComponent<SlotPanelEventForwarder>();
+        forwarder = GetComponent<SlotEventAggregator>();
     }
+
+
     void OnEnable()
     {
         SubscribeInventory();

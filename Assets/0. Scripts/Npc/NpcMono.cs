@@ -81,7 +81,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         if (curPlayer != null) curPlayer.InteractExit();
     }
 
-    void HandleCommand(DialogueCommand command)
+    void HandleCommand(DialogueCommand command, DialogueAsset nowAsset)
     {
         switch (command.type)
         {
@@ -95,22 +95,15 @@ public class NpcMono : MonoBehaviour, IInteractable
                 }
                 OpenShop?.Invoke();
                 break;
-            case DialogueCommandType.ProceedQuest:
-                HandleProceedQuest(command.questData);
+            case DialogueCommandType.EnterNewDialogue:
+                HandleEnterNewDialogue(command.newAsset);
                 break;
             case DialogueCommandType.StartQuest:
-                HandleStartQuestCommand(command.questData);
+                HandleStartQuest(nowAsset.questData);
                 break;
 
             case DialogueCommandType.CompleteQuest:
-                HandleCompleteQuestCommand(command.questData);
-                break;
-            case DialogueCommandType.ShowQuestRewards:
-                HandleShowQuestRewards(command);
-                break;
-
-            case DialogueCommandType.HideQuestRewards:
-                HandleHideQuestRewards();
+                HandleCompleteQuest(nowAsset.questData);
                 break;
         }
     }
@@ -144,28 +137,28 @@ public class NpcMono : MonoBehaviour, IInteractable
         hub.npc.RaiseExit(this);
     }
     
-    void HandleProceedQuest(QuestData quest)
+    void HandleEnterNewDialogue(DialogueAsset newAsset)
     {
-        if (quest == null)
+        if (newAsset.questData == null)
         {
             // 커맨드에서 안 넘겨줬으면, 이 NPC의 linkedQuest 사용
-            quest = linkedQuest;
-            if (quest == null) return;
+            newAsset.questData = linkedQuest;
+            if (newAsset.questData == null) return;
         }
 
-        QuestState state = QuestManager.Instance.GetQuestState(quest);
+        QuestState state = QuestManager.Instance.GetQuestState(newAsset.questData);
 
         // 최종 상태 기준으로 진입할 노드 고르기
-        if (quest.questDialogue == null)
+        if (newAsset.questData.questDialogue == null)
             return;
 
-        string nodeId = quest.GetNodeIdByState(state); 
+        string nodeId = newAsset.questData.GetNodeIdByState(state); 
         Debug.Log($"state : {state}, nodeid : {nodeId}");
 
         // 퀘스트 전용 대화 에셋으로 갈아타서, 해당 상태 노드로 진입
-        Core.Initialize(quest.questDialogue, nodeId);
+        Core.Initialize(newAsset, nodeId);
     }
-    void HandleStartQuestCommand(QuestData quest)
+    void HandleStartQuest(QuestData quest)
     {
         bool started = QuestManager.Instance.TryStartQuest(quest, this);
         if (!started)
@@ -174,7 +167,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         }
     }
 
-    void HandleCompleteQuestCommand(QuestData quest)
+    void HandleCompleteQuest(QuestData quest)
     {
         bool completed = QuestManager.Instance.TryCompleteQuest(quest, this, curPlayer);
         if (!completed)
@@ -184,30 +177,6 @@ public class NpcMono : MonoBehaviour, IInteractable
         }
     }
 
-    void HandleShowQuestRewards(DialogueCommand command)
-    {
-        if (hub == null || hub.quest == null) return;
-
-        // 어떤 퀘스트의 보상인지 찾는 로직
-        // 1) 아직 수락 전이면 QuestData 기준 (command.questId 등)
-        // 2) 이미 수락한 상태면 QuestInstance 찾아오기
-
-        QuestData data = QuestManager.Instance.GetQuestById(command.questData.id);
-        if (data == null)
-        {
-            // 수락 전 미리보기면 여기서 QuestData → 임시 QuestInstance 만들 수도 있음
-            return;
-        }
-
-        hub.quest.RaiseRequestRewardPreview(data);
-    }
-
-    void HandleHideQuestRewards()
-    {
-        if (hub == null || hub.quest == null) return;
-
-        hub.quest.RaiseRequestRewardPreviewHide();
-    }
 
     public void EnrollQuest(QuestData data)
     {

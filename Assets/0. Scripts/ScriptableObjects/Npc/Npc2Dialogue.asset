@@ -18,7 +18,7 @@ MonoBehaviour:
     text: "\uC548\uB155~"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 0
     nextNodeId: 
     choices:
@@ -26,25 +26,27 @@ MonoBehaviour:
       nextNodeId: 1
       command:
         type: 0
-        questData: {fileID: 0}
+        newAsset: {fileID: 0}
     - text: "\uAEBC\uC838!"
       nextNodeId: 3
       command:
         type: 0
-        questData: {fileID: 0}
+        newAsset: {fileID: 0}
+    ShowRewards: 0
   - nodeId: 1
     text: "\uBB34\uC2A8 \uC77C\uC774\uC57C?"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 0
     nextNodeId: 2
     choices: []
+    ShowRewards: 0
   - nodeId: 2
     text: "\uD544\uC694\uD55C \uAC70 \uC788\uC5B4?"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 0
     nextNodeId: 
     choices:
@@ -52,30 +54,34 @@ MonoBehaviour:
       nextNodeId: 2
       command:
         type: 1
-        questData: {fileID: 0}
+        newAsset: {fileID: 0}
     - text: "\uD018\uC2A4\uD2B8(\uBAAC\uC2A4\uD130 \uC0AC\uB0E5)"
       nextNodeId: 
       command:
         type: 2
-        questData: {fileID: 11400000, guid: afc053c6aba6cea43bde6dec0322c282, type: 2}
+        newAsset: {fileID: 11400000, guid: d9ccd458198521e48ad40f8857109e17, type: 2}
     - text: "\uB05D\uB0B4\uAE30"
       nextNodeId: 4
       command:
         type: 0
-        questData: {fileID: 0}
+        newAsset: {fileID: 0}
+    ShowRewards: 0
   - nodeId: 3
     text: "\uBB50\uC57C \uC774 \uBBF8\uCE5C\uB188\uC740!"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    ShowRewards: 0
   - nodeId: 4
     text: "\uC798\uAC00~"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    ShowRewards: 0
+  questData: {fileID: 0}

@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Dialogue_Quest_KillMonster
   m_EditorClassIdentifier: 
   startNodeId: 0
+  questData: {fileID: 11400000, guid: afc053c6aba6cea43bde6dec0322c282, type: 2}
   nodes:
   - nodeId: 0
     text: "\uBAAC\uC2A4\uD130\uAC00 \uB05D\uC5C6\uC774 \uB098\uC640. \uC5B4\uC11C
       \uC0AC\uB0E5\uD558\uACE0 \uC624\uB834"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 0
     nextNodeId: 
     choices:
@@ -27,44 +28,49 @@ MonoBehaviour:
       nextNodeId: 1
       command:
         type: 3
-        questData: {fileID: 11400000, guid: afc053c6aba6cea43bde6dec0322c282, type: 2}
+        newAsset: {fileID: 0}
     - text: "\uC2EB\uC5B4"
       nextNodeId: 
       command:
         type: 0
-        questData: {fileID: 0}
+        newAsset: {fileID: 0}
+    showQuestRewards: 0
   - nodeId: 1
     text: "\uAC14\uB2E4\uC640~"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0
   - nodeId: 2
     text: "\uC544\uC9C1 \uC548 \uC8FD\uC600\uC796\uC544. \uB098\uB294 \uB2E4 \uC54C\uACE0
       \uC788\uB2E8\uB2E4"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0
   - nodeId: 3
     text: "\uC798\uD588\uC5B4. \uB2E4\uC74C\uC5D0 \uB610 \uC640. \uD55C\uB9C8\uB9AC\uB2F9
       \uCC9C\uC6D0\uC774\uB2C8\uAE4C"
     command:
       type: 4
-      questData: {fileID: 11400000, guid: afc053c6aba6cea43bde6dec0322c282, type: 2}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0
   - nodeId: 4
     text: "repeatable\uC774\uB77C \uC644\uB8CC \uC0C1\uD0DC\uAC00 \uB418\uBA74 \uC548
       \uB418\uB294\uB370, \uBC84\uADF8\uAC00 \uB0AC\uAD6C\uB098"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0

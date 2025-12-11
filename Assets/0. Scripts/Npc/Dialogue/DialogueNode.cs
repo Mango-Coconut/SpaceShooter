@@ -21,4 +21,6 @@ public class DialogueNode
     {
         get { return choices != null && choices.Count > 0; }
     }
+    public bool showQuestRewards;
+    
 }

@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class ChestUI : InventoryUI
 {
     Chest chestInventory;
@@ -10,7 +6,12 @@ public class ChestUI : InventoryUI
     public void SetChest(Chest chest)
     {
         chestInventory = chest;
-        SetSlotPanel(chestInventory);
+
+        SlotPanel.SetInventory(chest);
+        foreach (var forwarder in forwarders)
+        {
+            SlotEventBridge.Subscribe(forwarder);
+        }
     }
     public void ClearChest()
     {

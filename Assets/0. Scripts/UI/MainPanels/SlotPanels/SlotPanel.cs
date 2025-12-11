@@ -1,22 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(SlotPanelEventForwarder))]
 public class SlotPanel : MonoBehaviour
 {
     [SerializeField] InventoryMono inventory;
     public InventoryMono Inventory => inventory;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] StorageTarget myStorageType;
-    [SerializeField] CoinPanel coinPanel;
-    protected SlotPanelEventForwarder forwarder;
+    [SerializeField] protected CoinPanel coinPanel;
+    protected SlotEventAggregator forwarder;
+    public SlotEventAggregator Forwarder => forwarder;
 
-    readonly List<ISlotUI> uiSlots = new List<ISlotUI>();
+    protected readonly List<ISlotUI> uiSlots = new List<ISlotUI>();
 
     void Awake()
     {
-        forwarder = GetComponent<SlotPanelEventForwarder>();
+        forwarder = GetComponent<SlotEventAggregator>();
     }
+
     void OnEnable()
     {
         OnPanelEnabled();
@@ -60,7 +61,7 @@ public class SlotPanel : MonoBehaviour
     }
 
     // 인벤토리 세팅 시 슬롯UI 재생성
-    void SetSlot(int targetCount)
+    protected void SetSlot(int targetCount)
     {
         uiSlots.Clear();
 
@@ -82,17 +83,25 @@ public class SlotPanel : MonoBehaviour
                 slot = Instantiate(slotPrefab, transform).GetComponent<ISlotUI>();
             }
 
-            if (slot != null && !uiSlots.Contains(slot))
+            if (slot != null)
             {
                 uiSlots.Add(slot);
             }
         }
 
-        // 자식이 더 많으면 삭제
-        for (int i = transform.childCount - 1; i >= targetCount; i--)
+        // 현재 ISlotUI를 가진 자식들만 모음
+        List<Transform> slotChildren = new List<Transform>();
+        for (int i = 0; i < transform.childCount; i++)
         {
             Transform child = transform.GetChild(i);
-            Destroy(child.gameObject);
+            if (child.TryGetComponent<ISlotUI>(out _))
+                slotChildren.Add(child);
+        }
+
+        // ISlotUI가 targetCount보다 많으면 초과분 삭제
+        for (int i = slotChildren.Count - 1; i >= targetCount; i--)
+        {
+            Destroy(slotChildren[i].gameObject);
         }
 
         // 각 슬롯 이벤트 재 구독

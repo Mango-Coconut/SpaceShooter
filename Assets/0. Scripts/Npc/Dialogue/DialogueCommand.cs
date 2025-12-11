@@ -4,5 +4,5 @@ using System;
 public class DialogueCommand
 {
     public DialogueCommandType type;
-    public QuestData questData;  // StartQuest, VisibleReward 전용
+    public DialogueAsset newAsset;
 }

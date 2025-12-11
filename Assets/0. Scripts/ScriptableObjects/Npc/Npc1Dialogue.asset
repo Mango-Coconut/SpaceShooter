@@ -18,7 +18,7 @@ MonoBehaviour:
     text: "\uAE30\uB2E4\uB9AC\uACE0 \uC788\uC5C8\uC5B4."
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices:
@@ -26,9 +26,11 @@ MonoBehaviour:
       nextNodeId: 
       command:
         type: 2
-        questData: {fileID: 11400000, guid: a4b6818f2e7b151469ee9d788debad77, type: 2}
+        newAsset: {fileID: 11400000, guid: e6f62c940ff481c4887b03f2ec02af07, type: 2}
     - text: "\uB05D\uB0B4\uAE30"
       nextNodeId: 
       command:
         type: 0
-        questData: {fileID: 0}
+        newAsset: {fileID: 0}
+    ShowRewards: 0
+  questData: {fileID: 0}

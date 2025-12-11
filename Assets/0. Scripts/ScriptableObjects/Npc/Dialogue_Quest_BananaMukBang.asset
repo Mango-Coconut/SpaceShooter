@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Dialogue_Quest_BananaMukBang
   m_EditorClassIdentifier: 
   startNodeId: 0
+  questData: {fileID: 11400000, guid: a4b6818f2e7b151469ee9d788debad77, type: 2}
   nodes:
   - nodeId: 0
     text: "\uBC29\uAE08 \uC804\uD22C\uD558\uACE0 \uC654\uB294\uB370 \uB2E4\uC2DC
@@ -20,7 +21,7 @@ MonoBehaviour:
       \uC7A0\uAE50 \uC26C\uC5B4"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 0
     nextNodeId: 
     choices:
@@ -28,49 +29,54 @@ MonoBehaviour:
       nextNodeId: 1
       command:
         type: 3
-        questData: {fileID: 11400000, guid: a4b6818f2e7b151469ee9d788debad77, type: 2}
+        newAsset: {fileID: 0}
     - text: "\uD544\uC694 \uC5C6\uC5B4"
       nextNodeId: 2
       command:
         type: 0
-        questData: {fileID: 0}
+        newAsset: {fileID: 0}
+    showQuestRewards: 1
   - nodeId: 1
     text: "\uC798 \uC0DD\uAC01\uD588\uC5B4. \n\uB0B4 \uC55E\uC5D0 \uB5A8\uC5B4\uC838
       \uC788\uB294 \uBC14\uB098\uB098 \uBA39\uC5B4\uC11C \uCCB4\uB825\uC744 \uD68C\uBCF5\uC2DC\uD0A8
       \uB2E4\uC74C \uB2E4\uC2DC \uC640."
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0
   - nodeId: 2
     text: "\uCD1D\uB3C4 \uC5C6\uC73C\uBA74\uC11C \uC5B4\uB5BB\uAC8C \uC2F8\uC6B0\uB824\uACE0.
       \uB2E4\uC2DC \uC0DD\uAC01\uD574\uBCF4\uB834"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0
   - nodeId: 3
     text: "\uBC14\uB098\uB098 \uBA39\uACE0 \uB2E4\uC2DC \uC640. \uC7A0\uAE50 \uC8FC\uBCC0
       \uB458\uB7EC\uBD10\uB3C4 \uC88B\uACE0"
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0
   - nodeId: 4
     text: "\uC774\uC81C \uBA40\uCA61\uD574\uC84C\uC9C0? \uCD1D\uB3C4 \uACE0\uC7A5\uB0AC\uAD6C\uB098.
       \uC0C8\uB85C \uD558\uB098 \uC904\uAC8C."
     command:
       type: 4
-      questData: {fileID: 11400000, guid: a4b6818f2e7b151469ee9d788debad77, type: 2}
+      newAsset: {fileID: 0}
     isEnd: 0
     nextNodeId: 5
     choices: []
+    showQuestRewards: 1
   - nodeId: 5
     text: "\uCF54\uB108 \uB3CC\uBA74 \uBC14\uB85C \uBAAC\uC2A4\uD130\uAC00 \uC788\uC73C\uB2C8
       \uC5B4\uADF8\uB85C \uC548 \uB04C\uB9AC\uAC8C \uC870\uC2EC\uD558\uACE0, \n\uBCF4\uAE09\uC0C1\uC790\uC5D0
@@ -78,7 +84,8 @@ MonoBehaviour:
       \uC788\uC73C\uB2C8 \uD544\uC694\uD55C\uAC70 \uC0AC\uB3C4 \uB3FC."
     command:
       type: 0
-      questData: {fileID: 0}
+      newAsset: {fileID: 0}
     isEnd: 1
     nextNodeId: 
     choices: []
+    showQuestRewards: 0

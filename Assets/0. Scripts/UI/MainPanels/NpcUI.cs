@@ -7,15 +7,23 @@ using UnityEngine.UI;
 
 public class NpcUI : MonoBehaviour
 {
+    DialogueCore boundDialogue;
     [SerializeField] ChoicesPanel choicesPanel;
     [SerializeField] TMP_Text dialogueText;
     [SerializeField] Button nextButton;
+    [SerializeField] RewardSlotPanel rewardSlotPanel;
+    public RewardSlotPanel RewardSlotPanel => rewardSlotPanel;
+    SlotEventBridge slotEventBridge = new SlotEventBridge();
+    public SlotEventBridge SlotEventBridge => slotEventBridge;
 
-    DialogueCore boundDialogue;
-
-    void Awake()
+    void OnEnable()
     {
-        //DialogueCore의 
+        slotEventBridge.Subscribe(rewardSlotPanel.Forwarder);
+    }
+
+    void OnDisable()
+    {
+        slotEventBridge.UnSubscribe(rewardSlotPanel.Forwarder);
     }
 
     public void Bind(DialogueCore dialogue)
@@ -57,9 +65,14 @@ public class NpcUI : MonoBehaviour
             choicesPanel.gameObject.SetActive(false);
         }
 
-        if(node.command.questData != null)
+        if (node.showQuestRewards)
         {
-            
+            rewardSlotPanel.gameObject.SetActive(true);
+            rewardSlotPanel.ShowRewards(boundDialogue.asset.questData.reward);
+        }
+        else
+        {
+            rewardSlotPanel.gameObject.SetActive(false);
         }
     }
 

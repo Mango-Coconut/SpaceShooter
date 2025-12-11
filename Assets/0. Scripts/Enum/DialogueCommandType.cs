@@ -3,10 +3,7 @@ public enum DialogueCommandType
 {
     None,
     OpenShop,
-    ProceedQuest,
+    EnterNewDialogue, // 현재는 퀘스트 전용 대화 진입 전용
     StartQuest,
     CompleteQuest,
-
-    ShowQuestRewards,
-    HideQuestRewards,
 }

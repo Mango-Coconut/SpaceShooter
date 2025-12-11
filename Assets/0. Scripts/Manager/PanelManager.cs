@@ -41,6 +41,15 @@ public class PanelManager : MonoBehaviour
         raycaster = GetComponentInParent<Canvas>().GetComponent<GraphicRaycaster>();
         //fromStorage = inventoryUI.SlotPanel.Inventory.Core;
 
+        // 이벤트 구독용
+        uiForwarders = new SlotEventBridge[]
+        {
+            inventoryUI.SlotEventBridge,
+            chestUI.SlotEventBridge,
+            shopUI.SlotEventBridge,
+            npcUI.SlotEventBridge
+        };
+
     }
     void OnEnable()
     {
@@ -52,12 +61,20 @@ public class PanelManager : MonoBehaviour
         NpcUIPresence.OnStateChanged += HandleMouseLock;
         RecountAndApply();
 
-        //InventoryUI 이벤트
-        SubscribeInventoryUI(inventoryUI);
-        //ChestUI 이벤트
-        SubscribeInventoryUI(chestUI);
-        //ShopUI 이벤트
-        SubscribeShopUI(shopUI);
+
+        inventoryUI.gameObject.SetActive(true);
+        chestUI.gameObject.SetActive(true);
+        shopUI.gameObject.SetActive(true);
+        npcUI.gameObject.SetActive(true);
+        inventoryUI.gameObject.SetActive(false);
+        chestUI.gameObject.SetActive(false);
+        shopUI.gameObject.SetActive(false);
+        npcUI.gameObject.SetActive(false);
+
+        
+        // 이벤트 구독
+        SubscribeAllUIs();
+
         // 전역 이벤트(Chest, Npc)
         SubscribeHubEvent();
 
@@ -71,56 +88,40 @@ public class PanelManager : MonoBehaviour
 
         NpcUIPresence.OnStateChanged -= HandleMouseLock;
 
-        UnsubscribeInventoryUI(inventoryUI);
-        UnsubscribeInventoryUI(chestUI);
-        UnSubscribeShopUI(shopUI);
+        UnsubscribeAllUIs();
         UnSubscribeHubEvent();
 
         interactor.OnInteractorChange -= HandleInteractorChange;
     }
 
     #region 이벤트 구독
-    //InventoryUI (Player Inventory, Chest Inventory)
-    void SubscribeInventoryUI(InventoryUI inventoryUI)
+    SlotEventBridge[] uiForwarders;
+    void SubscribeAllUIs()
     {
-        if (inventoryUI == null) { return; }
-
-        UnsubscribeInventoryUI(inventoryUI);
-        inventoryUI.MouseEntered += HandleTooltipShow;
-        inventoryUI.MouseExited += HandleTooltipHide;
-        inventoryUI.RightClicked += HandleRightClick;
-        inventoryUI.DragBegan += HandleBeginDragFromPanel;
-        inventoryUI.Dragging += HandleDraggingFromPanel;
-        inventoryUI.DragEnded += HandleEndDragFromPanel;
+        UnsubscribeAllUIs();
+        foreach (var f in uiForwarders)
+        {
+            if (f == null) continue;
+            f.MouseEntered += HandleTooltipShow;
+            f.MouseExited += HandleTooltipHide;
+            f.RightClicked += HandleRightClick;
+            f.DragBegan += HandleBeginDragFromPanel;
+            f.Dragging += HandleDraggingFromPanel;
+            f.DragEnded += HandleEndDragFromPanel;
+        }
     }
-
-    void UnsubscribeInventoryUI(InventoryUI inventoryUI)
+    void UnsubscribeAllUIs()
     {
-        if (inventoryUI == null) { return; }
-        inventoryUI.MouseEntered -= HandleTooltipShow;
-        inventoryUI.MouseExited -= HandleTooltipHide;
-        inventoryUI.RightClicked -= HandleRightClick;
-        inventoryUI.DragBegan -= HandleBeginDragFromPanel;
-        inventoryUI.Dragging -= HandleDraggingFromPanel;
-        inventoryUI.DragEnded -= HandleEndDragFromPanel;
-    }
-    //ShopUI
-    void SubscribeShopUI(ShopUI shopUI)
-    {
-        if (shopUI == null) { return; }
-
-        UnSubscribeShopUI(shopUI);
-
-        shopUI.MouseEntered += HandleTooltipShow;
-        shopUI.MouseExited += HandleTooltipHide;
-    }
-
-    void UnSubscribeShopUI(ShopUI shopUI)
-    {
-        if (shopUI == null) { return; }
-
-        shopUI.MouseEntered -= HandleTooltipShow;
-        shopUI.MouseExited -= HandleTooltipHide;
+        foreach (var f in uiForwarders)
+        {
+            if (f == null) continue;
+            f.MouseEntered -= HandleTooltipShow;
+            f.MouseExited -= HandleTooltipHide;
+            f.RightClicked -= HandleRightClick;
+            f.DragBegan -= HandleBeginDragFromPanel;
+            f.Dragging -= HandleDraggingFromPanel;
+            f.DragEnded -= HandleEndDragFromPanel;
+        }
     }
 
     // Hub Event (Chest, Npc) 전역 이벤트
@@ -310,6 +311,7 @@ public class PanelManager : MonoBehaviour
     {
         if (args.Item == null || args.Item.itemData == null) { return; }
 
+        Log.Info("right click panelmanager");
         tooltipUIController.Hide();
         InventoryManager.Instance.HandleRightClick(args.Item, args.Source);
     }

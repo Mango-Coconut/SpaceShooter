@@ -14,13 +14,14 @@ public class NpcCore
         NpcName = name;
         dialogueCore = new DialogueCore();
     }
-    public void Initialize(DialogueAsset asset)
-    {
-        Initialize(asset, null);
-    }
-
+    
     public void Initialize(DialogueAsset asset, string startNodeId)
     {
         dialogueCore.Start(asset, startNodeId);
+    }
+
+    public void Initialize(DialogueAsset asset)
+    {
+        Initialize(asset, null);
     }
 }
