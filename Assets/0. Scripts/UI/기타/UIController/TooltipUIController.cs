@@ -16,7 +16,7 @@ public class TooltipUIController : MonoBehaviour
         tooltipUI.gameObject.SetActive(false);
     }
 
-    public void Show(ItemUIEventArgs args)
+    public void Show(SlotPanelEventArgs args)
     {
         RectTransform slotRect = args.Rect;
 

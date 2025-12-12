@@ -13,9 +13,10 @@ public class InventorySlot : MonoBehaviour, IInteractiveView<StoredItem>
 
 
     #region IInteractiveView
-    public UIPointerHandler<StoredItem> PointerHandler { get; private set; }
-    public UIClickHandler ClickHandler { get; private set; } // TODO 제네릭화 하기
-    public UIDragHandler DragHandler { get; private set; } // TODO 제네릭화 하기
+    public UIPointerHandler PointerHandler { get; private set; }
+    public UIClickHandler ClickHandler { get; private set; }
+    public UIDragHandler DragHandler { get; private set; }
+
     public RectTransform Rect { get; private set; }
     public GameObject GO => gameObject;
     #endregion
@@ -23,33 +24,36 @@ public class InventorySlot : MonoBehaviour, IInteractiveView<StoredItem>
     StoredItem enterItem;
     public StoredItem EnterItem => enterItem;
 
-    UIPointerHandler IUIInteraction.PointerHandler => PointerHandler;
 
     void Awake()
     {
         Rect = GetComponent<RectTransform>();
-        PointerHandler = GetComponent<UIPointerHandler<StoredItem>>();
-        ClickHandler = GetComponent<UIClickHandler>();
-        DragHandler = GetComponent<UIDragHandler>();
+        UIPointerHandler<StoredItem> pointerT = GetComponent<UIPointerHandler<StoredItem>>();
+        UIClickHandler<StoredItem> clickT = GetComponent<UIClickHandler<StoredItem>>();
+        UIDragHandler<StoredItem> dragT = GetComponent<UIDragHandler<StoredItem>>();
 
-        if (PointerHandler != null)
+        PointerHandler = pointerT;
+        ClickHandler = clickT;
+        DragHandler = dragT;
+
+        if (pointerT != null)
         {
-            PointerHandler.GetData = () => enterItem;
-            PointerHandler.GetRect = () => Rect;
+            pointerT.GetData = () => enterItem;
+            pointerT.GetRect = () => Rect;
         }
 
-        if (ClickHandler != null)
+        if (clickT != null)
         {
-            ClickHandler.GetItem = () => enterItem;
+            clickT.GetData = () => enterItem;
         }
 
-        if (DragHandler != null)
+        if (dragT != null)
         {
-            DragHandler.GetItem = () => enterItem;
-            DragHandler.SetGhostInvisible = Invisible;
-            DragHandler.SetGhostVisible = Visible;
+            dragT.GetData = () => enterItem;
+            dragT.SetGhostInvisible = Invisible;
+            dragT.SetGhostVisible = Visible;
         }
-        
+
         Clear();
     }
 

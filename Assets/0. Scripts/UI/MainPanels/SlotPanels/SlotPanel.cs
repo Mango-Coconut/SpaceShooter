@@ -105,7 +105,7 @@ public class SlotPanel : MonoBehaviour
         }
 
         // 각 슬롯 이벤트 재 구독
-        forwarder.RebuildSlots();
+        forwarder.RebuildViews();
     }
 
 

@@ -1,145 +1,121 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class ItemPanelEventAggregator : MonoBehaviour
+public class ItemPanelEventAggregator : PanelEventAggregator<StoredItem>
 {
     [Header("Source Info")]
-    [SerializeField] StorageTarget source;   // Inventory / EquipInventory / QuestReward 등
+    [SerializeField] StorageTarget source;
 
-    readonly List<IInteractiveView<StoredItem>> views = new List<IInteractiveView<StoredItem>>();
-
-    public IEnumerable<IInteractiveView<StoredItem>> Views => views;
     public StorageTarget Source => source;
 
-    public event Action<ItemUIEventArgs> MouseEntered;
-    public event Action<ItemUIEventArgs> MouseExited;
-    public event Action<ItemUIEventArgs> RightClicked;
-    public event Action<ItemUIEventArgs> DragBegan;
-    public event Action<ItemUIEventArgs> Dragging;
-    public event Action<ItemUIEventArgs> DragEnded;
+    public event Action<SlotPanelEventArgs> ItemMouseEntered;
+    public event Action<SlotPanelEventArgs> ItemMouseExited;
+    public event Action<SlotPanelEventArgs> ItemLeftClicked;
+    public event Action<SlotPanelEventArgs> ItemRightClicked;
+    public event Action<SlotPanelEventArgs> ItemDragBegan;
+    public event Action<SlotPanelEventArgs> ItemDragging;
+    public event Action<SlotPanelEventArgs> ItemDragEnded;
 
-    void Awake()
+    protected override void OnEnable()
     {
-        BuildSlotList();
+        base.OnEnable();
+
+        MouseEntered += HandleMouseEntered;
+        MouseExited += HandleMouseExited;
+        LeftClicked += HandleLeftClicked;
+        RightClicked += HandleRightClicked;
+        DragBegan += HandleDragBegan;
+        Dragging += HandleDragging;
+        DragEnded += HandleDragEnded;
     }
 
-    void OnEnable()
+    protected override void OnDisable()
     {
-        SubscribeSlotUI();
+        MouseEntered -= HandleMouseEntered;
+        MouseExited -= HandleMouseExited;
+        LeftClicked -= HandleLeftClicked;
+        RightClicked -= HandleRightClicked;
+        DragBegan -= HandleDragBegan;
+        Dragging -= HandleDragging;
+        DragEnded -= HandleDragEnded;
+
+        base.OnDisable();
     }
 
-    void OnDisable()
+    void HandleMouseEntered(SlotEventArgs<StoredItem> e)
     {
-        UnSubscribeSlotUI();
-    }
-
-    void BuildSlotList()
-    {
-        views.Clear();
-
-        IInteractiveView<StoredItem>[] found = GetComponentsInChildren<IInteractiveView<StoredItem>>(true);
-        for (int i = 0; i < found.Length; i++)
+        if (ItemMouseEntered == null)
         {
-            IInteractiveView<StoredItem> slot = found[i];
-            if (slot != null && !views.Contains(slot))
-            {
-                views.Add(slot);
-            }
+            return;
         }
-    }
-    public void RebuildSlots()
-    {
-        UnSubscribeSlotUI();
-        BuildSlotList();
-        SubscribeSlotUI();
+
+        SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
+        ItemMouseEntered.Invoke(args);
     }
 
-    void SubscribeSlotUI()
+    void HandleMouseExited(SlotEventArgs<StoredItem> e)
     {
-        UnSubscribeSlotUI();
-
-        for (int i = 0; i < views.Count; i++)
+        if (ItemMouseExited == null)
         {
-            IInteractiveView<StoredItem> slot = views[i];
-            if (slot == null) continue;
-
-            // Pointer
-            if (slot.PointerHandler is UIPointerHandler<StoredItem> pointer)
-            {
-                pointer.PointerEntered += ForwardMouseEnter;
-                pointer.PointerExited += ForwardMouseExit;
-            }
-
-            // Click
-            if (slot.ClickHandler != null)
-            {
-                // slot.ClickHandler.LeftClicked += ...
-                slot.ClickHandler.RightClicked += ForwardRightClick;
-            }
-
-            // Drag
-            if (slot.DragHandler != null)
-            {
-                slot.DragHandler.DragBegan += ForwardBeginDrag;
-                slot.DragHandler.Dragging += ForwardDragging;
-                slot.DragHandler.DragEnded += ForwardDropped;
-            }
+            return;
         }
+
+        SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
+        ItemMouseExited.Invoke(args);
     }
 
-    void UnSubscribeSlotUI()
+    void HandleLeftClicked(SlotEventArgs<StoredItem> e)
     {
-        for (int i = 0; i < views.Count; i++)
+        if (ItemLeftClicked == null)
         {
-            IInteractiveView<StoredItem> slot = views[i];
-            if (slot == null) continue;
-
-            if (slot.PointerHandler is UIPointerHandler<StoredItem> pointer)
-            {
-                pointer.PointerEntered -= ForwardMouseEnter;
-                pointer.PointerExited -= ForwardMouseExit;
-            }
-
-            if (slot.ClickHandler != null)
-            {
-                // slot.ClickHandler.LeftClicked -= ...
-                slot.ClickHandler.RightClicked -= ForwardRightClick;
-            }
-
-            if (slot.DragHandler != null)
-            {
-                slot.DragHandler.DragBegan -= ForwardBeginDrag;
-                slot.DragHandler.Dragging -= ForwardDragging;
-                slot.DragHandler.DragEnded -= ForwardDropped;
-            }
+            return;
         }
+
+        SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
+        ItemLeftClicked.Invoke(args);
     }
-    
-    void ForwardMouseEnter(StoredItem item, RectTransform rect)
-        => MouseEntered?.Invoke(new ItemUIEventArgs(item, source, rect, null));
 
-    void ForwardMouseExit()
-        => MouseExited?.Invoke(new ItemUIEventArgs(null, source, null, null));
+    void HandleRightClicked(SlotEventArgs<StoredItem> e)
+    {
+        if (ItemRightClicked == null)
+        {
+            return;
+        }
 
-    void ForwardRightClick(StoredItem item)
-        => RightClicked?.Invoke(new ItemUIEventArgs(item, source, null, null));
+        SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
+        ItemRightClicked.Invoke(args);
+    }
 
-    void ForwardBeginDrag(StoredItem item, PointerEventData e)
-        => DragBegan?.Invoke(new ItemUIEventArgs(item, source, null, e));
+    void HandleDragBegan(SlotEventArgs<StoredItem> e)
+    {
+        if (ItemDragBegan == null)
+        {
+            return;
+        }
 
-    void ForwardDragging(PointerEventData e)
-        => Dragging?.Invoke(new ItemUIEventArgs(null, source, null, e));
+        SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
+        ItemDragBegan.Invoke(args);
+    }
 
-    void ForwardDropped(StoredItem item, PointerEventData e)
-        => DragEnded?.Invoke(new ItemUIEventArgs(item, source, null, e));
+    void HandleDragging(SlotEventArgs<StoredItem> e)
+    {
+        if (ItemDragging == null)
+        {
+            return;
+        }
 
-    // 이벤트 추적용(Debug.log)
-    // void ForwardMouseEnter(StoredItem item, RectTransform rect) { Log.Info($"Slot Mouse Enter"); MouseEntered?.Invoke(new ItemUIEventArgs(item, source, rect, null)); }
-    // void ForwardMouseExit() { Log.Info($"Slot Mouse Exit"); MouseExited?.Invoke(new ItemUIEventArgs(null, source, null, null)); }
-    // void ForwardRightClick(StoredItem item) { Log.Info($"Slot Mouse RightClick"); RightClicked?.Invoke(new ItemUIEventArgs(item, source, null, null)); }
-    // void ForwardBeginDrag(StoredItem item, PointerEventData e) { Log.Info($"Slot Mouse DragBegin"); MouseExited?.Invoke(new ItemUIEventArgs(null, source, null, null)); DragBegan?.Invoke(new ItemUIEventArgs(item, source, null, e)); }
-    // void ForwardDragging(PointerEventData e) { Log.Info($"Slot Mouse Dragging"); Dragging?.Invoke(new ItemUIEventArgs(null, source, null, e)); }
-    // void ForwardDropped(StoredItem item, PointerEventData e) { Log.Info($"Slot Mouse DragEnd"); DragEnded?.Invoke(new ItemUIEventArgs(item, source, null, e)); }
+        SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
+        ItemDragging.Invoke(args);
+    }
+
+    void HandleDragEnded(SlotEventArgs<StoredItem> e)
+    {
+        if (ItemDragEnded == null)
+        {
+            return;
+        }
+
+        SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
+        ItemDragEnded.Invoke(args);
+    }
 }

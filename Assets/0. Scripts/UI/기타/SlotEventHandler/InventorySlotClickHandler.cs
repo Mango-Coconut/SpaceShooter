@@ -1,0 +1,1 @@
+public class InventorySlotClickHandler : UIClickHandler<StoredItem> { }

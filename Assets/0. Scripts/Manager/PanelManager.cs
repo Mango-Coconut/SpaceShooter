@@ -269,19 +269,19 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region 툴팁 열닫
-    void HandleTooltipShow(ItemUIEventArgs args)
+    void HandleTooltipShow(SlotPanelEventArgs args)
     {
         tooltipUIController.Show(args);
     }
 
-    void HandleTooltipHide(ItemUIEventArgs args)
+    void HandleTooltipHide(SlotPanelEventArgs args)
     {
         tooltipUIController.Hide();
     }
     #endregion
 
     #region 아이템 옮기기
-    void HandleBeginDragFromPanel(ItemUIEventArgs args)
+    void HandleBeginDragFromPanel(SlotPanelEventArgs args)
     {
         StoredItem item = args.Item;
         if (item == null) { return; }
@@ -290,12 +290,12 @@ public class PanelManager : MonoBehaviour
         dragSlotUIController.Show(args.Item);
     }
 
-    void HandleDraggingFromPanel(ItemUIEventArgs args)
+    void HandleDraggingFromPanel(SlotPanelEventArgs args)
     {
         dragSlotUIController.Move(args);
     }
 
-    void HandleEndDragFromPanel(ItemUIEventArgs args)
+    void HandleEndDragFromPanel(SlotPanelEventArgs args)
     {
         if (args.Item == null || args.Item.itemData == null) return;
         if (args.Pointer == null) return;
@@ -307,7 +307,7 @@ public class PanelManager : MonoBehaviour
         dragSlotUIController.Hide();
     }
 
-    void HandleRightClick(ItemUIEventArgs args)
+    void HandleRightClick(SlotPanelEventArgs args)
     {
         if (args.Item == null || args.Item.itemData == null) { return; }
 

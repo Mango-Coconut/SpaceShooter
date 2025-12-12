@@ -103,8 +103,8 @@ GameObject:
   - component: {fileID: 4924103525559152050}
   - component: {fileID: 4924103525559152052}
   - component: {fileID: -2621220712859599061}
-  - component: {fileID: 9116026070018980484}
-  - component: {fileID: 5132634042554682233}
+  - component: {fileID: 7733038415397181181}
+  - component: {fileID: 4793330244842698309}
   m_Layer: 5
   m_Name: Slot
   m_TagString: Untagged
@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 735dfdee9938c314db2e4f6e6720303c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &9116026070018980484
+--- !u!114 &7733038415397181181
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -207,10 +207,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4924103525559152048}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0afd9984dfb8561419d16511d3c2c8b9, type: 3}
+  m_Script: {fileID: 11500000, guid: d98ba052943568d4396a8d4391392b2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5132634042554682233
+--- !u!114 &4793330244842698309
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -219,7 +219,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4924103525559152048}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77efc312ffc97414abccc494820c579e, type: 3}
+  m_Script: {fileID: 11500000, guid: 5407080446bfffb4193bbb5a75734d13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &8898703675991038054

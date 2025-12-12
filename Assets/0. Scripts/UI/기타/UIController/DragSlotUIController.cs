@@ -11,7 +11,7 @@ public class DragSlotUIController : MonoBehaviour
         dragSlot.gameObject.SetActive(true);
         dragSlot.Bind(item);
     }
-    public void Move(ItemUIEventArgs args)
+    public void Move(SlotPanelEventArgs args)
     {
         if (args.Pointer != null)
         {

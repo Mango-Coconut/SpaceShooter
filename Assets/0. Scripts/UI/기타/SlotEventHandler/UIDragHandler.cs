@@ -1,32 +1,29 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UIDragHandler : MonoBehaviour,
-IBeginDragHandler,
-IDragHandler,
-IEndDragHandler
-{
-    public Func<StoredItem> GetItem;
-    
-    public event Action<StoredItem, PointerEventData> DragBegan;
-    public event Action<PointerEventData> Dragging;
-    public event Action<StoredItem, PointerEventData> DragEnded;
+public abstract class UIDragHandler : MonoBehaviour { }
 
-    // InventorySlot에서 드래그 시작시 해당슬롯 숨기기
+public class UIDragHandler<T> : UIDragHandler,
+    IBeginDragHandler, IDragHandler, IEndDragHandler
+{
+    public Func<T> GetData;
+
+    public event Action<T, PointerEventData> DragBegan;
+    public event Action<PointerEventData> Dragging;
+    public event Action<T, PointerEventData> DragEnded;
+
     public Action SetGhostInvisible;
-    // InventorySlot에서 드래그 종료시 해당슬롯 보이기
     public Action SetGhostVisible;
 
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
-        StoredItem item = GetItem();
-        if (item == null || item.itemData == null) return;
+        if (GetData == null) return;
+        T data = GetData();
+        if (data == null) return;
 
         SetGhostInvisible?.Invoke();
-        DragBegan?.Invoke(item, eventData);
+        DragBegan?.Invoke(data, eventData);
     }
 
     void IDragHandler.OnDrag(PointerEventData eventData)
@@ -36,13 +33,14 @@ IEndDragHandler
 
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
     {
-        StoredItem item = GetItem();
-        if (item == null || item.itemData == null)
+        if (GetData == null)
         {
-            SetGhostVisible?.Invoke(); return;
+            SetGhostVisible?.Invoke();
+            return;
         }
 
+        T data = GetData();
         SetGhostVisible?.Invoke();
-        DragEnded?.Invoke(item, eventData); ;
+        DragEnded?.Invoke(data, eventData);
     }
 }
