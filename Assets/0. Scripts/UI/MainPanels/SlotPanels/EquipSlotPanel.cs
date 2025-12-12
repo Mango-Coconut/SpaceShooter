@@ -5,7 +5,7 @@ public class EquipSlotPanel : MonoBehaviour
     [SerializeField] EquipInventoryMono equipInventory;
     public EquipInventoryMono EquipInventory => equipInventory;
 
-    SlotEventAggregator forwarder;
+    ItemPanelEventAggregator forwarder;
 
     [SerializeField] private InventorySlot[] fixedSlots;
 
@@ -22,7 +22,7 @@ public class EquipSlotPanel : MonoBehaviour
 
     void Awake()
     {
-        forwarder = GetComponent<SlotEventAggregator>();
+        forwarder = GetComponent<ItemPanelEventAggregator>();
     }
 
 

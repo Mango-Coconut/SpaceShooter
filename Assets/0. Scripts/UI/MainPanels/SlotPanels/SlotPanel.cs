@@ -8,14 +8,14 @@ public class SlotPanel : MonoBehaviour
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] StorageTarget myStorageType;
     [SerializeField] protected CoinPanel coinPanel;
-    protected SlotEventAggregator forwarder;
-    public SlotEventAggregator Forwarder => forwarder;
+    protected ItemPanelEventAggregator forwarder;
+    public ItemPanelEventAggregator Forwarder => forwarder;
 
-    protected readonly List<ISlotUI> uiSlots = new List<ISlotUI>();
+    protected readonly List<IInteractiveView<StoredItem>> uiSlots = new List<IInteractiveView<StoredItem>>();
 
     void Awake()
     {
-        forwarder = GetComponent<SlotEventAggregator>();
+        forwarder = GetComponent<ItemPanelEventAggregator>();
     }
 
     void OnEnable()
@@ -68,19 +68,19 @@ public class SlotPanel : MonoBehaviour
         // 부족하면 생성
         for (int i = 0; i < targetCount; i++)
         {
-            ISlotUI slot = null;
+            IInteractiveView<StoredItem> slot = null;
 
             if (i < transform.childCount)
             {
-                slot = transform.GetChild(i).GetComponent<ISlotUI>();
+                slot = transform.GetChild(i).GetComponent<IInteractiveView<StoredItem>>();
                 if (slot == null)
                 {
-                    slot = Instantiate(slotPrefab, transform).GetComponent<ISlotUI>();
+                    slot = Instantiate(slotPrefab, transform).GetComponent<IInteractiveView<StoredItem>>();
                 }
             }
             else
             {
-                slot = Instantiate(slotPrefab, transform).GetComponent<ISlotUI>();
+                slot = Instantiate(slotPrefab, transform).GetComponent<IInteractiveView<StoredItem>>();
             }
 
             if (slot != null)
@@ -94,7 +94,7 @@ public class SlotPanel : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             Transform child = transform.GetChild(i);
-            if (child.TryGetComponent<ISlotUI>(out _))
+            if (child.TryGetComponent<IInteractiveView<StoredItem>>(out _))
                 slotChildren.Add(child);
         }
 

@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 public class SlotEventBridge
 {
-    public event Action<SlotPanelEventArgs> MouseEntered;
-    public event Action<SlotPanelEventArgs> MouseExited;
-    public event Action<SlotPanelEventArgs> RightClicked;
-    public event Action<SlotPanelEventArgs> DragBegan;
-    public event Action<SlotPanelEventArgs> Dragging;
-    public event Action<SlotPanelEventArgs> DragEnded;
+    public event Action<ItemUIEventArgs> MouseEntered;
+    public event Action<ItemUIEventArgs> MouseExited;
+    public event Action<ItemUIEventArgs> RightClicked;
+    public event Action<ItemUIEventArgs> DragBegan;
+    public event Action<ItemUIEventArgs> Dragging;
+    public event Action<ItemUIEventArgs> DragEnded;
 
-    readonly List<SlotEventAggregator> sources = new List<SlotEventAggregator>();
+    readonly List<ItemPanelEventAggregator> sources = new List<ItemPanelEventAggregator>();
 
-    public void Subscribe(SlotEventAggregator newSource)
+    public void Subscribe(ItemPanelEventAggregator newSource)
     {
         if (newSource == null) return;
         if (sources.Contains(newSource)) return;
@@ -29,7 +29,7 @@ public class SlotEventBridge
         newSource.DragEnded += HandleDragEnded;
     }
 
-    public void UnSubscribe(SlotEventAggregator target)
+    public void UnSubscribe(ItemPanelEventAggregator target)
     {
         if (target == null) return;
         if (!sources.Contains(target)) return;
@@ -52,45 +52,45 @@ public class SlotEventBridge
         }
     }
     
-    void HandleMouseEntered(SlotPanelEventArgs e) => MouseEntered?.Invoke(e);
-    void HandleMouseExited(SlotPanelEventArgs e) => MouseExited?.Invoke(e);
-    void HandleRightClicked(SlotPanelEventArgs e) => RightClicked?.Invoke(e);
-    void HandleDragBegan(SlotPanelEventArgs e) => DragBegan?.Invoke(e);
-    void HandleDragging(SlotPanelEventArgs e) => Dragging?.Invoke(e);
-    void HandleDragEnded(SlotPanelEventArgs e) => DragEnded?.Invoke(e);
+    void HandleMouseEntered(ItemUIEventArgs e) => MouseEntered?.Invoke(e);
+    void HandleMouseExited(ItemUIEventArgs e) => MouseExited?.Invoke(e);
+    void HandleRightClicked(ItemUIEventArgs e) => RightClicked?.Invoke(e);
+    void HandleDragBegan(ItemUIEventArgs e) => DragBegan?.Invoke(e);
+    void HandleDragging(ItemUIEventArgs e) => Dragging?.Invoke(e);
+    void HandleDragEnded(ItemUIEventArgs e) => DragEnded?.Invoke(e);
 
     // 이벤트 추적용
-    // void HandleMouseEntered(SlotPanelEventArgs e)
+    // void HandleMouseEntered(ItemUIEventArgs e)
     // {
     //     Log.Info("MouseEnter");
     //     MouseEntered?.Invoke(e);
     // }
 
-    // void HandleMouseExited(SlotPanelEventArgs e)
+    // void HandleMouseExited(ItemUIEventArgs e)
     // {
     //     Log.Info("MouseExit");
     //     MouseExited?.Invoke(e);
     // }
 
-    // void HandleRightClicked(SlotPanelEventArgs e)
+    // void HandleRightClicked(ItemUIEventArgs e)
     // {
     //     Log.Info("RightClick");
     //     RightClicked?.Invoke(e);
     // }
 
-    // void HandleDragBegan(SlotPanelEventArgs e)
+    // void HandleDragBegan(ItemUIEventArgs e)
     // {
     //     Log.Info("DragBegin");
     //     DragBegan?.Invoke(e);
     // }
 
-    // void HandleDragging(SlotPanelEventArgs e)
+    // void HandleDragging(ItemUIEventArgs e)
     // {
     //     Log.Info("Dragging");
     //     Dragging?.Invoke(e);
     // }
 
-    // void HandleDragEnded(SlotPanelEventArgs e)
+    // void HandleDragEnded(ItemUIEventArgs e)
     // {
     //     Log.Info("DragEnd");
     //     DragEnded?.Invoke(e);

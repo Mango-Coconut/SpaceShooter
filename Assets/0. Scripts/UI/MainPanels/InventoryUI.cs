@@ -11,13 +11,13 @@ public class InventoryUI : MonoBehaviour
     public EquipSlotPanel EquipSlotPanel => equipSlotPanel;
 
     //구독 편하게 하기 용
-    protected SlotEventAggregator[] forwarders;
+    protected ItemPanelEventAggregator[] forwarders;
     SlotEventBridge slotEventBridge = new SlotEventBridge();
     public SlotEventBridge SlotEventBridge => slotEventBridge;
 
     void Awake()
     {
-        forwarders = GetComponentsInChildren<SlotEventAggregator>(true);
+        forwarders = GetComponentsInChildren<ItemPanelEventAggregator>(true);
     }
 
     void OnEnable()

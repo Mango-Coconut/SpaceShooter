@@ -955,9 +955,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6078687566521764039}
   - component: {fileID: 6078687566521764058}
+  - component: {fileID: 7830595953407281165}
   - component: {fileID: 6078687566521764059}
   - component: {fileID: 6078687566521764036}
-  - component: {fileID: 6321698672836589001}
   m_Layer: 5
   m_Name: ShopSlot
   m_TagString: Untagged
@@ -1007,6 +1007,18 @@ MonoBehaviour:
   totalCoin: {fileID: 6078687566903188532}
   buyButton: {fileID: 4168237834190863094}
   buyButtonText: {fileID: 6590308450945564030}
+--- !u!114 &7830595953407281165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6078687566521764032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 735dfdee9938c314db2e4f6e6720303c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &6078687566521764059
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1045,18 +1057,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6321698672836589001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6078687566521764032}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a434cc82a2ef174788ff1856dffa88e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6078687566896178885
 GameObject:
   m_ObjectHideFlags: 0

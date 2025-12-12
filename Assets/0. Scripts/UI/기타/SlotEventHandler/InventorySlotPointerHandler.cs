@@ -1,0 +1,1 @@
+public class InventorySlotPointerHandler : UIPointerHandler<StoredItem> { }

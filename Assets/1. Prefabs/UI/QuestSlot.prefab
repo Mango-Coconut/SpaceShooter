@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7281905459958522584}
   - component: {fileID: -900323221447668706}
+  - component: {fileID: 5650646878965041346}
   - component: {fileID: 8820617161207601188}
   - component: {fileID: 59278634854101946}
   m_Layer: 5
@@ -55,6 +56,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questTitle: {fileID: 8225736683873844828}
   questState: {fileID: 6795014565780620489}
+--- !u!114 &5650646878965041346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488389603949515617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 735dfdee9938c314db2e4f6e6720303c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &8820617161207601188
 CanvasRenderer:
   m_ObjectHideFlags: 0

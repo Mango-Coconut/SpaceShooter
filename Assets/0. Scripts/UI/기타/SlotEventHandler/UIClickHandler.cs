@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SlotClickHandler : MonoBehaviour,
+public class UIClickHandler : MonoBehaviour,
 IPointerClickHandler
 {
     public Func<StoredItem> GetItem;

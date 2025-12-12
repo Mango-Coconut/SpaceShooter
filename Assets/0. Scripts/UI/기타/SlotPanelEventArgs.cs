@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public readonly struct SlotPanelEventArgs
+public readonly struct ItemUIEventArgs
 {
-    public SlotPanelEventArgs(StoredItem item, StorageTarget source, RectTransform rect, PointerEventData pointer)
+    public ItemUIEventArgs(StoredItem item, StorageTarget source, RectTransform rect, PointerEventData pointer)
     {
         Item = item;
         Source = source;

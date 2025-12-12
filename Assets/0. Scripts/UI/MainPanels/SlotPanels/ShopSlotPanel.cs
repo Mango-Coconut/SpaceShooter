@@ -25,7 +25,7 @@ public class ShopSlotPanel : SlotPanel
     void SubscribeShopSlots()
     {
         UnsubscribeShopSlots();
-        foreach (ISlotUI slot in forwarder.Slots)
+        foreach (IInteractiveView<StoredItem> slot in forwarder.Views)
         {
             ShopSlot shopSlot = slot as ShopSlot;
             if (shopSlot == null) continue;
@@ -36,7 +36,7 @@ public class ShopSlotPanel : SlotPanel
 
     void UnsubscribeShopSlots()
     {
-        foreach (ISlotUI slot in forwarder.Slots)
+        foreach (IInteractiveView<StoredItem> slot in forwarder.Views)
         {
             ShopSlot shopSlot = slot as ShopSlot;
             if (shopSlot == null) continue;
@@ -51,7 +51,7 @@ public class ShopSlotPanel : SlotPanel
         
         SubscribeShopSlots();
         // 추가로 각 슬롯에 코인 정보 넘기기
-        foreach (ISlotUI slot in forwarder.Slots)
+        foreach (IInteractiveView<StoredItem> slot in forwarder.Views)
         {
             ShopSlot shopSlot = slot as ShopSlot;
             if (shopSlot != null)

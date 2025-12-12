@@ -99,10 +99,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4924103525559152049}
-  - component: {fileID: 4924103525559152051}
-  - component: {fileID: 4924103525559152050}
   - component: {fileID: 4924103525559152052}
-  - component: {fileID: 7535656321606744420}
+  - component: {fileID: -3081332367680528388}
+  - component: {fileID: 4924103525559152050}
+  - component: {fileID: 4924103525559152051}
   m_Layer: 5
   m_Name: QuestRewardSlot
   m_TagString: Untagged
@@ -131,14 +131,33 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &4924103525559152051
-CanvasRenderer:
+--- !u!114 &4924103525559152052
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4924103525559152048}
-  m_CullTransparentMesh: 1
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc3d59e17380e1d4782867db6468510b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasGroup: {fileID: 436084982341793332}
+  itemImage: {fileID: 4924103524445253260}
+  itemAmount: {fileID: 4841918982236685275}
+--- !u!114 &-3081332367680528388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4924103525559152048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 735dfdee9938c314db2e4f6e6720303c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4924103525559152050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,33 +188,14 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4924103525559152052
-MonoBehaviour:
+--- !u!222 &4924103525559152051
+CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4924103525559152048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc3d59e17380e1d4782867db6468510b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasGroup: {fileID: 436084982341793332}
-  itemImage: {fileID: 4924103524445253260}
-  itemAmount: {fileID: 4841918982236685275}
---- !u!114 &7535656321606744420
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4924103525559152048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a434cc82a2ef174788ff1856dffa88e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_CullTransparentMesh: 1
 --- !u!1 &8898703675991038054
 GameObject:
   m_ObjectHideFlags: 0

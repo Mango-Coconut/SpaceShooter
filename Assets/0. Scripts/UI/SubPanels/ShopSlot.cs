@@ -7,8 +7,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(SlotPointerHandler))]
-public class ShopSlot : MonoBehaviour, ISlotUI
+public class ShopSlot : MonoBehaviour, IUIInteraction
 {
     #region UI Child Components
     [SerializeField] CanvasGroup canvasGroup;
@@ -29,13 +28,14 @@ public class ShopSlot : MonoBehaviour, ISlotUI
     #endregion
 
     #region ISlotUI
-    public SlotPointerHandler PointerHandler { get; private set; }
-    public SlotClickHandler ClickHandler => null; // 상점은 안 씀
-    public SlotDragHandler DragHandler => null; // 상점은 안 씀
+    public UIPointerHandler<StoredItem> PointerHandler { get; private set; }
+    public UIClickHandler ClickHandler => null; // 상점은 안 씀
+    public UIDragHandler DragHandler => null; // 상점은 안 씀
     public RectTransform Rect { get; private set; }
     public GameObject GO => gameObject;
-    #endregion
 
+    UIPointerHandler IUIInteraction.PointerHandler => PointerHandler;
+    #endregion
 
     //구매 이벤트
     public event Action<StoredItem, int> BoughtItem;
@@ -46,8 +46,8 @@ public class ShopSlot : MonoBehaviour, ISlotUI
 
     void Awake()
     {
-        PointerHandler = GetComponent<SlotPointerHandler>();
-        PointerHandler.GetItem = () => enterItem;
+        PointerHandler = GetComponent<UIPointerHandler<StoredItem>>();
+        PointerHandler.GetData = () => enterItem;
         PointerHandler.GetRect = () => Rect;
         Rect = GetComponent<RectTransform>();
     }

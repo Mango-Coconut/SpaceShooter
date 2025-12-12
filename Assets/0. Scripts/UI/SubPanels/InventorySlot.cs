@@ -2,8 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(SlotPointerHandler))]
-public class InventorySlot : MonoBehaviour, ISlotUI
+public class InventorySlot : MonoBehaviour, IInteractiveView<StoredItem>
 {    
     #region UI Child Components
     [SerializeField] CanvasGroup canvasGroup;
@@ -13,29 +12,29 @@ public class InventorySlot : MonoBehaviour, ISlotUI
     #endregion 
 
 
-    #region ISlotUI
-    public SlotPointerHandler PointerHandler { get; private set; }
-    public SlotClickHandler ClickHandler { get; private set; }
-    public SlotDragHandler DragHandler { get; private set; }
+    #region IInteractiveView
+    public UIPointerHandler<StoredItem> PointerHandler { get; private set; }
+    public UIClickHandler ClickHandler { get; private set; } // TODO 제네릭화 하기
+    public UIDragHandler DragHandler { get; private set; } // TODO 제네릭화 하기
     public RectTransform Rect { get; private set; }
     public GameObject GO => gameObject;
     #endregion
 
     StoredItem enterItem;
     public StoredItem EnterItem => enterItem;
-    
 
+    UIPointerHandler IUIInteraction.PointerHandler => PointerHandler;
 
     void Awake()
     {
         Rect = GetComponent<RectTransform>();
-        PointerHandler = GetComponent<SlotPointerHandler>();
-        ClickHandler = GetComponent<SlotClickHandler>();
-        DragHandler = GetComponent<SlotDragHandler>();
+        PointerHandler = GetComponent<UIPointerHandler<StoredItem>>();
+        ClickHandler = GetComponent<UIClickHandler>();
+        DragHandler = GetComponent<UIDragHandler>();
 
         if (PointerHandler != null)
         {
-            PointerHandler.GetItem = () => enterItem;
+            PointerHandler.GetData = () => enterItem;
             PointerHandler.GetRect = () => Rect;
         }
 
