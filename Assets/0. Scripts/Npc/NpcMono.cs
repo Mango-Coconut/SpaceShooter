@@ -27,14 +27,6 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     [SerializeField] QuestData linkedQuest;   // 이 NPC가 주는 퀘스트 하나
 
-    // 대화를 어디서부터 시작할 지
-    [Header("Dialogue Start Nodes By QuestState")]
-    [SerializeField] string nodeLocked;        // 조건 부족 (레벨/선행퀘 등)
-    [SerializeField] string nodeCanAccept;     // 퀘스트 수락 가능한 상태
-    [SerializeField] string nodeInProgress;    // 진행 중
-    [SerializeField] string nodeReadyToTurnIn; // 완료 조건 충족 (보고만 하면 됨)
-    [SerializeField] string nodeCompleted;     // 이미 완료 후
-
     void Awake()
     {
         Core = new NpcCore(gameObject.name);
