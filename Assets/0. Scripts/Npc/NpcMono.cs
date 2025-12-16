@@ -1,6 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
-using Palmmedia.ReportGenerator.Core.Reporting.Builders;
 using UnityEngine;
 
 public class NpcMono : MonoBehaviour, IInteractable
@@ -10,15 +8,15 @@ public class NpcMono : MonoBehaviour, IInteractable
     public string InstanceId => instanceId;
 
     public NpcCore Core { get; private set; }
-    
+
     [SerializeField] Sprite icon;
 
     ShopInventory shopInventory;
     public ShopInventory ShopInventory => shopInventory;
-    
+
     Animator animator;
     PlayerController curPlayer;
-    
+
     // Interact시 발송할 이벤트
     [SerializeField] GameEventHub hub;
 
@@ -56,54 +54,85 @@ public class NpcMono : MonoBehaviour, IInteractable
     public event Action OpenShop;
     void OnEnable()
     {
-        Core.dialogueCore.OnCommand -= HandleCommand;
-        Core.dialogueCore.OnEnded -= HandleDialogueEnded;
-        Core.dialogueCore.OnCommand += HandleCommand;
-        Core.dialogueCore.OnEnded += HandleDialogueEnded;
+        BindCore();
     }
 
     void OnDisable()
     {
-        Core.dialogueCore.OnCommand -= HandleCommand;
-        Core.dialogueCore.OnEnded -= HandleDialogueEnded;
+        UnbindCore();
     }
 
-    void HandleDialogueEnded()
+    void BindCore()
+    {
+        Core.AttachDialogueEvents();
+        Core.BindQuestStateProvider(GetQuestState);
+
+        Core.OnDialogueEnded += HandleDialogueEndedFromCore;
+        Core.OnOpenShopRequested += HandleOpenShopRequested;
+        Core.OnStartQuestRequested += HandleStartQuestRequested;
+        Core.OnCompleteQuestRequested += HandleCompleteQuestRequested;
+        Core.OnEnterDialogueRequested += HandleEnterDialogueRequested;
+    }
+
+    void UnbindCore()
+    {
+        Core.DetachDialogueEvents();
+
+        Core.OnDialogueEnded -= HandleDialogueEndedFromCore;
+        Core.OnOpenShopRequested -= HandleOpenShopRequested;
+        Core.OnStartQuestRequested -= HandleStartQuestRequested;
+        Core.OnCompleteQuestRequested -= HandleCompleteQuestRequested;
+        Core.OnEnterDialogueRequested -= HandleEnterDialogueRequested;
+    }
+
+    QuestState GetQuestState(QuestData questData)
+    {
+        return QuestManager.Instance.GetQuestState(questData);
+    }
+
+    void HandleDialogueEndedFromCore()
     {
         if (curPlayer != null) curPlayer.InteractExit();
     }
 
-    void HandleCommand(DialogueCommand command, DialogueAsset nowAsset)
+    void HandleOpenShopRequested()
     {
-        switch (command.type)
+        if (shopInventory == null) return;
+        OpenShop?.Invoke();
+    }
+
+    void HandleStartQuestRequested(QuestData quest)
+    {
+        bool started = QuestManager.Instance.TryStartQuest(quest, this);
+        if (!started)
         {
-            case DialogueCommandType.None:
-                break;
-
-            case DialogueCommandType.OpenShop:
-                if (shopInventory == null)
-                {
-                    Debug.Log("shopInventory null"); return;
-                }
-                OpenShop?.Invoke();
-                break;
-            case DialogueCommandType.EnterNewDialogue:
-                HandleEnterNewDialogue(command.newAsset);
-                break;
-            case DialogueCommandType.StartQuest:
-                HandleStartQuest(nowAsset.questData);
-                break;
-
-            case DialogueCommandType.CompleteQuest:
-                HandleCompleteQuest(nowAsset.questData);
-                break;
+            Log.Warn("StartQuest failed: " + quest.title);
         }
     }
 
+    void HandleCompleteQuestRequested(QuestData quest)
+    {
+        bool completed = QuestManager.Instance.TryCompleteQuest(quest, this, curPlayer);
+        if (!completed)
+        {
+            Log.Warn("CompleteQuest failed: " + quest.title);
+        }
+    }
+
+    void HandleEnterDialogueRequested(DialogueAsset asset, string startNodeId)
+    {
+        if (asset.questData == null)
+        {
+            asset.questData = linkedQuest;
+        }
+
+        Core.Initialize(asset, startNodeId);
+    }
     #endregion
+    
     public void Interact(PlayerController pc)
     {
-        if(!CanInteract()) return;
+        if (!CanInteract()) return;
         Enter(pc);
     }
     public void Enter(PlayerController pc)
@@ -117,7 +146,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         hub.npc.RaiseEnter(this);
         Core.Initialize(dialogueAsset);
     }
-    
+
     public void Exit()
     {
         if (curPlayer == null || curPlayer.gate == null) return;
@@ -128,47 +157,6 @@ public class NpcMono : MonoBehaviour, IInteractable
 
         hub.npc.RaiseExit(this);
     }
-    
-    void HandleEnterNewDialogue(DialogueAsset newAsset)
-    {
-        if (newAsset.questData == null)
-        {
-            // 커맨드에서 안 넘겨줬으면, 이 NPC의 linkedQuest 사용
-            newAsset.questData = linkedQuest;
-            if (newAsset.questData == null) return;
-        }
-
-        QuestState state = QuestManager.Instance.GetQuestState(newAsset.questData);
-
-        // 최종 상태 기준으로 진입할 노드 고르기
-        if (newAsset.questData.questDialogue == null)
-            return;
-
-        string nodeId = newAsset.questData.GetNodeIdByState(state); 
-        Debug.Log($"state : {state}, nodeid : {nodeId}");
-
-        // 퀘스트 전용 대화 에셋으로 갈아타서, 해당 상태 노드로 진입
-        Core.Initialize(newAsset, nodeId);
-    }
-    void HandleStartQuest(QuestData quest)
-    {
-        bool started = QuestManager.Instance.TryStartQuest(quest, this);
-        if (!started)
-        {
-            Debug.Log("StartQuest failed: " + quest.title);
-        }
-    }
-
-    void HandleCompleteQuest(QuestData quest)
-    {
-        bool completed = QuestManager.Instance.TryCompleteQuest(quest, this, curPlayer);
-        if (!completed)
-        {
-            // Core.dialogueCore.GotoQuestCompleteFailedNode();
-            Debug.Log("CompleteQuest failed: " + quest.title);
-        }
-    }
-
 
     public void EnrollQuest(QuestData data)
     {
@@ -190,7 +178,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     {
         //Exit();
     }
-    
+
     public Sprite GetIcon() => icon;
 
     public (string inputKeyText, string behaviorText) GetPrompt() => ("F", "대화하기");
@@ -200,7 +188,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         NpcData data = new NpcData();
         data.instanceId = this.instanceId;
         //InventoryCore 재사용
-        if(shopInventory != null && shopInventory.Core != null)
+        if (shopInventory != null && shopInventory.Core != null)
         {
             data.inventory = shopInventory.Core.SaveData();
         }
@@ -210,7 +198,7 @@ public class NpcMono : MonoBehaviour, IInteractable
 
     public bool CanInteract()
     {
-        if(curPlayer != null) return false;
+        if (curPlayer != null) return false;
 
         return true;
     }

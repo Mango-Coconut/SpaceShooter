@@ -79,7 +79,7 @@ public class PanelManager : MonoBehaviour
         SubscribeHubEvent();
 
         //InteractPanel 이벤트
-        interactor.OnInteractorChange += HandleInteractorChange;
+        interactor.SelectedChanged += HandleInteractorChange;
     }
     void OnDisable()
     {
@@ -91,7 +91,7 @@ public class PanelManager : MonoBehaviour
         UnsubscribeAllUIs();
         UnSubscribeHubEvent();
 
-        interactor.OnInteractorChange -= HandleInteractorChange;
+        interactor.SelectedChanged -= HandleInteractorChange;
     }
 
     #region 이벤트 구독

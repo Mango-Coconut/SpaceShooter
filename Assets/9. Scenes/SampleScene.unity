@@ -1653,11 +1653,6 @@ MonoBehaviour:
   hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
   dialogueAsset: {fileID: 11400000, guid: c82c6fd63e4aebb4586cfa97e4cd8ab9, type: 2}
   linkedQuest: {fileID: 0}
-  nodeLocked: 
-  nodeCanAccept: 0
-  nodeInProgress: 1
-  nodeReadyToTurnIn: 3
-  nodeCompleted: 6
 --- !u!4 &241772280
 Transform:
   m_ObjectHideFlags: 0
@@ -2850,7 +2845,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: "\uBCF4\uAE09\uC0C1\uC790"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 02a2fa42464425546aa9ef319a5880c9, type: 2}
   m_sharedMaterial: {fileID: 2161589003588599745, guid: 02a2fa42464425546aa9ef319a5880c9, type: 2}
@@ -17511,11 +17506,6 @@ MonoBehaviour:
   hub: {fileID: 11400000, guid: d62b6c615e041e94bbf900e5c920725d, type: 2}
   dialogueAsset: {fileID: 11400000, guid: 10505caa6d0fcf044a92ef7ba4909be6, type: 2}
   linkedQuest: {fileID: 0}
-  nodeLocked: 
-  nodeCanAccept: 
-  nodeInProgress: 
-  nodeReadyToTurnIn: 
-  nodeCompleted: 
 --- !u!4 &1369810369
 Transform:
   m_ObjectHideFlags: 0

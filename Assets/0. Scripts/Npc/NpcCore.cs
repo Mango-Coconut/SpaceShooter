@@ -1,20 +1,47 @@
 using System;
-using System.Collections.Generic;
 
 public class NpcCore
 {
-    //추후에 역할 나누기
-
     public string NpcName { get; }
     public bool CanTalk { get; private set; } = true;
 
     public DialogueCore dialogueCore { get; private set; }
+
+    // 커맨드 "해석 결과"를 외부에 요청으로 알림
+    public event Action OnOpenShopRequested;
+    public event Action<QuestData> OnStartQuestRequested;
+    public event Action<QuestData> OnCompleteQuestRequested;
+    public event Action<DialogueAsset, string> OnEnterDialogueRequested; // asset + startNodeId
+    public event Action OnDialogueEnded;
+
+    // Quest 상태 조회는 Core가 직접 싱글톤 호출하지 말고, Mono가 주입해주는 콜백으로 받기(가벼운 DI)
+    Func<QuestData, QuestState> getQuestState;
+
     public NpcCore(string name)
     {
         NpcName = name;
         dialogueCore = new DialogueCore();
     }
-    
+
+    public void BindQuestStateProvider(Func<QuestData, QuestState> provider)
+    {
+        getQuestState = provider;
+    }
+
+    public void AttachDialogueEvents()
+    {
+        DetachDialogueEvents();
+
+        dialogueCore.OnCommand += HandleCommand;
+        dialogueCore.OnEnded += HandleEnded;
+    }
+
+    public void DetachDialogueEvents()
+    {
+        dialogueCore.OnCommand -= HandleCommand;
+        dialogueCore.OnEnded -= HandleEnded;
+    }
+
     public void Initialize(DialogueAsset asset, string startNodeId)
     {
         dialogueCore.Start(asset, startNodeId);
@@ -23,5 +50,56 @@ public class NpcCore
     public void Initialize(DialogueAsset asset)
     {
         Initialize(asset, null);
+    }
+
+    void HandleEnded()
+    {
+        OnDialogueEnded?.Invoke();
+    }
+
+    void HandleCommand(DialogueCommand command, DialogueAsset nowAsset)
+    {
+        if (command == null) return;
+
+        switch (command.type)
+        {
+            case DialogueCommandType.OpenShop:
+                OnOpenShopRequested?.Invoke();
+                break;
+
+            case DialogueCommandType.StartQuest:
+                if (nowAsset != null && nowAsset.questData != null)
+                {
+                    OnStartQuestRequested?.Invoke(nowAsset.questData);
+                }
+                break;
+
+            case DialogueCommandType.CompleteQuest:
+                if (nowAsset != null && nowAsset.questData != null)
+                {
+                    OnCompleteQuestRequested?.Invoke(nowAsset.questData);
+                }
+                break;
+
+            case DialogueCommandType.EnterNewDialogue:
+                RequestEnterNewDialogue(command, nowAsset);
+                break;
+        }
+    }
+
+    void RequestEnterNewDialogue(DialogueCommand command, DialogueAsset nowAsset)
+    {
+        DialogueAsset newAsset = command.newAsset;
+        if (newAsset == null) return;
+
+        string startNodeId = null;
+
+        if (newAsset.questData != null && newAsset.questData.questDialogue != null && getQuestState != null)
+        {
+            QuestState state = getQuestState(newAsset.questData);
+            startNodeId = newAsset.questData.GetNodeIdByState(state);
+        }
+
+        OnEnterDialogueRequested?.Invoke(newAsset, startNodeId);
     }
 }

@@ -15,13 +15,13 @@ public class Interactor : MonoBehaviour
     static readonly Collider[] buffer = new Collider[32];
 
 
-    public event Action<IInteractable> OnInteractorChange;
+    public event Action<IInteractable> SelectedChanged;
 
     public void Scan()
     {
         if(current != null)
         {
-            OnInteractorChange?.Invoke(null);
+            SelectedChanged?.Invoke(null);
             return;
         } 
 
@@ -68,14 +68,14 @@ public class Interactor : MonoBehaviour
             selected?.OnUnfocus();
             selected = best;
             selected?.OnFocus();
-            OnInteractorChange?.Invoke(selected);
+            SelectedChanged?.Invoke(selected);
         }
     }
 
 
     public bool Interact(PlayerController player)
     {
-        // 1) 사다리는 토글형 상호작용이 아니므로 current에 넣지 않는다.
+        // 사다리는 상호작용이 아닌 이동 상태로 취급, current에 넣지 않는다.
         Ladder ladder = selected as Ladder;
         if (ladder != null)
         {
@@ -105,7 +105,7 @@ public class Interactor : MonoBehaviour
     public void Clear()
     {
         selected = null;
-        OnInteractorChange?.Invoke(null);
+        SelectedChanged?.Invoke(null);
     }
 
     void OnDrawGizmos()

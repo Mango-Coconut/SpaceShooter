@@ -19,20 +19,20 @@ public class WorldInventoryMono : MonoBehaviour
         Core = new WorldInventoryCore();
 
         // Core -> Mono 이벤트 구독
-        Core.OnSpawnRequest += HandleSpawnItem;
-        Core.OnSpawnRequest_fromPlayer += HandleSpawnItem;
-        Core.OnSpawnRequest_fromLoad += HandleSpawnItem;
-        Core.OnDespawnRequest += HandleDespawnRequest;
+        Core.OnSpawnRequest += SpawnItem;
+        Core.OnSpawnRequest_fromPlayer += SpawnItem;
+        Core.OnSpawnRequest_fromLoad += SpawnItem;
+        Core.OnDespawnRequest += DespawnItem;
     }
 
     void OnDestroy()
     {
         if (Core != null)   
         {
-            Core.OnSpawnRequest -= HandleSpawnItem;
-            Core.OnSpawnRequest_fromPlayer -= HandleSpawnItem;
-            Core.OnSpawnRequest_fromLoad -= HandleSpawnItem;
-            Core.OnDespawnRequest -= HandleDespawnRequest;
+            Core.OnSpawnRequest -= SpawnItem;
+            Core.OnSpawnRequest_fromPlayer -= SpawnItem;
+            Core.OnSpawnRequest_fromLoad -= SpawnItem;
+            Core.OnDespawnRequest -= DespawnItem;
         }
     }
 
@@ -51,12 +51,12 @@ public class WorldInventoryMono : MonoBehaviour
     }
 
     #region 필드 아이템 생성
-    void HandleSpawnItem(StoredItem item)
+    void SpawnItem(StoredItem item)
     {
-        HandleSpawnItem(item, Vector3.zero, Vector3.zero);
+        SpawnItem(item, Vector3.zero, Vector3.zero);
     }
 
-    public void HandleSpawnItem(StoredItem item, Vector3 position, Vector3 rotationEuler)
+    public void SpawnItem(StoredItem item, Vector3 position, Vector3 rotationEuler)
     {
         if (item == null || item.itemData == null)
         {
@@ -68,10 +68,10 @@ public class WorldInventoryMono : MonoBehaviour
         newDrop.SetWorldInventory(this);
         Core.RegisterExistingDrop(newDrop);
     }
-    public void HandleSpawnItem(StoredItem item, Transform dropper)
+    public void SpawnItem(StoredItem item, Transform dropper)
     {
         //Dropper 앞에다 스폰
-        HandleSpawnItem(item, GetDropPosition(dropper), Vector3.zero);
+        SpawnItem(item, GetDropPosition(dropper), Vector3.zero);
     }
     Vector3 GetDropPosition(Transform t)
     {
@@ -85,7 +85,7 @@ public class WorldInventoryMono : MonoBehaviour
 
     #region 필드 아이템 제거
     // Core.TryRemoveItem() 에 의해 호출됨 = "줍힌 아이템 씬에서 없애줘"
-    void HandleDespawnRequest(DroppedItem di)
+    void DespawnItem(DroppedItem di)
     {
         if (di == null) return;
         Destroy(di.gameObject);
