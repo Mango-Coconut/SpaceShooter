@@ -95,27 +95,33 @@ public sealed class InventoryManager : MonoBehaviour
     {
         Unsubscribe();
 
-        if (hub != null)
+        if (hub == null) return;
+
+        if (hub.chest != null)
         {
-            if (hub.chest != null)
-            {
-                hub.chest.OnOpen += HandleSetChestInventory;
-                hub.chest.OnClose += HandleClearChestInventory;
-            }
-            if (hub.npc != null)
-            {
-                hub.npc.OnEnter += HandleSetNpcInventory;
-                hub.npc.OnExit += HandleClearNpcInventory;
-            }
+            hub.chest.OnOpen += HandleSetChestInventory;
+            hub.chest.OnClose += HandleClearChestInventory;
+        }
+
+        if (hub.npc != null)
+        {
+            hub.npc.OpenShop += HandleSetNpcInventory;
         }
     }
 
     void Unsubscribe()
     {
-        if (hub != null && hub.chest != null)
+        if (hub == null) return;
+
+        if (hub.chest != null)
         {
             hub.chest.OnOpen -= HandleSetChestInventory;
             hub.chest.OnClose -= HandleClearChestInventory;
+        }
+
+        if (hub.npc != null)
+        {
+            hub.npc.OpenShop -= HandleSetNpcInventory;
         }
     }
 
@@ -146,16 +152,16 @@ public sealed class InventoryManager : MonoBehaviour
     #endregion
 
     #region Npc inventory set
-    void HandleSetNpcInventory(NpcMono npc)
+    void HandleSetNpcInventory(ShopInventory newShopInventory)
     {
-        if(npc == null)
+        if(newShopInventory == null)
         {
             Log.Error($"NPC is null on Open");
             return;
         }
-        if(npc.ShopInventory == null) return;
+        if(newShopInventory == null) return;
         
-        shopInventoryMono = npc.ShopInventory;
+        shopInventoryMono = newShopInventory;
     }
 
     void HandleClearNpcInventory(NpcMono npc)

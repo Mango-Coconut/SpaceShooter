@@ -6,6 +6,8 @@ public class NpcEventChannel : ScriptableObject
 {
     public event Action<NpcMono> OnEnter;
     public event Action<NpcMono> OnExit;
-    public void RaiseEnter(NpcMono npc){ if(OnEnter!=null) OnEnter?.Invoke(npc); }
-    public void RaiseExit(NpcMono npc){ if(OnExit!=null) OnExit?.Invoke(npc); }
+    public event Action<ShopInventory> OpenShop;
+    public void RaiseEnter(NpcMono npc) => OnEnter?.Invoke(npc);
+    public void RaiseExit(NpcMono npc) => OnExit?.Invoke(npc);
+    public void RaiseOpenShop(ShopInventory shopInventory) => OpenShop?.Invoke(shopInventory);
 }

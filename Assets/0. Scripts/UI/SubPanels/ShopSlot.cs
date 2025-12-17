@@ -7,7 +7,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShopSlot : MonoBehaviour, IUIInteraction
+public class ShopSlot : MonoBehaviour, IInteractiveView<StoredItem>
 {
     #region UI Child Components
     [SerializeField] CanvasGroup canvasGroup;
@@ -134,4 +134,5 @@ public class ShopSlot : MonoBehaviour, IUIInteraction
     {
         BoughtItem?.Invoke(enterItem, (int)slider.value);
     }
+
 }

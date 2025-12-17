@@ -9,6 +9,10 @@ public class ShopUI : MonoBehaviour
     SlotEventBridge slotEventBridge = new SlotEventBridge();
     public SlotEventBridge SlotEventBridge => slotEventBridge;
 
+    void OnEnable()
+    {
+        slotEventBridge.Subscribe(shopSlotPanel.Forwarder);
+    }
     void OnDisable() 
     {
         slotEventBridge.UnSubscribe(shopSlotPanel.Forwarder);
@@ -18,6 +22,5 @@ public class ShopUI : MonoBehaviour
     {
         shopSlotPanel.SetInventory(inventory);
         shopSlotPanel.SetCoin(playerCoin);
-        slotEventBridge.Subscribe(shopSlotPanel.Forwarder);
     }
 }

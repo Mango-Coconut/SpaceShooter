@@ -51,7 +51,6 @@ public class NpcMono : MonoBehaviour, IInteractable
     }
 
     #region 이벤트
-    public event Action OpenShop;
     void OnEnable()
     {
         BindCore();
@@ -71,7 +70,6 @@ public class NpcMono : MonoBehaviour, IInteractable
         Core.OnOpenShopRequested += HandleOpenShopRequested;
         Core.OnStartQuestRequested += HandleStartQuestRequested;
         Core.OnCompleteQuestRequested += HandleCompleteQuestRequested;
-        Core.OnEnterDialogueRequested += HandleEnterDialogueRequested;
     }
 
     void UnbindCore()
@@ -82,7 +80,6 @@ public class NpcMono : MonoBehaviour, IInteractable
         Core.OnOpenShopRequested -= HandleOpenShopRequested;
         Core.OnStartQuestRequested -= HandleStartQuestRequested;
         Core.OnCompleteQuestRequested -= HandleCompleteQuestRequested;
-        Core.OnEnterDialogueRequested -= HandleEnterDialogueRequested;
     }
 
     QuestState GetQuestState(QuestData questData)
@@ -98,7 +95,7 @@ public class NpcMono : MonoBehaviour, IInteractable
     void HandleOpenShopRequested()
     {
         if (shopInventory == null) return;
-        OpenShop?.Invoke();
+        hub.npc.RaiseOpenShop(shopInventory);
     }
 
     void HandleStartQuestRequested(QuestData quest)
@@ -119,15 +116,6 @@ public class NpcMono : MonoBehaviour, IInteractable
         }
     }
 
-    void HandleEnterDialogueRequested(DialogueAsset asset, string startNodeId)
-    {
-        if (asset.questData == null)
-        {
-            asset.questData = linkedQuest;
-        }
-
-        Core.Initialize(asset, startNodeId);
-    }
     #endregion
     
     public void Interact(PlayerController pc)
@@ -144,7 +132,7 @@ public class NpcMono : MonoBehaviour, IInteractable
         curPlayer.gate.PushUI();
 
         hub.npc.RaiseEnter(this);
-        Core.Initialize(dialogueAsset);
+        Core.EnterDialogue(dialogueAsset);
     }
 
     public void Exit()

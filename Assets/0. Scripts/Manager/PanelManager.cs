@@ -132,6 +132,7 @@ public class PanelManager : MonoBehaviour
         {
             hub.npc.OnEnter += HandleNpcEnter;
             hub.npc.OnExit += HandleNpcExit;
+            hub.npc.OpenShop += HandleShopOpen;
         }
         if (hub != null && hub.chest != null)
         {
@@ -227,7 +228,6 @@ public class PanelManager : MonoBehaviour
         if (curNpc != null && curNpc != npc) HandleNpcExit(npc);
 
         curNpc = npc;
-        curNpc.OpenShop += HandleShopOpen;
 
         npcUI.gameObject.SetActive(true);
         npcUI.Bind(npc.Core.dialogueCore);
@@ -242,7 +242,6 @@ public class PanelManager : MonoBehaviour
         ShopClose();
         npcUI.Close();
 
-        curNpc.OpenShop -= HandleShopOpen;
         if (curNpc == npc) curNpc = null;
         
         interactUIController.Show();
@@ -250,12 +249,12 @@ public class PanelManager : MonoBehaviour
     #endregion
 
     #region ShopUI 열닫
-    void HandleShopOpen()
+    void HandleShopOpen(ShopInventory shopInventory)
     {
-        if (curNpc.ShopInventory == null) return;
+        if (shopInventory == null) return;
         if (IsOpen(shopUI.gameObject)) return;
         shopUI.gameObject.SetActive(true);
-        shopUI.Bind(curNpc.ShopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
+        shopUI.Bind(shopInventory, inventoryUI.SlotPanel.Inventory.Core.MyCoin);
         
         InventoryUIOpen();
     }

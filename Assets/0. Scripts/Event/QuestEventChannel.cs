@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "ScriptableObjects/Event/EventChannel/QuestEventChannel")]
 public class QuestEventChannel : ScriptableObject
 {   
-    // 퀘스트 상태 변화시마다
+    // QuestManager -> QuestUI
     public event Action<QuestInstance> OnQuestStateChanged;
     public void RaiseQuestStateChanged(QuestInstance instance)
     {

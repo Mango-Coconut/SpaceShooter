@@ -11,11 +11,9 @@ public class NpcCore
     public event Action OnOpenShopRequested;
     public event Action<QuestData> OnStartQuestRequested;
     public event Action<QuestData> OnCompleteQuestRequested;
-    public event Action<DialogueAsset, string> OnEnterDialogueRequested; // asset + startNodeId
     public event Action OnDialogueEnded;
 
-    // Quest 상태 조회는 Core가 직접 싱글톤 호출하지 말고, Mono가 주입해주는 콜백으로 받기(가벼운 DI)
-    Func<QuestData, QuestState> getQuestState;
+
 
     public NpcCore(string name)
     {
@@ -23,6 +21,8 @@ public class NpcCore
         dialogueCore = new DialogueCore();
     }
 
+    // Quest 상태 조회는 Core가 직접 싱글톤 호출하지 말고, Mono가 주입해주는 콜백으로 받기(가벼운 DI)
+    Func<QuestData, QuestState> getQuestState;
     public void BindQuestStateProvider(Func<QuestData, QuestState> provider)
     {
         getQuestState = provider;
@@ -42,14 +42,14 @@ public class NpcCore
         dialogueCore.OnEnded -= HandleEnded;
     }
 
-    public void Initialize(DialogueAsset asset, string startNodeId)
+    public void EnterDialogue(DialogueAsset asset, string startNodeId)
     {
         dialogueCore.Start(asset, startNodeId);
     }
 
-    public void Initialize(DialogueAsset asset)
+    public void EnterDialogue(DialogueAsset asset)
     {
-        Initialize(asset, null);
+        EnterDialogue(asset, null);
     }
 
     void HandleEnded()
@@ -82,24 +82,27 @@ public class NpcCore
                 break;
 
             case DialogueCommandType.EnterNewDialogue:
-                RequestEnterNewDialogue(command, nowAsset);
+                EnterNewDialogue(command, nowAsset);
                 break;
         }
     }
 
-    void RequestEnterNewDialogue(DialogueCommand command, DialogueAsset nowAsset)
+    void EnterNewDialogue(DialogueCommand command, DialogueAsset nowAsset)
     {
         DialogueAsset newAsset = command.newAsset;
         if (newAsset == null) return;
 
         string startNodeId = null;
 
+        // 새로 진입할 대화 에셋이 '퀘스트 전용 대화'라면,
+        // 해당 퀘스트의 진행도에 따라 다른 대화 시작 분기 적용
+        // NpcMono(getQuestState)가 있을 때만 가능
         if (newAsset.questData != null && newAsset.questData.questDialogue != null && getQuestState != null)
         {
             QuestState state = getQuestState(newAsset.questData);
             startNodeId = newAsset.questData.GetNodeIdByState(state);
         }
 
-        OnEnterDialogueRequested?.Invoke(newAsset, startNodeId);
+        dialogueCore.Start(newAsset, startNodeId);
     }
 }
