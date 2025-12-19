@@ -13,17 +13,18 @@ public class ShopInventory : InventoryMono
     void Start()
     {
         // 초기 아이템 등록
-        if (shopitems != null)
-        {
-            foreach (var item in shopitems)
+         if (shopitems == null) return;
+
+        for (int i = 0; i < shopitems.Length; i++)
             {
-                if (item.itemData == null)
-                {
-                    Log.Error($"shop에 아이템 지정하기 실패");
-                    break;
-                }
-                TryAddItem(item);
+            StoredItem item = shopitems[i];
+            if (item.itemData == null)
+            {
+                Log.Error($"ShopInventory 초기 아이템 누락: index={i}");
+                continue;
             }
+
+            TryAddItem(item);
         }
     }
 }
