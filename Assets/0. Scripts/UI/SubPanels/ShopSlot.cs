@@ -68,7 +68,6 @@ public class ShopSlot : MonoBehaviour, IInteractiveView<StoredItem>
         itemImageCount.text = enterItem.count.ToString();
         slider.maxValue = enterItem.count;
         sliderMaxCountText.text = enterItem.count.ToString();
-        Refresh();
     }
     
     public void SetPlayerCoin(int coin)

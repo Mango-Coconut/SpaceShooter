@@ -5,12 +5,7 @@ using UnityEngine.EventSystems;
 
 public abstract class PanelEventAggregator<T> : MonoBehaviour
 {
-    [Header("Options")]
-    [SerializeField] bool buildOnAwake = true;
-    [SerializeField] bool subscribeOnEnable = true;
-
     readonly List<IInteractiveView<T>> views = new List<IInteractiveView<T>>();
-
     public IEnumerable<IInteractiveView<T>> Views => views;
 
     public event Action<SlotEventArgs<T>> MouseEntered;
@@ -21,20 +16,10 @@ public abstract class PanelEventAggregator<T> : MonoBehaviour
     public event Action<SlotEventArgs<T>> Dragging;
     public event Action<SlotEventArgs<T>> DragEnded;
 
-    protected virtual void Awake()
-    {
-        if (buildOnAwake)
-        {
-            BuildViewList();
-        }
-    }
 
     protected virtual void OnEnable()
     {
-        if (subscribeOnEnable)
-        {
-            SubscribeViews();
-        }
+        SubscribeViews();
     }
 
     protected virtual void OnDisable()
@@ -42,28 +27,12 @@ public abstract class PanelEventAggregator<T> : MonoBehaviour
         UnsubscribeViews();
     }
 
-    protected void BuildViewList()
-    {
-        views.Clear();
 
-        // 인터페이스라 GetComponentsInChildren<IInteractiveView<T>>()가 안 먹을 수도 있으므로
-        // MonoBehaviour 전체 긁어서 캐스팅
-        MonoBehaviour[] found = GetComponentsInChildren<MonoBehaviour>(true);
-        for (int i = 0; i < found.Length; i++)
-        {
-            MonoBehaviour mb = found[i];
-            IInteractiveView<T> view = mb as IInteractiveView<T>;
-            if (view != null && views.Contains(view) == false)
-            {
-                views.Add(view);
-            }
-        }
-    }
-
-    public void RebuildViews()
+    public void RebuildViews(IEnumerable<IInteractiveView<T>> newViews)
     {
         UnsubscribeViews();
-        BuildViewList();
+        views.Clear();
+        views.AddRange(newViews);
         SubscribeViews();
     }
 

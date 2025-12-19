@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SlotPanel : MonoBehaviour
 {
-    [SerializeField] InventoryMono inventory;
+    [SerializeField] protected InventoryMono inventory;
     public InventoryMono Inventory => inventory;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] StorageTarget myStorageType;
@@ -13,9 +13,10 @@ public class SlotPanel : MonoBehaviour
 
     protected readonly List<IInteractiveView<StoredItem>> uiSlots = new List<IInteractiveView<StoredItem>>();
 
-    void Awake()
+    void EnsureGetComponent()
     {
-        forwarder = GetComponent<ItemPanelEventAggregator>();
+        if(forwarder != null) return;
+        else forwarder = GetComponent<ItemPanelEventAggregator>();
     }
 
     void OnEnable()
@@ -31,8 +32,13 @@ public class SlotPanel : MonoBehaviour
     {
         if (inventory == null) return;
 
-        SetInventory(inventory);
-        SubscribeInventory();
+        if (uiSlots.Count == 0)
+        {
+            SetInventory(inventory);
+            return;
+        }
+
+        Refresh();
     }
 
     protected virtual void OnPanelDisabled()
@@ -43,20 +49,21 @@ public class SlotPanel : MonoBehaviour
     #region 인벤토리 세팅 관련
 
     // 새로운 인벤토리 세팅
-    public void SetInventory(InventoryMono newInventory)
+    public virtual void SetInventory(InventoryMono newInventory)
     {
-        // 새 인벤토리 세팅
-        if (!ReferenceEquals(inventory, newInventory))
-        {
-            inventory = newInventory;
-            // 새로운 인벤토리 이벤트 구독
-            SubscribeInventory();
-        }
+        EnsureGetComponent();
+        if (ReferenceEquals(inventory, newInventory)) return;
 
-        // 슬롯 세팅
-        int capacity = inventory == null ? 0 : inventory.Capacity;
-        SetSlot(capacity);
+        // 이전 인벤 구독 정리
+        UnsubscribeInventory();
 
+        inventory = newInventory;
+        if (inventory == null) return;
+
+        SetSlot(inventory.Core.Capacity);         
+        
+        forwarder.RebuildViews(uiSlots);           
+        SubscribeInventory();                    
         Refresh();
     }
 
@@ -103,9 +110,6 @@ public class SlotPanel : MonoBehaviour
         {
             Destroy(slotChildren[i].gameObject);
         }
-
-        // 각 슬롯 이벤트 재 구독
-        forwarder.RebuildViews();
     }
 
 
