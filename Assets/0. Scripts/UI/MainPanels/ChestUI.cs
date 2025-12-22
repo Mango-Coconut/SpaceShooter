@@ -8,6 +8,7 @@ public class ChestUI : InventoryUI
         chestInventory = chest;
 
         SlotPanel.SetInventory(chest);
+        SlotPanel.Refresh();
         foreach (var forwarder in forwarders)
         {
             SlotEventBridge.Subscribe(forwarder);

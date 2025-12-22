@@ -62,14 +62,14 @@ public class PanelManager : MonoBehaviour
         RecountAndApply();
 
 
-        // inventoryUI.gameObject.SetActive(true);
-        // chestUI.gameObject.SetActive(true);
-        // shopUI.gameObject.SetActive(true);
-        // npcUI.gameObject.SetActive(true);
-        // inventoryUI.gameObject.SetActive(false);
-        // chestUI.gameObject.SetActive(false);
-        // shopUI.gameObject.SetActive(false);
-        // npcUI.gameObject.SetActive(false);
+        inventoryUI.gameObject.SetActive(true);
+        chestUI.gameObject.SetActive(true);
+        shopUI.gameObject.SetActive(true);
+        npcUI.gameObject.SetActive(true);
+        inventoryUI.gameObject.SetActive(false);
+        chestUI.gameObject.SetActive(false);
+        shopUI.gameObject.SetActive(false);
+        npcUI.gameObject.SetActive(false);
 
         
         // 이벤트 구독

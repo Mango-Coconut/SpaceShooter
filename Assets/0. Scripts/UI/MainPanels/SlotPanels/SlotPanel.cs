@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class SlotPanel : MonoBehaviour
 {
-    [SerializeField] protected InventoryMono inventory;
+    public InventoryMono inventory;
     public InventoryMono Inventory => inventory;
-    [SerializeField] private GameObject slotPrefab;
+    public GameObject slotPrefab;
     [SerializeField] StorageTarget myStorageType;
     [SerializeField] protected CoinPanel coinPanel;
     protected ItemPanelEventAggregator forwarder;
     public ItemPanelEventAggregator Forwarder => forwarder;
 
-    protected readonly List<IInteractiveView<StoredItem>> uiSlots = new List<IInteractiveView<StoredItem>>();
+    public readonly List<IInteractiveView<StoredItem>> uiSlots = new List<IInteractiveView<StoredItem>>();
 
-    void EnsureGetComponent()
+    protected void EnsureGetComponent()
     {
         if(forwarder != null) return;
         else forwarder = GetComponent<ItemPanelEventAggregator>();
@@ -32,12 +32,7 @@ public class SlotPanel : MonoBehaviour
     {
         if (inventory == null) return;
 
-        if (uiSlots.Count == 0)
-        {
-            SetInventory(inventory);
-            return;
-        }
-
+        SetInventory(inventory); // 같은 인벤이어도 복구 루틴을 타게
         Refresh();
     }
 
@@ -52,19 +47,37 @@ public class SlotPanel : MonoBehaviour
     public virtual void SetInventory(InventoryMono newInventory)
     {
         EnsureGetComponent();
-        if (ReferenceEquals(inventory, newInventory)) return;
 
-        // 이전 인벤 구독 정리
+        if (ReferenceEquals(inventory, newInventory))
+        {
+            // 같은 인벤이라도, Enable/Disable로 구독이 끊겼을 수 있으니
+            // 여기서 "복구"는 허용하는 게 안전함
+            EnsureUI();
+            SubscribeInventory(); // 멱등이면 OK
+            return;
+        }
+
         UnsubscribeInventory();
 
         inventory = newInventory;
+
+        EnsureUI();
+        SubscribeInventory();
+    }
+
+    // UI 상태 재정리
+    void EnsureUI()
+    {
         if (inventory == null) return;
 
-        SetSlot(inventory.Core.Capacity);         
-        
-        forwarder.RebuildViews(uiSlots);           
-        SubscribeInventory();                    
-        Refresh();
+        int target = inventory.Core.Capacity;
+
+        if (uiSlots.Count != target)
+        {
+            SetSlot(target);
+        }
+
+        forwarder.RebuildViews(uiSlots);
     }
 
     // 인벤토리 세팅 시 슬롯UI 재생성

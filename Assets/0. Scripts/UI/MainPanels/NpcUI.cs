@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,7 +19,6 @@ public class NpcUI : MonoBehaviour
 
     void OnEnable()
     {
-        slotEventBridge.Subscribe(rewardSlotPanel.Forwarder);
     }
 
     void OnDisable()
@@ -69,9 +69,11 @@ public class NpcUI : MonoBehaviour
         {
             rewardSlotPanel.gameObject.SetActive(true);
             rewardSlotPanel.ShowRewards(boundDialogue.asset.questData.reward);
+            slotEventBridge.Subscribe(rewardSlotPanel.Forwarder);
         }
         else
         {
+            slotEventBridge.UnSubscribe(rewardSlotPanel.Forwarder);
             rewardSlotPanel.gameObject.SetActive(false);
         }
     }

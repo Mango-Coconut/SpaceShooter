@@ -21,7 +21,7 @@ public class ShopUI : MonoBehaviour
     public void Bind(ShopInventory inventory, int playerCoin)
     {
         shopSlotPanel.SetInventory(inventory);
-        shopSlotPanel.SubscribeShopSlots();
         shopSlotPanel.SetCoin(playerCoin);
+        shopSlotPanel.Refresh();
     }
 }

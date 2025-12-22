@@ -23,6 +23,7 @@ public class EquipSlotPanel : MonoBehaviour
     void Awake()
     {
         forwarder = GetComponent<ItemPanelEventAggregator>();
+        forwarder.RebuildViews(fixedSlots);
     }
 
 
