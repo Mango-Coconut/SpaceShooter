@@ -14,12 +14,18 @@ public class SlotEventBridge
 
     public void Subscribe(ItemPanelEventAggregator newSource)
     {
-        if (newSource == null) return;
-        if (sources.Contains(newSource)) return;
-
+        if (newSource == null)
+        {
+            Log.Info($"Don't Subscribe because ItemPanelEventAggregator null ");
+            return;
+        }
         UnSubscribe(newSource);
 
-        sources.Add(newSource);
+        if (!sources.Contains(newSource))
+        {
+            sources.Add(newSource);
+        }
+
 
         newSource.ItemMouseEntered += HandleMouseEntered;
         newSource.ItemMouseExited += HandleMouseExited;
@@ -31,8 +37,11 @@ public class SlotEventBridge
 
     public void UnSubscribe(ItemPanelEventAggregator target)
     {
-        if (target == null) return;
-        if (!sources.Contains(target)) return;
+        if (target == null)
+        {
+            Log.Info($"Don't UnSubscribe because ItemPanelEventAggregator null ");
+            return;
+        } 
 
         target.ItemMouseEntered -= HandleMouseEntered;
         target.ItemMouseExited -= HandleMouseExited;

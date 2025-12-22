@@ -94,7 +94,7 @@ public class ItemPanelEventAggregator : PanelEventAggregator<StoredItem>
         }
 
         SlotPanelEventArgs args = new SlotPanelEventArgs(e, source);
-        ItemDragBegan.Invoke(args);
+        ItemDragBegan?.Invoke(args);
     }
 
     void HandleDragging(SlotEventArgs<StoredItem> e)

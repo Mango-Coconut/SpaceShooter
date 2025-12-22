@@ -62,14 +62,14 @@ public class PanelManager : MonoBehaviour
         RecountAndApply();
 
 
-        // inventoryUI.gameObject.SetActive(true);
-        // chestUI.gameObject.SetActive(true);
-        // shopUI.gameObject.SetActive(true);
-        // npcUI.gameObject.SetActive(true);
-        // inventoryUI.gameObject.SetActive(false);
-        // chestUI.gameObject.SetActive(false);
-        // shopUI.gameObject.SetActive(false);
-        // npcUI.gameObject.SetActive(false);
+        inventoryUI.gameObject.SetActive(true);
+        chestUI.gameObject.SetActive(true);
+        shopUI.gameObject.SetActive(true);
+        npcUI.gameObject.SetActive(true);
+        inventoryUI.gameObject.SetActive(false);
+        chestUI.gameObject.SetActive(false);
+        shopUI.gameObject.SetActive(false);
+        npcUI.gameObject.SetActive(false);
 
         
         // 이벤트 구독
@@ -191,8 +191,6 @@ public class PanelManager : MonoBehaviour
     #region ChestUI 열닫
     void HandleChestOpen(Chest c)
     {
-        if (curChest != null && curChest != c) HandleChestClose(curChest);
-
         //ui 열기(인벤토리, 상자 모두)
         InventoryUIOpen();
         chestUI.gameObject.SetActive(true);
