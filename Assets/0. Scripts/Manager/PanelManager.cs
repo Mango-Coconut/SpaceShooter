@@ -191,8 +191,6 @@ public class PanelManager : MonoBehaviour
     #region ChestUI 열닫
     void HandleChestOpen(Chest c)
     {
-        if (curChest != null && curChest != c) HandleChestClose(curChest);
-
         //ui 열기(인벤토리, 상자 모두)
         InventoryUIOpen();
         chestUI.gameObject.SetActive(true);
